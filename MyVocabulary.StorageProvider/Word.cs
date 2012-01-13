@@ -6,8 +6,10 @@ namespace MyVocabulary.StorageProvider
     {
         #region Ctors
         
-        public Word()
+        public Word(string word, WordType type)
         {
+            WordRaw = word;
+            Type = type;
         }
         
         #endregion
