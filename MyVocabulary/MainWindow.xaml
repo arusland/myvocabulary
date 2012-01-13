@@ -3,6 +3,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="260" Width="525">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
         
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <TabControl>
+            <TabItem Header="Known">
+                
+            </TabItem>
+            <TabItem Header="Bad Known">
+
+            </TabItem>
+            <TabItem Header="Unknown">
+
+            </TabItem>            
+        </TabControl>
     </Grid>
 </Window>
