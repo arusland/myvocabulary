@@ -16,7 +16,7 @@ namespace MyVocabulary.StorageProvider
         
         #region Public
 
-        public string Word
+        public string WordRaw
         {
             get;
             private set;
