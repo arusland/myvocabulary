@@ -14,11 +14,38 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock x:Name="TextBlockStatus"
+                       Grid.Row="1"
+                       Margin="5"
+                       FontWeight="Bold"
+                       Text="Selected 5 words" />
+
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <Button x:Name="ButtonToKnown"
+                        Width="100"
+                        Margin="5"
+                        Content="Make Known" />
+                <Button x:Name="ButtonToBadKnown"
+                        Width="100"
+                        Margin="5"
+                        Content="Make Bad Known" />
+                <Button x:Name="ButtonToUnknown"
+                        Width="100"
+                        Margin="5"
+                        Content="Make Unknown" />
+            </StackPanel>
+        </Grid>
+
         <ScrollViewer Grid.Row="1"
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
-            <WrapPanel Orientation="Horizontal" x:Name="WrapPanelMain">
-            </WrapPanel>
+            <WrapPanel x:Name="WrapPanelMain" Orientation="Horizontal" />
         </ScrollViewer>
     </Grid>
 </UserControl>

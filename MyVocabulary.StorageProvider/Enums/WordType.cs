@@ -5,10 +5,10 @@ namespace MyVocabulary.StorageProvider.Enums
     {
         None = 0,
 
-        Learned = 1,
+        Known = 1,
 
-        BadLearned = 2,
+        BadKnown = 2,
 
-        NotLearned = 3
+        Unknown = 3
     }
 }

@@ -14,5 +14,7 @@ namespace MyVocabulary.StorageProvider
         void Update(IEnumerable<Word> words);
 
         void Delete(IEnumerable<Word> words);
+
+        void Save();
     }
 }

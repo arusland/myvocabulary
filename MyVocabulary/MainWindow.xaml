@@ -14,13 +14,13 @@
         </Grid.RowDefinitions>
         
         <TabControl>
-            <TabItem Header="Known">
-                <ctrl:WordListControl/>
-            </TabItem>
-            <TabItem Header="Bad Known">
+            <TabItem Header="Bad Known" x:Name="TabItemBadKnown">
 
             </TabItem>
-            <TabItem Header="Unknown">
+            <TabItem Header="Known" x:Name="TabItemKnown">
+                
+            </TabItem>            
+            <TabItem Header="Unknown" x:Name="TabItemUnknown">
 
             </TabItem>            
         </TabControl>
