@@ -60,7 +60,6 @@ namespace Shared.Extensions
             return nodeChild.InnerText;
         }
 
-
         public static string GetNodeValue(this XmlElement node)
         {
             var nodeChild = node.SelectSingleNode("value");
