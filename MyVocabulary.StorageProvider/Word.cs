@@ -1,4 +1,5 @@
-﻿using MyVocabulary.StorageProvider.Enums;
+﻿using Shared.Helpers;
+using MyVocabulary.StorageProvider.Enums;
 
 namespace MyVocabulary.StorageProvider
 {
@@ -8,6 +9,9 @@ namespace MyVocabulary.StorageProvider
         
         public Word(string word, WordType type)
         {
+            Checker.NotNullOrEmpty(word, "word");
+            Checker.AreNotEqual(WordType.None, type);
+
             WordRaw = word;
             Type = type;
         }

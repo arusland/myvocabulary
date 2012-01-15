@@ -12,6 +12,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid>
@@ -39,6 +40,10 @@
                         Width="100"
                         Margin="5"
                         Content="Make Unknown" />
+                <Button x:Name="ButtonDelete"
+                        Width="100"
+                        Margin="5"
+                        Content="Delete" />
             </StackPanel>
         </Grid>
 
@@ -47,5 +52,13 @@
                       VerticalScrollBarVisibility="Auto">
             <WrapPanel x:Name="WrapPanelMain" Orientation="Horizontal" />
         </ScrollViewer>
+
+
+        <Grid Grid.Row="2">
+            <TextBlock Margin="5">
+              <Hyperlink x:Name="HyperLinkSelectAll" Click="HyperLinkSelectAll_Click">Select all</Hyperlink>
+              <Hyperlink x:Name="HyperLinkDeselectAll" Click="HyperLinkDeselectAll_Click">Deselect all</Hyperlink>
+            </TextBlock>
+        </Grid>
     </Grid>
 </UserControl>

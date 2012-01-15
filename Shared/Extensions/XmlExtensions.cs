@@ -10,7 +10,7 @@ namespace Shared.Extensions
 
         #region Public
 
-        public static XmlElement AddNode(this XmlElement node, string name, string value = null)
+        public static XmlElement AddNode(this XmlNode node, string name, string value = null)
         {
             var result = node.OwnerDocument.CreateElement(name);
 
@@ -24,7 +24,17 @@ namespace Shared.Extensions
             return result;
         }
 
-        public static string GetAttribute(this XmlElement node, string attrName)
+        public static XmlNode AddAttribute(this XmlNode node, string name, string value)
+        {
+            var attr = node.OwnerDocument.CreateAttribute(name);
+            attr.Value = value;
+
+            var result = node.Attributes.Append(attr);
+
+            return node;
+        }
+
+        public static string GetAttribute(this XmlNode node, string attrName)
         {
             var result = GetAttributeSafe(node, attrName);
 
@@ -36,7 +46,7 @@ namespace Shared.Extensions
             return result;
         }
 
-        public static string GetAttributeSafe(this XmlElement node, string attrName)
+        public static string GetAttributeSafe(this XmlNode node, string attrName)
         {
             XmlAttribute attr = node.Attributes[attrName];
 
@@ -48,7 +58,7 @@ namespace Shared.Extensions
             return string.Empty;
         }
 
-        public static string GetNodeValue(this XmlElement node, string nodeName)
+        public static string GetNodeValue(this XmlNode node, string nodeName)
         {
             var nodeChild = node.SelectSingleNode(nodeName);
 
@@ -60,7 +70,7 @@ namespace Shared.Extensions
             return nodeChild.InnerText;
         }
 
-        public static string GetNodeValue(this XmlElement node)
+        public static string GetNodeValue(this XmlNode node)
         {
             var nodeChild = node.SelectSingleNode("value");
 

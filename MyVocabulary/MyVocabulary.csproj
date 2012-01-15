@@ -111,6 +111,10 @@
       <Project>{278B9512-5034-492E-B456-992443B1DA0D}</Project>
       <Name>MyVocabulary.StorageProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Shared\Shared.csproj">
+      <Project>{37644A9B-2A8A-43F5-A796-CBF4C66F6B5E}</Project>
+      <Name>Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

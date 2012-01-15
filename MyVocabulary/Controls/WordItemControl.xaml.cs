@@ -22,7 +22,7 @@ namespace MyVocabulary.Controls
         
         #region Public
         
-        public bool IsCheacked
+        public bool IsChecked
         {
             get
             {

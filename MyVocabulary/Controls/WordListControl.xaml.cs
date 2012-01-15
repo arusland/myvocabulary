@@ -1,4 +1,5 @@
 ﻿using System;
+using Shared.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -87,6 +88,20 @@ namespace MyVocabulary.Controls
         }
         
         #endregion
+
+        #endregion
+
+        #region Event Handlers
+
+        private void HyperLinkSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p => p.IsChecked = true);
+        }
+
+        private void HyperLinkDeselectAll_Click(object sender, RoutedEventArgs e)
+        {
+            WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p => p.IsChecked = false);
+        }
         
         #endregion
     }
