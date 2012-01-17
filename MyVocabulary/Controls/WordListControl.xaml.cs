@@ -65,7 +65,21 @@ namespace MyVocabulary.Controls
 
         #endregion
 
-        #region Methods
+        #region Methods  
+      
+        #region Public
+
+        public void Activate()
+        {
+            MessageBox.Show("Activate: " + _Type.ToString());
+        }
+
+        public void Deactivate()
+        {
+            MessageBox.Show("Deactivate: " + _Type.ToString());
+        }
+        
+        #endregion
         
         #region Private
         

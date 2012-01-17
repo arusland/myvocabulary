@@ -13,7 +13,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <TabControl>
+        <TabControl x:Name="TabControlMain">
             <TabItem Header="Bad Known" x:Name="TabItemBadKnown">
 
             </TabItem>

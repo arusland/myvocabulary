@@ -4,8 +4,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:l="clr-namespace:MyVocabulary.Controls"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             d:DesignHeight="298"
-             d:DesignWidth="597"
+             d:DesignHeight="422"
+             d:DesignWidth="802"
              mc:Ignorable="d">
 
     <Grid>
