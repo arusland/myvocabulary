@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using MyVocabulary.StorageProvider.Enums;
+using System.Linq;
 using System.Xml;
+using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
 
@@ -22,6 +22,21 @@ namespace MyVocabulary.StorageProvider
         public XmlWordsStorageProvider()
         {
             _AllWords = new List<Word>();
+
+            _AllWords.AddRange(new List<Word>() 
+            { 
+                new Word("hello", WordType.Known), 
+                new Word("world", WordType.Known) ,
+                new Word("just", WordType.Known) ,
+                new Word("cat", WordType.Known) ,
+                new Word("cat", WordType.Known) ,
+                new Word("cat", WordType.Known) ,
+                new Word("cat", WordType.Known) ,
+                new Word("cat", WordType.Known) ,
+                new Word("cat", WordType.Known) ,
+                new Word("cat", WordType.Known) ,
+                new Word("dog", WordType.Known) 
+            });
         }
         
         #endregion
@@ -44,6 +59,7 @@ namespace MyVocabulary.StorageProvider
 
             doc.Load(filename);
 
+            _AllWords.Clear();
             _AllWords.AddRange(doc.DocumentElement.SelectNodes("Words/Item").OfType<XmlNode>().Select(p => LoadFromXml(p)));
         }
         

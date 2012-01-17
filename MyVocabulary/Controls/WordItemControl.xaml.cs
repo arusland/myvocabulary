@@ -1,7 +1,9 @@
-﻿using System.Windows.Controls;
-using MyVocabulary.StorageProvider;
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
-using System;
+using MyVocabulary.StorageProvider;
+using Shared.Extensions;
 
 namespace MyVocabulary.Controls
 {
@@ -12,6 +14,8 @@ namespace MyVocabulary.Controls
         public WordItemControl(Word word)
         {
             InitializeComponent();
+
+            Word = word;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             CheckBoxMain.Content = word.WordRaw;
         }
@@ -21,6 +25,12 @@ namespace MyVocabulary.Controls
         #region Properties
         
         #region Public
+
+        public Word Word
+        {
+            get;
+            private set;
+        }
         
         public bool IsChecked
         {
@@ -46,9 +56,9 @@ namespace MyVocabulary.Controls
 
         #region Event Handlers
 
-        private void CheckBoxMain_Checked(object sender, System.Windows.RoutedEventArgs e)
+        private void CheckBoxMain_Checked(object sender, RoutedEventArgs e)
         {
-
+            OnChecked.DoIfNotNull(p => p(this, EventArgs.Empty));
         }
         
         #endregion

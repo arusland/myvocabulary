@@ -55,6 +55,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Operation.cs" />
+    <Compile Include="WordListProvider.cs" />
+    <Compile Include="WordsOperationEventsArgs.cs" />
     <Page Include="Controls\WordItemControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

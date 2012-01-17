@@ -13,7 +13,8 @@
                 <CheckBox x:Name="CheckBoxMain"
                           Margin="3"
                           Checked="CheckBoxMain_Checked"
-                          Content="some word" />
+                          Content="some word"
+                          Unchecked="CheckBoxMain_Checked" />
             </StackPanel>
         </Border>
     </Grid>

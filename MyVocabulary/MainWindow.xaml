@@ -2,27 +2,23 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ctrl="clr-namespace:MyVocabulary.Controls"
-        Title="MainWindow" Height="307" Width="532">
+        Title="MainWindow"
+        Width="819"
+        Height="442" WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
         <TabControl x:Name="TabControlMain">
-            <TabItem Header="Bad Known" x:Name="TabItemBadKnown">
-
-            </TabItem>
-            <TabItem Header="Known" x:Name="TabItemKnown">
-                
-            </TabItem>            
-            <TabItem Header="Unknown" x:Name="TabItemUnknown">
-
-            </TabItem>            
+            <TabItem x:Name="TabItemBadKnown" Header="Bad Known" />
+            <TabItem x:Name="TabItemKnown" Header="Known" />
+            <TabItem x:Name="TabItemUnknown" Header="Unknown" />
         </TabControl>
     </Grid>
 </Window>

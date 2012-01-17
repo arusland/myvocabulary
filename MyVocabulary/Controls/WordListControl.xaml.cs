@@ -1,87 +1,151 @@
 ﻿using System;
-using Shared.Extensions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
+using Shared.Extensions;
+using Shared.Helpers;
 
 namespace MyVocabulary.Controls
 {
-    public partial class WordListControl : UserControl
+    internal partial class WordListControl : UserControl
     {
         #region Fields
 
-        private readonly IWordsStorageProvider _Provider;
+        private readonly IWordListProvider _Provider;
         private readonly WordType _Type;
+        private bool _IsModified;
+        private int _SelectedCount;
         
         #endregion
 
         #region Ctors
 
-        public WordListControl(IWordsStorageProvider provider, WordType type)
+        public WordListControl(IWordListProvider provider, WordType type)
         {
+            Checker.NotNull(provider, "provider");
+            Checker.AreNotEqual(WordType.None, type);
+
             InitializeComponent();
 
+            TextBlockStatus.Text = string.Empty;
+
+            _SelectedCount = 0;
             _Provider = provider;
             _Type = type;
-
-            var items = new List<Word>() 
-            { 
-                new Word("hello", WordType.Known), 
-                new Word("world", WordType.Known) ,
-                new Word("just", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("dog", WordType.Known) 
-            };
-
-            foreach (var item in items)
-            {
-                WrapPanelMain.Children.Add(new WordItemControl(item));
-            }
-
+            IsModified = true;
+           
             InitControls();
-
-            //for (int i = 0; i < 5000;i++)
-            //{
-            //    WrapPanelMain.Children.Add(new WordItemControl(new Word("kisa-" + i.ToString(), WordType.Learned)));
-            //}
         }
 
         #endregion
 
-        #region Methods  
-      
+        #region Properties
+        
+        #region Public
+
+        public bool IsModified
+        {
+            get { return _IsModified; }
+            set { _IsModified = value; }
+        }
+
+        public int SelectedCount
+        {
+            get { return _SelectedCount; }
+            set { _SelectedCount = value; }
+        }
+
+        #endregion
+
+        #region Private
+        
+        private IEnumerable<WordItemControl> AllControls
+        {
+            get
+            {
+                return WrapPanelMain.Children.OfType<WordItemControl>();
+            }
+        }
+        
+        #endregion
+
+        #endregion
+
+        #region Methods
+
         #region Public
 
         public void Activate()
         {
-            MessageBox.Show("Activate: " + _Type.ToString());
+            if (IsModified)
+            {
+                IsModified = false;
+                LoadItems();
+            }
         }
 
         public void Deactivate()
         {
-            MessageBox.Show("Deactivate: " + _Type.ToString());
+            //MessageBox.Show("Deactivate: " + _Type.ToString());
+        }
+
+        public void LoadItems()
+        {
+            WrapPanelMain.Children.Clear();
+            foreach (var item in _Provider.Get())
+            {
+                WrapPanelMain.Children.Add(new WordItemControl(item).Duck(p =>
+                {
+                    p.OnChecked += Control_OnChecked;
+                }));
+            }
         }
         
         #endregion
         
-        #region Private
+        #region Private        
+
+        private Operation FromButton(Button button)
+        {
+            if (button == ButtonToKnown)
+            {
+                return Operation.MakeKnown;
+            }
+            else if (button == ButtonToBadKnown)
+            {
+                return Operation.MakeBadKnown;                     
+            }
+            else if (button == ButtonToUnknown)
+            {
+                return Operation.MakeUnknown;                     
+            }
+            else if (button == ButtonDelete)
+            {
+                return Operation.Delete;
+            }
+            else
+            {
+                throw new InvalidOperationException("Unsupported Operation: " + button.Content.IfNull(() => string.Empty));
+            }
+        }
+
+        private void Control_OnChecked(object sender, EventArgs e)
+        {
+            var ctrl = sender.To<WordItemControl>();
+
+            if (ctrl.IsChecked)
+            {
+                _SelectedCount++;
+            }
+            else
+            {
+                _SelectedCount--;
+            }
+
+            TextBlockStatus.Text = _SelectedCount > 0 ? string.Format("Selected {0} word(s)", _SelectedCount) : string.Empty;
+        }
         
         private void InitControls()
         {
@@ -100,21 +164,43 @@ namespace MyVocabulary.Controls
                     throw new InvalidOperationException("Unsupported wordtype: " + _Type.ToString());
             }
         }
+
+        private void DoOnOperationEvent(Operation operation)
+        {
+            if (OnOperation.IsNotNull())
+            {
+                var words = AllControls.Where(p => p.IsChecked).Select(p => p.Word).ToList();
+                OnOperation(this, new WordsOperationEventsArgs(words, operation));
+            }
+        }
         
         #endregion
 
+        #endregion
+
+        #region Events
+
+        public event EventHandler<WordsOperationEventsArgs> OnOperation;
+        
         #endregion
 
         #region Event Handlers
 
         private void HyperLinkSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p => p.IsChecked = true);
+            AllControls.CallOnEach(p => p.IsChecked = true);
         }
 
         private void HyperLinkDeselectAll_Click(object sender, RoutedEventArgs e)
         {
-            WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p => p.IsChecked = false);
+            AllControls.CallOnEach(p => p.IsChecked = false);
+        }
+
+        private void ButtonOperation_Click(object sender, RoutedEventArgs e)
+        {
+            var op = FromButton(sender.To<Button>());
+
+            DoOnOperationEvent(op);
         }
         
         #endregion

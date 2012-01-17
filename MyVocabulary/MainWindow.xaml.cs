@@ -1,8 +1,9 @@
-﻿using Shared.Extensions;
-using System.Windows;
-using MyVocabulary.Controls;
-using MyVocabulary.StorageProvider.Enums;
+﻿using System.Windows;
 using System.Windows.Controls;
+using MyVocabulary.Controls;
+using MyVocabulary.StorageProvider;
+using MyVocabulary.StorageProvider.Enums;
+using Shared.Extensions;
 
 namespace MyVocabulary
 {
@@ -12,6 +13,7 @@ namespace MyVocabulary
 
         private readonly bool _Inited;
         private WordListControl _LastControl;
+        private readonly XmlWordsStorageProvider _Provider;
         
         #endregion
 
@@ -21,9 +23,11 @@ namespace MyVocabulary
         {
             InitializeComponent();
 
-            TabItemBadKnown.Content = new WordListControl(null, WordType.BadKnown);
-            TabItemKnown.Content = new WordListControl(null, WordType.Known);
-            TabItemUnknown.Content = new WordListControl(null, WordType.Unknown);
+            _Provider = new XmlWordsStorageProvider();
+
+            TabItemBadKnown.Content = CreateListControl(WordType.BadKnown);
+            TabItemKnown.Content = CreateListControl(WordType.Known);
+            TabItemUnknown.Content = CreateListControl(WordType.Unknown);
 
             TabControlMain.SelectionChanged += TabControlMain_SelectionChanged;
 
@@ -32,7 +36,33 @@ namespace MyVocabulary
         
         #endregion
 
+        #region Methods
+        
+        #region Private
+        
+        private WordListProvider CreateProvider(WordType type)
+        {
+            return new WordListProvider(_Provider, type);
+        }
+
+        private WordListControl CreateListControl(WordType type)
+        {
+            return new WordListControl(CreateProvider(type), type).Duck(p =>
+                {
+                    p.OnOperation += ListControl_OnOperation;
+                });
+        }        
+        
+        #endregion
+        
+        #endregion
+
         #region Event Handlers
+
+        private void ListControl_OnOperation(object sender, WordsOperationEventsArgs e)
+        {
+            MessageBox.Show(string.Format("Count: {0}; Operation: {1}", e.Words.Count, e.Operation));
+        }
 
         private void TabControlMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
