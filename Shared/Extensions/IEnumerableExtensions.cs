@@ -19,17 +19,6 @@ namespace Shared.Extensions
             }
         }
 
-        public static IEnumerable<TResult> SelectSubItems<TSource, TResult>(this IEnumerable<TSource> value, Func<TSource, IEnumerable<TResult>> selector)
-        {
-            foreach (var item in value)
-            {
-                foreach (var sel in selector(item))
-                {
-                    yield return sel;
-                }
-            }
-        }
-
         public static string ToSeparatedString<TSource>(this IEnumerable<TSource> value, string seperator, Func<TSource, string> func)
         {
             StringBuilder result = new StringBuilder();

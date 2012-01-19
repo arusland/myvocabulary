@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Linq;
 using System.Windows.Controls;
 using MyVocabulary.Controls;
 using MyVocabulary.StorageProvider;
@@ -14,7 +15,7 @@ namespace MyVocabulary
 
         private readonly bool _Inited;
         private WordListControl _LastControl;
-        private readonly XmlWordsStorageProvider _Provider;
+        private readonly IWordsStorageProvider _Provider;
 
         #endregion
 
@@ -40,6 +41,11 @@ namespace MyVocabulary
         #region Methods
 
         #region Private
+
+        private WordListControl GetControlByType(WordType type)
+        {
+            return TabControlMain.Items.OfType<TabItem>().Select(p => p.Content.To<WordListControl>()).Single(p => p.Type == type);
+        }
 
         private WordListProvider CreateProvider(WordType type)
         {
@@ -73,15 +79,23 @@ namespace MyVocabulary
                     }
                     break;
                 case Operation.MakeKnown:
+                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Known)));
+                    GetControlByType(WordType.Known).IsModified = true;
                     break;
                 case Operation.MakeBadKnown:
+                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.BadKnown)));
+                    GetControlByType(WordType.BadKnown).IsModified = true;
                     break;
                 case Operation.MakeUnknown:
+                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Unknown)));
+                    GetControlByType(WordType.Unknown).IsModified = true;
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported Operation: " + e.Operation.ToString());
             }
-        }
+
+            control.IsModified = true;
+        }        
 
         private void TabControlMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

@@ -12,7 +12,7 @@ namespace MyVocabulary.StorageProvider
     {
         #region Fields
 
-        private readonly IList<Word> _AllWords;
+        private readonly List<Word> _AllWords;
         private string _Filename;
 
         #endregion
@@ -95,12 +95,22 @@ namespace MyVocabulary.StorageProvider
 
         public void Update(IEnumerable<Word> words)
         {
-            throw new NotImplementedException();
+            Delete(words);
+
+            _AllWords.AddRange(words);
         }
 
         public void Delete(IEnumerable<Word> words)
         {
-            throw new NotImplementedException();
+            foreach (var word in words)
+            {
+                int index = _AllWords.FindIndex(p => p.WordRaw == word.WordRaw);
+
+                if (index >= 0)
+                {
+                    _AllWords.RemoveAt(index);
+                }
+            }
         }
 
         /// <summary>
