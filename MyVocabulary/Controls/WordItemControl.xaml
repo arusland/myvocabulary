@@ -14,7 +14,7 @@
                           Margin="3"
                           Checked="CheckBoxMain_Checked"
                           Content="some word"
-                          Unchecked="CheckBoxMain_Checked" />
+                          Unchecked="CheckBoxMain_Checked" FontSize="14" />
             </StackPanel>
         </Border>
     </Grid>

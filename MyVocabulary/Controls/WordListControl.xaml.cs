@@ -14,9 +14,10 @@ namespace MyVocabulary.Controls
         #region Fields
 
         private readonly IWordListProvider _Provider;
-        private readonly WordType _Type;
+        private readonly WordType _Type;        
         private bool _IsModified;
         private int _SelectedCount;
+        private bool _IsActive;
         
         #endregion
 
@@ -45,6 +46,11 @@ namespace MyVocabulary.Controls
         
         #region Public
 
+        public WordType Type
+        {
+            get { return _Type; }
+        }
+
         public bool IsModified
         {
             get { return _IsModified; }
@@ -54,7 +60,6 @@ namespace MyVocabulary.Controls
         public int SelectedCount
         {
             get { return _SelectedCount; }
-            set { _SelectedCount = value; }
         }
 
         #endregion
@@ -79,6 +84,7 @@ namespace MyVocabulary.Controls
 
         public void Activate()
         {
+            _IsActive = true;
             if (IsModified)
             {
                 IsModified = false;
@@ -89,6 +95,7 @@ namespace MyVocabulary.Controls
         public void Deactivate()
         {
             //MessageBox.Show("Deactivate: " + _Type.ToString());
+            _IsActive = false;
         }
 
         public void LoadItems()
@@ -105,7 +112,7 @@ namespace MyVocabulary.Controls
         
         #endregion
         
-        #region Private        
+        #region Private
 
         private Operation FromButton(Button button)
         {

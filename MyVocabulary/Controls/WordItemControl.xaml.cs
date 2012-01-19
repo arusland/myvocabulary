@@ -9,12 +9,19 @@ namespace MyVocabulary.Controls
 {
     public partial class WordItemControl : UserControl
     {
+        #region Fields
+
+        private readonly Brush _SelectedBrush;
+        
+        #endregion
+
         #region Ctors
 
         public WordItemControl(Word word)
         {
             InitializeComponent();
 
+            _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
             Word = word;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             CheckBoxMain.Content = word.WordRaw;
@@ -58,6 +65,7 @@ namespace MyVocabulary.Controls
 
         private void CheckBoxMain_Checked(object sender, RoutedEventArgs e)
         {
+            this.Background = IsChecked ? _SelectedBrush : Brushes.Transparent;
             OnChecked.DoIfNotNull(p => p(this, EventArgs.Empty));
         }
         

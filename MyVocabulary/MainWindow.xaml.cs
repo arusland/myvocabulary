@@ -4,6 +4,7 @@ using MyVocabulary.Controls;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
+using System;
 
 namespace MyVocabulary
 {
@@ -14,7 +15,7 @@ namespace MyVocabulary
         private readonly bool _Inited;
         private WordListControl _LastControl;
         private readonly XmlWordsStorageProvider _Provider;
-        
+
         #endregion
 
         #region Ctors
@@ -31,15 +32,15 @@ namespace MyVocabulary
 
             TabControlMain.SelectionChanged += TabControlMain_SelectionChanged;
 
-            _Inited = true;            
-        }        
-        
+            _Inited = true;
+        }
+
         #endregion
 
         #region Methods
-        
+
         #region Private
-        
+
         private WordListProvider CreateProvider(WordType type)
         {
             return new WordListProvider(_Provider, type);
@@ -51,17 +52,35 @@ namespace MyVocabulary
                 {
                     p.OnOperation += ListControl_OnOperation;
                 });
-        }        
-        
+        }
+
         #endregion
-        
+
         #endregion
 
         #region Event Handlers
 
         private void ListControl_OnOperation(object sender, WordsOperationEventsArgs e)
         {
-            MessageBox.Show(string.Format("Count: {0}; Operation: {1}", e.Words.Count, e.Operation));
+            var control = sender.To<WordListControl>();
+
+            switch (e.Operation)
+            {
+                case Operation.Delete:
+                    if (MessageBox.Show(string.Format("Are you sure to delete selected {0} word(s)?", e.Words.Count), "Warning", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        _Provider.Delete(e.Words);
+                    }
+                    break;
+                case Operation.MakeKnown:
+                    break;
+                case Operation.MakeBadKnown:
+                    break;
+                case Operation.MakeUnknown:
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported Operation: " + e.Operation.ToString());
+            }
         }
 
         private void TabControlMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -77,7 +96,7 @@ namespace MyVocabulary
                 _LastControl.Activate();
             }
         }
-        
+
         #endregion
     }
 }

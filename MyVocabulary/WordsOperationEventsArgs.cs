@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MyVocabulary.StorageProvider;
 using Shared.Helpers;
+using System.Collections.ObjectModel;
 
 namespace MyVocabulary
 {
@@ -15,7 +16,7 @@ namespace MyVocabulary
             Checker.AreNotEqual(Operation.None, operation);
 
             Operation = operation;
-            Words = words;
+            Words = new ReadOnlyCollection<Word>(words);
         }
         
         #endregion
@@ -24,7 +25,7 @@ namespace MyVocabulary
         
         #region Public
 
-        public IList<Word> Words
+        public ReadOnlyCollection<Word> Words
         {
             get;
             private set;
