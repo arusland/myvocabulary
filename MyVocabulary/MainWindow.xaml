@@ -20,5 +20,10 @@
             <TabItem x:Name="TabItemKnown" Header="Known" />
             <TabItem x:Name="TabItemUnknown" Header="Unknown" />
         </TabControl>
+        
+        <Grid Grid.Row="1">
+            <Button x:Name="ButtonSave" Content="Save" Width="90" Height="25" Margin="3" HorizontalAlignment="Left" Click="ButtonSave_Click" />
+            <Button x:Name="ButtonOpen" Content="Open" Width="90" Height="25" Margin="3" HorizontalAlignment="Right" Click="ButtonOpen_Click" />
+        </Grid>
     </Grid>
 </Window>

@@ -61,6 +61,14 @@ namespace MyVocabulary.StorageProvider
 
             _AllWords.Clear();
             _AllWords.AddRange(doc.DocumentElement.SelectNodes("Words/Item").OfType<XmlNode>().Select(p => LoadFromXml(p)));
+            IsModified = false;
+        }
+
+        public void SetPath(string filename)
+        {
+            Checker.NotNullOrEmpty(filename, "filename");
+            _Filename = filename;
+            IsModified = true;
         }
         
         #endregion
@@ -77,6 +85,12 @@ namespace MyVocabulary.StorageProvider
         #endregion
 
         #region IWordsStorageProvider
+
+        public bool IsModified
+        {
+            get;
+            private set;
+        }
 
         public IEnumerable<Word> Get()
         {
@@ -98,6 +112,7 @@ namespace MyVocabulary.StorageProvider
             Delete(words);
 
             _AllWords.AddRange(words);
+            IsModified = true;
         }
 
         public void Delete(IEnumerable<Word> words)
@@ -111,6 +126,7 @@ namespace MyVocabulary.StorageProvider
                     _AllWords.RemoveAt(index);
                 }
             }
+            IsModified = true;
         }
 
         /// <summary>
@@ -129,8 +145,10 @@ namespace MyVocabulary.StorageProvider
                 {
                     nodeWords.AddNode("Item").AddAttribute("word", p.WordRaw).AddAttribute("type", ((int)p.Type).ToString());
                 });
+
+            IsModified = false;
         }
         
-        #endregion
+        #endregion        
     }
 }

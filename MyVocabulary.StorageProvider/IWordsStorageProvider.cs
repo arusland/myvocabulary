@@ -5,6 +5,11 @@ namespace MyVocabulary.StorageProvider
 {
     public interface IWordsStorageProvider
     {
+        bool IsModified
+        {
+            get;
+        }
+
         IEnumerable<Word> Get();
 
         IEnumerable<Word> Get(WordType type);

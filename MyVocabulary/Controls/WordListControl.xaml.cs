@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
+using System.Windows.Media;
 
 namespace MyVocabulary.Controls
 {
@@ -31,6 +32,7 @@ namespace MyVocabulary.Controls
             InitializeComponent();
 
             TextBlockStatus.Text = string.Empty;
+            BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(154, 191, 229));
 
             _SelectedCount = 0;
             _Provider = provider;
@@ -54,7 +56,16 @@ namespace MyVocabulary.Controls
         public bool IsModified
         {
             get { return _IsModified; }
-            set { _IsModified = value; }
+            set 
+            { 
+                _IsModified = value;
+
+                if (IsModified && _IsActive)
+                {
+                    IsModified = false;
+                    LoadItems();
+                }
+            }
         }
 
         public int SelectedCount

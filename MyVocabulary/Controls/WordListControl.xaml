@@ -52,12 +52,14 @@
             </StackPanel>
         </Grid>
 
-        <ScrollViewer Grid.Row="1"
+        <Border x:Name="BorderMain"  Grid.Row="1" BorderThickness="1" BorderBrush="Red">
+
+            <ScrollViewer 
                       HorizontalScrollBarVisibility="Disabled"
                       VerticalScrollBarVisibility="Auto">
-            <WrapPanel x:Name="WrapPanelMain" Orientation="Horizontal" />
-        </ScrollViewer>
-
+                <WrapPanel x:Name="WrapPanelMain" Orientation="Horizontal" />
+            </ScrollViewer>
+        </Border>
 
         <Grid Grid.Row="2">
             <TextBlock Margin="5">
