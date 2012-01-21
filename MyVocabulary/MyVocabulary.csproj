@@ -60,6 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Helpers\WordsFinder.cs" />
     <Compile Include="Operation.cs" />
     <Compile Include="WordListProvider.cs" />
     <Compile Include="WordsOperationEventsArgs.cs" />
@@ -128,9 +129,7 @@
   <ItemGroup>
     <Resource Include="Images\MainApp.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Helpers\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
