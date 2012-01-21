@@ -129,4 +129,13 @@
   <data name="TITLE_Warning" xml:space="preserve">
     <value>Warning</value>
   </data>
+  <data name="WORD_TYPE_BadKnown" xml:space="preserve">
+    <value>Bad Known</value>
+  </data>
+  <data name="WORD_TYPE_Known" xml:space="preserve">
+    <value>Known</value>
+  </data>
+  <data name="WORD_TYPE_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
 </root>

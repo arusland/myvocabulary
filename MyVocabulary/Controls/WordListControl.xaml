@@ -29,34 +29,39 @@
                        Text="Selected 5 words" />
 
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <Button x:Name="ButtonToKnown"
-                        Width="100"
-                        Margin="5"
-                        Click="ButtonOperation_Click"
-                        Content="Make Known" />
                 <Button x:Name="ButtonToBadKnown"
                         Width="100"
+                        Height="26"
                         Margin="5"
                         Click="ButtonOperation_Click"
                         Content="Make Bad Known" />
+                <Button x:Name="ButtonToKnown"
+                        Width="100"
+                        Height="26"
+                        Margin="5"
+                        Click="ButtonOperation_Click"
+                        Content="Make Known" />
                 <Button x:Name="ButtonToUnknown"
                         Width="100"
+                        Height="26"
                         Margin="5"
                         Click="ButtonOperation_Click"
                         Content="Make Unknown" />
                 <Button x:Name="ButtonDelete"
                         Width="100"
+                        Height="26"
                         Margin="5"
                         Click="ButtonOperation_Click"
                         Content="Delete" />
             </StackPanel>
         </Grid>
 
-        <Border x:Name="BorderMain"  Grid.Row="1" BorderThickness="1" BorderBrush="Red">
+        <Border x:Name="BorderMain"
+                Grid.Row="1"
+                BorderBrush="Red"
+                BorderThickness="1">
 
-            <ScrollViewer 
-                      HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <WrapPanel x:Name="WrapPanelMain" Orientation="Horizontal" />
             </ScrollViewer>
         </Border>

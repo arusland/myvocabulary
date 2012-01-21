@@ -4,7 +4,10 @@
         xmlns:ctrl="clr-namespace:MyVocabulary.Controls"
         Title="MainWindow"
         Width="819"
-        Height="442" WindowStartupLocation="CenterScreen">
+        Height="442"
+        Closing="Window_Closing"
+        Icon="/MyVocabulary;component/Images/MainApp.ico"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -20,10 +23,22 @@
             <TabItem x:Name="TabItemKnown" Header="Known" />
             <TabItem x:Name="TabItemUnknown" Header="Unknown" />
         </TabControl>
-        
+
         <Grid Grid.Row="1">
-            <Button x:Name="ButtonSave" Content="Save" Width="90" Height="25" Margin="3" HorizontalAlignment="Left" Click="ButtonSave_Click" />
-            <Button x:Name="ButtonOpen" Content="Open" Width="90" Height="25" Margin="3" HorizontalAlignment="Right" Click="ButtonOpen_Click" />
+            <Button x:Name="ButtonSave"
+                    Width="90"
+                    Height="25"
+                    Margin="3"
+                    HorizontalAlignment="Left"
+                    Click="ButtonSave_Click"
+                    Content="Save" />
+            <Button x:Name="ButtonOpen"
+                    Width="90"
+                    Height="25"
+                    Margin="3"
+                    HorizontalAlignment="Right"
+                    Click="ButtonOpen_Click"
+                    Content="Open" />
         </Grid>
     </Grid>
 </Window>

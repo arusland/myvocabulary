@@ -23,20 +23,20 @@ namespace MyVocabulary.StorageProvider
         {
             _AllWords = new List<Word>();
 
-            _AllWords.AddRange(new List<Word>() 
-            { 
-                new Word("hello", WordType.Known), 
-                new Word("world", WordType.Known) ,
-                new Word("just", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("cat", WordType.Known) ,
-                new Word("dog", WordType.Known) 
-            });
+            //_AllWords.AddRange(new List<Word>() 
+            //{ 
+            //    new Word("hello", WordType.Known), 
+            //    new Word("world", WordType.Known) ,
+            //    new Word("just", WordType.Known) ,
+            //    new Word("cat", WordType.Known) ,
+            //    new Word("cat", WordType.Known) ,
+            //    new Word("cat", WordType.Known) ,
+            //    new Word("cat", WordType.Known) ,
+            //    new Word("cat", WordType.Known) ,
+            //    new Word("cat", WordType.Known) ,
+            //    new Word("cat", WordType.Known) ,
+            //    new Word("dog", WordType.Known) 
+            //});
         }
         
         #endregion
@@ -145,6 +145,8 @@ namespace MyVocabulary.StorageProvider
                 {
                     nodeWords.AddNode("Item").AddAttribute("word", p.WordRaw).AddAttribute("type", ((int)p.Type).ToString());
                 });
+
+            doc.Save(_Filename);
 
             IsModified = false;
         }

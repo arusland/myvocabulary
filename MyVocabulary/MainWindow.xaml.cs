@@ -1,11 +1,11 @@
-﻿using System.Windows;
+﻿using System;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using MyVocabulary.Controls;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
-using System;
 using RS = MyVocabulary.Properties.Resources;
 
 namespace MyVocabulary
@@ -90,7 +90,12 @@ namespace MyVocabulary
 
         private WordListControl GetControlByType(WordType type)
         {
-            return TabControlMain.Items.OfType<TabItem>().Select(p => p.Content.To<WordListControl>()).Single(p => p.Type == type);
+            return GetTabByType(type).Content.To<WordListControl>();
+        }
+
+        private TabItem GetTabByType(WordType type)
+        {
+            return TabControlMain.Items.OfType<TabItem>().Single(p => p.Content.To<WordListControl>().Type == type);
         }
 
         private WordListProvider CreateProvider(WordType type)
@@ -103,14 +108,39 @@ namespace MyVocabulary
             return new WordListControl(CreateProvider(type), type).Duck(p =>
                 {
                     p.OnOperation += ListControl_OnOperation;
+                    p.OnModified += ListControl_OnModified;
                 });
-        }
+        }        
 
         #endregion
 
         #endregion
 
         #region Event Handlers
+
+        private void ListControl_OnModified(object sender, EventArgs e)
+        {
+            var control = sender.To<WordListControl>();
+            var tab = GetTabByType(control.Type);
+            var count = control.Words.Count();
+
+            tab.Header = count > 0 ? string.Format("{0} ({1})", GetTypeString(control.Type), count) : GetTypeString(control.Type);
+        }
+
+        private static string GetTypeString(WordType type)
+        {
+            switch(type)
+            {
+                case WordType.Known:
+                    return RS.WORD_TYPE_Known;
+                case WordType.BadKnown:
+                    return RS.WORD_TYPE_BadKnown;
+                case WordType.Unknown:
+                    return RS.WORD_TYPE_Unknown;
+                default:
+                    throw new InvalidOperationException("Unsupported wordtype: " + type.ToString());
+            }
+        }
 
         private void ListControl_OnOperation(object sender, WordsOperationEventsArgs e)
         {
@@ -174,9 +204,12 @@ namespace MyVocabulary
                     return;
                 }
 
-                if (!SaveDocument())
+                if (result == MessageBoxResult.Yes)
                 {
-                    return;
+                    if (!SaveDocument())
+                    {
+                        return;
+                    }
                 }
             }
 
@@ -187,15 +220,41 @@ namespace MyVocabulary
                 return;
             }
 
-            _Filename = dialog.FileName;
-            
             try
             {
-                _Provider.Load(_Filename);
+                _Provider.Load(dialog.FileName);
+                _Filename = dialog.FileName;
+                GetControlByType(WordType.Unknown).IsModified = true;
+                GetControlByType(WordType.BadKnown).IsModified = true;
+                GetControlByType(WordType.Known).IsModified = true;
+                RefreshTitle();
             }
             catch (System.Exception ex)
             {
                 ShowError(ex.Message);
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (_Provider.IsModified)
+            {
+                var result = MessageBox.Show(RS.MESSAGEBOX_DocumentModified, RS.TITLE_Warning, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Cancel)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (!SaveDocument())
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
             }
         }
 

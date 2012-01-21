@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
+using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
-using System.Windows.Media;
 
 namespace MyVocabulary.Controls
 {
@@ -65,12 +66,22 @@ namespace MyVocabulary.Controls
                     IsModified = false;
                     LoadItems();
                 }
+
+                OnModified.DoIfNotNull(p => p(this, EventArgs.Empty));
             }
         }
 
         public int SelectedCount
         {
             get { return _SelectedCount; }
+        }
+
+        public IEnumerable<Word> Words
+        {
+            get
+            {
+                return _Provider.Get();
+            }
         }
 
         #endregion
@@ -151,17 +162,12 @@ namespace MyVocabulary.Controls
 
         private void Control_OnChecked(object sender, EventArgs e)
         {
-            var ctrl = sender.To<WordItemControl>();
+            RefreshSelectedCount();
+        }
 
-            if (ctrl.IsChecked)
-            {
-                _SelectedCount++;
-            }
-            else
-            {
-                _SelectedCount--;
-            }
-
+        private void RefreshSelectedCount()
+        {
+            _SelectedCount = AllControls.Where(p => p.IsChecked).Count();
             TextBlockStatus.Text = _SelectedCount > 0 ? string.Format("Selected {0} word(s)", _SelectedCount) : string.Empty;
         }
         
@@ -176,7 +182,7 @@ namespace MyVocabulary.Controls
                     ButtonToBadKnown.Visibility = Visibility.Collapsed;
                     break;
                 case WordType.Unknown:
-                    ButtonToBadKnown.Visibility = Visibility.Collapsed;
+                    ButtonToUnknown.Visibility = Visibility.Collapsed;
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported wordtype: " + _Type.ToString());
@@ -188,7 +194,11 @@ namespace MyVocabulary.Controls
             if (OnOperation.IsNotNull())
             {
                 var words = AllControls.Where(p => p.IsChecked).Select(p => p.Word).ToList();
-                OnOperation(this, new WordsOperationEventsArgs(words, operation));
+
+                if (words.Count > 0)
+                {
+                    OnOperation(this, new WordsOperationEventsArgs(words, operation));
+                }
             }
         }
         
@@ -199,6 +209,8 @@ namespace MyVocabulary.Controls
         #region Events
 
         public event EventHandler<WordsOperationEventsArgs> OnOperation;
+
+        public event EventHandler OnModified;
         
         #endregion
 
@@ -219,6 +231,8 @@ namespace MyVocabulary.Controls
             var op = FromButton(sender.To<Button>());
 
             DoOnOperationEvent(op);
+
+            RefreshSelectedCount();
         }
         
         #endregion
