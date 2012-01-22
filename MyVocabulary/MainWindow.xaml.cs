@@ -258,6 +258,16 @@ namespace MyVocabulary
             }
         }
 
+        private void ButtonImport_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new WordsImportDialog();
+
+            if (dialog.ShowDialog() == true)
+            {
+
+            }
+        }
+
         #endregion
     }
 }

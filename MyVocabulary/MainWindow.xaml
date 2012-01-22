@@ -24,12 +24,17 @@
             <TabItem x:Name="TabItemUnknown" Header="Unknown" />
         </TabControl>
 
-        <Grid Grid.Row="1">
+        <DockPanel Grid.Row="1">
+            <Button x:Name="ButtonImport"
+                    Width="90"
+                    Height="25"
+                    Margin="3"
+                    Content="Import" Click="ButtonImport_Click" />
             <Button x:Name="ButtonSave"
                     Width="90"
                     Height="25"
                     Margin="3"
-                    HorizontalAlignment="Left"
+                    HorizontalAlignment="Right" DockPanel.Dock="Right"
                     Click="ButtonSave_Click"
                     Content="Save" />
             <Button x:Name="ButtonOpen"
@@ -39,6 +44,6 @@
                     HorizontalAlignment="Right"
                     Click="ButtonOpen_Click"
                     Content="Open" />
-        </Grid>
+        </DockPanel>
     </Grid>
 </Window>
