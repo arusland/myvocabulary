@@ -8,6 +8,7 @@ using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
+using RS = MyVocabulary.Properties.Resources;
 
 namespace MyVocabulary.Controls
 {
@@ -41,7 +42,8 @@ namespace MyVocabulary.Controls
             IsModified = true;
 
             InitControls();
-        }
+            RefreshFilter();
+        }        
 
         #endregion
 
@@ -129,12 +131,32 @@ namespace MyVocabulary.Controls
                 {
                     p.OnChecked += Control_OnChecked;
                 }));
+
+                ScrollViewerMain.ScrollToEnd();
+                Dispatcher.DoEvents();
             }
         }
 
         #endregion
 
         #region Private
+
+        private void RefreshFilter()
+        {
+            if (!TextBoxFilter.IsFocused)
+            {
+                if (TextBoxFilter.Text.IsNullOrEmpty())
+                {
+                    TextBoxFilter.Text = RS.FILTER_Text;
+                    TextBoxFilter.Foreground = Brushes.Gray;
+                }
+            }
+            else
+            {
+                TextBoxFilter.Text = string.Empty;
+                TextBoxFilter.Foreground = Brushes.Black;
+            }
+        }
 
         private Operation FromButton(Button button)
         {
@@ -243,6 +265,27 @@ namespace MyVocabulary.Controls
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
         {
             OnClose.DoIfNotNull(p => p(this, EventArgs.Empty));
+        }
+
+        private void TextBoxFilter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var text = TextBoxFilter.Text.Trim();
+            bool showAll = text.Equals(RS.FILTER_Text);
+            
+            AllControls.CallOnEach(p => 
+                {
+                    p.Visibility = p.Word.WordRaw.IndexOf(text) >= 0 || showAll ? Visibility.Visible : Visibility.Collapsed;                    
+                });
+        }
+
+        private void ButtonFilterClear_Click(object sender, RoutedEventArgs e)
+        {
+            TextBoxFilter.Text = string.Empty;
+        }
+
+        private void TextBoxFilter_GotFocus(object sender, RoutedEventArgs e)
+        {
+            RefreshFilter();
         }
 
         #endregion

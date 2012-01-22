@@ -22,11 +22,15 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <TextBlock x:Name="TextBlockStatus"
-                       Grid.Row="1"
+            <DockPanel Grid.Row="1">
+                <TextBlock x:Name="TextBlockStatus"                       
                        Margin="5"
                        FontWeight="Bold"
-                       Text="Selected 5 words" />
+                       Text="Selected 5 words" HorizontalAlignment="Left"/>
+
+                <Button x:Name="ButtonFilterClear" Content="Clear" Width="35" Margin="3" HorizontalAlignment="Right" DockPanel.Dock="Right" Click="ButtonFilterClear_Click" />
+                <TextBox x:Name="TextBoxFilter" Width="150" Margin="5" HorizontalAlignment="Right" TextChanged="TextBoxFilter_TextChanged" GotFocus="TextBoxFilter_GotFocus" LostFocus="TextBoxFilter_GotFocus" />
+            </DockPanel>            
 
             <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <Button x:Name="ButtonToBadKnown"
@@ -68,7 +72,7 @@
                 BorderBrush="Red"
                 BorderThickness="1">
 
-            <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="ScrollViewerMain"  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <WrapPanel x:Name="WrapPanelMain" Orientation="Horizontal" />
             </ScrollViewer>
         </Border>
