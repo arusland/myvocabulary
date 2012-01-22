@@ -19,9 +19,12 @@
         </Grid.RowDefinitions>
 
         <TabControl x:Name="TabControlMain">
-            <TabItem x:Name="TabItemBadKnown" Header="Bad Known" />
-            <TabItem x:Name="TabItemKnown" Header="Known" />
-            <TabItem x:Name="TabItemUnknown" Header="Unknown" />
+            <TabItem x:Name="TabItemBadKnown" />
+            <TabItem x:Name="TabItemKnown" />
+            <TabItem x:Name="TabItemUnknown" />
+            <TabItem x:Name="TabItemImport"
+                     Header="Import"
+                     Visibility="Collapsed" />
         </TabControl>
 
         <DockPanel Grid.Row="1">
@@ -29,14 +32,16 @@
                     Width="90"
                     Height="25"
                     Margin="3"
-                    Content="Import" Click="ButtonImport_Click" />
+                    Click="ButtonImport_Click"
+                    Content="Import" />
             <Button x:Name="ButtonSave"
                     Width="90"
                     Height="25"
                     Margin="3"
-                    HorizontalAlignment="Right" DockPanel.Dock="Right"
+                    HorizontalAlignment="Right"
                     Click="ButtonSave_Click"
-                    Content="Save" />
+                    Content="Save"
+                    DockPanel.Dock="Right" />
             <Button x:Name="ButtonOpen"
                     Width="90"
                     Height="25"

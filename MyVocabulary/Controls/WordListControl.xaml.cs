@@ -16,11 +16,11 @@ namespace MyVocabulary.Controls
         #region Fields
 
         private readonly IWordListProvider _Provider;
-        private readonly WordType _Type;        
+        private readonly WordType _Type;
         private bool _IsModified;
         private int _SelectedCount;
         private bool _IsActive;
-        
+
         #endregion
 
         #region Ctors
@@ -28,7 +28,7 @@ namespace MyVocabulary.Controls
         public WordListControl(IWordListProvider provider, WordType type)
         {
             Checker.NotNull(provider, "provider");
-            Checker.AreNotEqual(WordType.None, type);
+            //Checker.AreNotEqual(WordType.None, type);
 
             InitializeComponent();
 
@@ -39,14 +39,14 @@ namespace MyVocabulary.Controls
             _Provider = provider;
             _Type = type;
             IsModified = true;
-           
+
             InitControls();
         }
 
         #endregion
 
         #region Properties
-        
+
         #region Public
 
         public WordType Type
@@ -57,8 +57,8 @@ namespace MyVocabulary.Controls
         public bool IsModified
         {
             get { return _IsModified; }
-            set 
-            { 
+            set
+            {
                 _IsModified = value;
 
                 if (IsModified && _IsActive)
@@ -87,7 +87,7 @@ namespace MyVocabulary.Controls
         #endregion
 
         #region Private
-        
+
         private IEnumerable<WordItemControl> AllControls
         {
             get
@@ -95,7 +95,7 @@ namespace MyVocabulary.Controls
                 return WrapPanelMain.Children.OfType<WordItemControl>();
             }
         }
-        
+
         #endregion
 
         #endregion
@@ -131,9 +131,9 @@ namespace MyVocabulary.Controls
                 }));
             }
         }
-        
+
         #endregion
-        
+
         #region Private
 
         private Operation FromButton(Button button)
@@ -144,11 +144,11 @@ namespace MyVocabulary.Controls
             }
             else if (button == ButtonToBadKnown)
             {
-                return Operation.MakeBadKnown;                     
+                return Operation.MakeBadKnown;
             }
             else if (button == ButtonToUnknown)
             {
-                return Operation.MakeUnknown;                     
+                return Operation.MakeUnknown;
             }
             else if (button == ButtonDelete)
             {
@@ -170,10 +170,10 @@ namespace MyVocabulary.Controls
             _SelectedCount = AllControls.Where(p => p.IsChecked).Count();
             TextBlockStatus.Text = _SelectedCount > 0 ? string.Format("Selected {0} word(s)", _SelectedCount) : string.Empty;
         }
-        
+
         private void InitControls()
         {
-            switch(_Type)
+            switch (_Type)
             {
                 case WordType.Known:
                     ButtonToKnown.Visibility = Visibility.Collapsed;
@@ -183,6 +183,9 @@ namespace MyVocabulary.Controls
                     break;
                 case WordType.Unknown:
                     ButtonToUnknown.Visibility = Visibility.Collapsed;
+                    break;
+                case WordType.None:
+                    ButtonClose.Visibility = Visibility.Visible;
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported wordtype: " + _Type.ToString());
@@ -201,7 +204,7 @@ namespace MyVocabulary.Controls
                 }
             }
         }
-        
+
         #endregion
 
         #endregion
@@ -211,7 +214,9 @@ namespace MyVocabulary.Controls
         public event EventHandler<WordsOperationEventsArgs> OnOperation;
 
         public event EventHandler OnModified;
-        
+
+        public event EventHandler OnClose;
+
         #endregion
 
         #region Event Handlers
@@ -234,7 +239,12 @@ namespace MyVocabulary.Controls
 
             RefreshSelectedCount();
         }
-        
+
+        private void ButtonClose_Click(object sender, RoutedEventArgs e)
+        {
+            OnClose.DoIfNotNull(p => p(this, EventArgs.Empty));
+        }
+
         #endregion
     }
 }

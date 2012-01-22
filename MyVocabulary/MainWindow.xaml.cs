@@ -37,6 +37,9 @@ namespace MyVocabulary
 
             _Inited = true;
             RefreshTitle();
+            RefreshTabHeader(WordType.Known);
+            RefreshTabHeader(WordType.BadKnown);
+            RefreshTabHeader(WordType.Unknown);
         }
 
         #endregion
@@ -44,6 +47,15 @@ namespace MyVocabulary
         #region Methods
 
         #region Private
+
+        private void RefreshTabHeader(WordType type)
+        {
+            var control = GetControlByType(type);
+            var tab = GetTabByType(control.Type);
+            var count = control.Words.Count();
+
+            tab.Header = count > 0 ? string.Format("{0} ({1})", GetTypeString(control.Type), count) : GetTypeString(control.Type);
+        }
 
         private void ShowError(string message)
         {
@@ -95,7 +107,7 @@ namespace MyVocabulary
 
         private TabItem GetTabByType(WordType type)
         {
-            return TabControlMain.Items.OfType<TabItem>().Single(p => p.Content.To<WordListControl>().Type == type);
+            return TabControlMain.Items.OfType<TabItem>().Where(p => p.Content.IsNotNull()).Single(p => p.Content.To<WordListControl>().Type == type);
         }
 
         private WordListProvider CreateProvider(WordType type)
@@ -110,6 +122,22 @@ namespace MyVocabulary
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
                 });
+        }
+
+        private WordListControl CreateImportListControl(string[] words)
+        {
+            var provider = new WordListImportProvider(words);
+
+            var result = new WordListControl(provider, WordType.None).Duck(p =>
+            {
+                p.OnOperation += ListControl_OnOperation;
+                p.OnModified += Import_OnModified;
+                p.OnClose += Import_OnClose;
+            });
+
+            result.Tag = provider;
+
+            return result;
         }        
 
         #endregion
@@ -118,14 +146,31 @@ namespace MyVocabulary
 
         #region Event Handlers
 
+        private void Import_OnClose(object sender, EventArgs e)
+        {
+            var control = sender.To<WordListControl>();
+
+            if (TabItemImport.IsVisible)
+            {
+                TabItemImport.Content = null;
+                control.Tag = null;
+                TabItemImport.Visibility = Visibility.Collapsed;
+                TabControlMain.SelectedIndex = 0;
+            }
+        }        
+
+        private void Import_OnModified(object sender, EventArgs e)
+        {
+            var control = sender.To<WordListControl>();
+
+            TabItemImport.Header = string.Format("{0} ({1})", RS.TAB_HEADER_Import, control.Words.Count());
+        }        
+
         private void ListControl_OnModified(object sender, EventArgs e)
         {
             var control = sender.To<WordListControl>();
-            var tab = GetTabByType(control.Type);
-            var count = control.Words.Count();
-
-            tab.Header = count > 0 ? string.Format("{0} ({1})", GetTypeString(control.Type), count) : GetTypeString(control.Type);
-        }
+            RefreshTabHeader(control.Type);
+        }        
 
         private static string GetTypeString(WordType type)
         {
@@ -145,13 +190,18 @@ namespace MyVocabulary
         private void ListControl_OnOperation(object sender, WordsOperationEventsArgs e)
         {
             var control = sender.To<WordListControl>();
+            bool fromImport = TabItemImport.IsVisible && control.Type == WordType.None;
 
             switch (e.Operation)
             {
                 case Operation.Delete:
-                    if (MessageBox.Show(string.Format("Are you sure to delete selected {0} word(s)?", e.Words.Count), "Warning", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (!fromImport)
                     {
-                        _Provider.Delete(e.Words);
+                        if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning, 
+                            MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                        {
+                            _Provider.Delete(e.Words);
+                        }
                     }
                     break;
                 case Operation.MakeKnown:
@@ -168,6 +218,12 @@ namespace MyVocabulary
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported Operation: " + e.Operation.ToString());
+            }
+
+            if (fromImport)
+            {
+                var provider = control.Tag.To<IWordsStorageImportProvider>();
+                provider.Delete(e.Words);
             }
 
             control.IsModified = true;
@@ -264,7 +320,9 @@ namespace MyVocabulary
 
             if (dialog.ShowDialog() == true)
             {
-
+                TabItemImport.Visibility = Visibility.Visible;
+                TabItemImport.Content = CreateImportListControl(dialog.Words);
+                TabControlMain.SelectedItem = TabItemImport;
             }
         }
 

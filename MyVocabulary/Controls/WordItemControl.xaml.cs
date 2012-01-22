@@ -67,6 +67,13 @@ namespace MyVocabulary.Controls
         {
             this.Background = IsChecked ? _SelectedBrush : Brushes.Transparent;
             OnChecked.DoIfNotNull(p => p(this, EventArgs.Empty));
+            e.Handled = true;
+        }
+
+        private void UserControl_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            CheckBoxMain.IsChecked = !CheckBoxMain.IsChecked;
+            e.Handled = true;
         }
         
         #endregion

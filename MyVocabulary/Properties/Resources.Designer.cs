@@ -70,6 +70,24 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure to delete selected {0} word(s)?.
+        /// </summary>
+        internal static string MESSAGEBOX_SureDeleteSelectedWords {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_SureDeleteSelectedWords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        internal static string TAB_HEADER_Import {
+            get {
+                return ResourceManager.GetString("TAB_HEADER_Import", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error.
         /// </summary>
         internal static string TITLE_Error {

@@ -61,7 +61,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helpers\WordsFinder.cs" />
+    <Compile Include="IWordsStorageImportProvider.cs" />
     <Compile Include="Operation.cs" />
+    <Compile Include="WordListImportProvider.cs" />
     <Compile Include="WordListProvider.cs" />
     <Compile Include="WordsImportDialog.xaml.cs">
       <DependentUpon>WordsImportDialog.xaml</DependentUpon>

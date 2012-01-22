@@ -120,6 +120,12 @@
   <data name="MESSAGEBOX_DocumentModified" xml:space="preserve">
     <value>Document is modified. Save changes?</value>
   </data>
+  <data name="MESSAGEBOX_SureDeleteSelectedWords" xml:space="preserve">
+    <value>Are you sure to delete selected {0} word(s)?</value>
+  </data>
+  <data name="TAB_HEADER_Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
   <data name="TITLE_Error" xml:space="preserve">
     <value>Error</value>
   </data>

@@ -4,7 +4,7 @@
         Title="Import Words"
         Width="763"
         Height="357"
-        Icon="/MyVocabulary;component/Images/MainApp.ico" WindowStartupLocation="CenterScreen">
+        Icon="/MyVocabulary;component/Images/MainApp.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

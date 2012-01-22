@@ -94,7 +94,7 @@ namespace MyVocabulary.StorageProvider
 
         public IEnumerable<Word> Get()
         {
-            return _AllWords;
+            return _AllWords.OrderBy(p => p.WordRaw);
         }
 
         public IEnumerable<Word> Get(WordType type)

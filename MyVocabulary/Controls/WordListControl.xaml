@@ -53,6 +53,13 @@
                         Margin="5"
                         Click="ButtonOperation_Click"
                         Content="Delete" />
+                <Button x:Name="ButtonClose"
+                        Width="100"
+                        Height="26"
+                        Margin="15,5,5,5"
+                        Content="Close"
+                        Click="ButtonClose_Click"
+                        Visibility="Collapsed" />
             </StackPanel>
         </Grid>
 
