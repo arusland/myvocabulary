@@ -7,7 +7,7 @@
         Height="442"
         Closing="Window_Closing"
         Icon="/MyVocabulary;component/Images/MainApp.ico"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />

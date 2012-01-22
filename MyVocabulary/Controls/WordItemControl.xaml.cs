@@ -3,7 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using MyVocabulary.StorageProvider;
+using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
+using Shared.Helpers;
 
 namespace MyVocabulary.Controls
 {
@@ -12,6 +14,9 @@ namespace MyVocabulary.Controls
         #region Fields
 
         private readonly Brush _SelectedBrush;
+        private readonly Brush _KnownBrush;
+        private readonly Brush _BadKnownBrush;
+        private readonly Brush _UnknownBrush;
         
         #endregion
 
@@ -19,12 +24,18 @@ namespace MyVocabulary.Controls
 
         public WordItemControl(Word word)
         {
+            Checker.NotNull(word, "word");
+
             InitializeComponent();
 
             _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
+            _KnownBrush = Brushes.LightGreen;
+            _BadKnownBrush = Brushes.OrangeRed;
+            _UnknownBrush = new SolidColorBrush(Color.FromRgb(225, 45, 45));
             Word = word;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             CheckBoxMain.Content = word.WordRaw;
+            RefreshBackground();
         }
        
         #endregion
@@ -55,6 +66,34 @@ namespace MyVocabulary.Controls
 
         #endregion
 
+        #region Methods
+        
+        #region Private
+
+        private void RefreshBackground()
+        {
+            this.Background = IsChecked ? _SelectedBrush : GetTypeBrush();
+        }
+        
+        private Brush GetTypeBrush()
+        {
+            switch(Word.Type)
+            {
+                case WordType.Known:
+                    return _KnownBrush;
+                case WordType.BadKnown:
+                    return _BadKnownBrush;
+                case WordType.Unknown:
+                    return _UnknownBrush;
+                default:
+                    throw new InvalidOperationException("Unsupported word type: " + Word.Type.ToString());
+            }
+        }
+        
+        #endregion
+        
+        #endregion
+
         #region Events
         
         public event EventHandler OnChecked;
@@ -65,10 +104,11 @@ namespace MyVocabulary.Controls
 
         private void CheckBoxMain_Checked(object sender, RoutedEventArgs e)
         {
-            this.Background = IsChecked ? _SelectedBrush : Brushes.Transparent;
+            RefreshBackground();
+            
             OnChecked.DoIfNotNull(p => p(this, EventArgs.Empty));
             e.Handled = true;
-        }
+        }        
 
         private void UserControl_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {

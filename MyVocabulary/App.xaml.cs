@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
+using MyVocabulary.Helpers;
 
 namespace MyVocabulary
 {
@@ -11,7 +13,21 @@ namespace MyVocabulary
             MessageBox.Show(e.Exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = false;
         }
+
+        private void Application_Startup(object sender, StartupEventArgs e)
+        {
+            try
+            {
+                // try to associate extension
+                string appPath = this.GetType().Assembly.Location;
+                FileAssociateHelper.AssociateFile("myvoc", "My Vocabulary File", appPath, appPath, 0);
+            }
+            catch (Exception ex)
+            {
+                // go ahead anyway
+            }
+        }
         
-        #endregion        
+        #endregion
     }
 }

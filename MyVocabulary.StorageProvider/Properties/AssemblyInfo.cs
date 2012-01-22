@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MyVocabulary.StorageProvider")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Ruslan Absalyamov")]
 [assembly: AssemblyProduct("MyVocabulary.StorageProvider")]
 [assembly: AssemblyCopyright("Copyright © Ruslan Absalyamov 2012")]
 [assembly: AssemblyTrademark("")]

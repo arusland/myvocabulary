@@ -4,7 +4,9 @@
         Title="Import Words"
         Width="763"
         Height="357"
-        Icon="/MyVocabulary;component/Images/MainApp.ico" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+        Icon="/MyVocabulary;component/Images/MainApp.ico"
+        Loaded="Window_Loaded"
+        WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -17,7 +19,7 @@
                    Text="Paste text to import" />
         <Border x:Name="BorderMain"
                 Grid.Row="1"
-                     Margin="3"
+                Margin="3"
                 BorderThickness="1">
             <TextBox x:Name="TextBoxMain"
                      AcceptsReturn="True"
@@ -33,7 +35,7 @@
                     HorizontalAlignment="Right"
                     Click="ButtonClose_Click"
                     Content="Close"
-                    DockPanel.Dock="Right" />
+                    DockPanel.Dock="Right" IsCancel="True" />
             <Button x:Name="ButtonProcess"
                     Width="90"
                     Height="25"

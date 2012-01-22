@@ -23,14 +23,28 @@
             </Grid.RowDefinitions>
 
             <DockPanel Grid.Row="1">
-                <TextBlock x:Name="TextBlockStatus"                       
-                       Margin="5"
-                       FontWeight="Bold"
-                       Text="Selected 5 words" HorizontalAlignment="Left"/>
+                <TextBlock x:Name="TextBlockStatus"
+                           Margin="5"
+                           HorizontalAlignment="Left"
+                           FontWeight="Bold"
+                           Text="Selected 5 words" />
 
-                <Button x:Name="ButtonFilterClear" Content="Clear" Width="35" Margin="3" HorizontalAlignment="Right" DockPanel.Dock="Right" Click="ButtonFilterClear_Click" />
-                <TextBox x:Name="TextBoxFilter" Width="150" Margin="5" HorizontalAlignment="Right" TextChanged="TextBoxFilter_TextChanged" GotFocus="TextBoxFilter_GotFocus" LostFocus="TextBoxFilter_GotFocus" />
-            </DockPanel>            
+                <Button x:Name="ButtonFilterClear"
+                        Width="35"
+                        Height="22"
+                        Margin="3"
+                        HorizontalAlignment="Right"
+                        Click="ButtonFilterClear_Click"
+                        Content="Clear"
+                        DockPanel.Dock="Right" />
+                <TextBox x:Name="TextBoxFilter"
+                         Width="150"
+                         Margin="5"
+                         HorizontalAlignment="Right"
+                         GotFocus="TextBoxFilter_GotFocus"
+                         LostFocus="TextBoxFilter_GotFocus"
+                         TextChanged="TextBoxFilter_TextChanged" />
+            </DockPanel>
 
             <StackPanel Grid.Row="0" Orientation="Horizontal">
                 <Button x:Name="ButtonToBadKnown"
@@ -54,15 +68,15 @@
                 <Button x:Name="ButtonDelete"
                         Width="100"
                         Height="26"
-                        Margin="5"
+                        Margin="15,5,5,5"
                         Click="ButtonOperation_Click"
                         Content="Delete" />
                 <Button x:Name="ButtonClose"
                         Width="100"
                         Height="26"
                         Margin="15,5,5,5"
-                        Content="Close"
                         Click="ButtonClose_Click"
+                        Content="Close"
                         Visibility="Collapsed" />
             </StackPanel>
         </Grid>
@@ -72,7 +86,9 @@
                 BorderBrush="Red"
                 BorderThickness="1">
 
-            <ScrollViewer x:Name="ScrollViewerMain"  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer x:Name="ScrollViewerMain"
+                          HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto">
                 <WrapPanel x:Name="WrapPanelMain" Orientation="Horizontal" />
             </ScrollViewer>
         </Border>

@@ -18,7 +18,7 @@ namespace MyVocabulary
         public WordsImportDialog()
         {
             InitializeComponent();
-            BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(43, 145, 175));
+            //BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(43, 145, 175));
         }
         
         #endregion

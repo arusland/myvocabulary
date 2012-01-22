@@ -124,7 +124,15 @@ namespace MyVocabulary.Controls
 
         public void LoadItems()
         {
+            WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
+                {
+                    p.OnChecked -= Control_OnChecked;
+                });
+
             WrapPanelMain.Children.Clear();
+
+            int i = 0;
+
             foreach (var item in _Provider.Get())
             {
                 WrapPanelMain.Children.Add(new WordItemControl(item).Duck(p =>
@@ -133,7 +141,11 @@ namespace MyVocabulary.Controls
                 }));
 
                 ScrollViewerMain.ScrollToEnd();
-                Dispatcher.DoEvents();
+
+                if (++i % 10 == 0)
+                {
+                    Dispatcher.DoEvents();
+                }
             }
         }
 
@@ -195,6 +207,10 @@ namespace MyVocabulary.Controls
 
         private void InitControls()
         {
+            ButtonToKnown.Background = Brushes.LightGreen;
+            ButtonToBadKnown.Background = Brushes.OrangeRed;
+            ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(225, 45, 45));
+
             switch (_Type)
             {
                 case WordType.Known:
@@ -270,17 +286,17 @@ namespace MyVocabulary.Controls
         private void TextBoxFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
             var text = TextBoxFilter.Text.Trim();
-            bool showAll = text.Equals(RS.FILTER_Text);
+            bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
             
             AllControls.CallOnEach(p => 
                 {
-                    p.Visibility = p.Word.WordRaw.IndexOf(text) >= 0 || showAll ? Visibility.Visible : Visibility.Collapsed;                    
+                    p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
                 });
         }
 
         private void ButtonFilterClear_Click(object sender, RoutedEventArgs e)
         {
-            TextBoxFilter.Text = string.Empty;
+            TextBoxFilter.Text = RS.FILTER_Text;
         }
 
         private void TextBoxFilter_GotFocus(object sender, RoutedEventArgs e)

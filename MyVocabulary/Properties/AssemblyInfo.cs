@@ -10,7 +10,7 @@ using System.Windows;
 [assembly: AssemblyTitle("MyVocabulary")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("Ruslan Absalyamov")]
 [assembly: AssemblyProduct("MyVocabulary")]
 [assembly: AssemblyCopyright("Copyright © Ruslan Absalyamov 2012")]
 [assembly: AssemblyTrademark("")]

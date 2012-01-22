@@ -12,6 +12,13 @@ namespace MyVocabulary
 {
     public partial class MainWindow : Window
     {
+        #region Constants
+
+        private const string DIALOG_Filter = "My Vocabulary Files (*.myvoc)|*.myvoc|All Files (*.*)|*.*";
+        private const string DEFAULT_Extension = "*.myvoc";
+        
+        #endregion        
+
         #region Fields
 
         private readonly bool _Inited;
@@ -48,6 +55,23 @@ namespace MyVocabulary
 
         #region Private
 
+        private void OpenFile(string filename)
+        {
+            try
+            {
+                _Provider.Load(filename);
+                _Filename = filename;
+                GetControlByType(WordType.Unknown).IsModified = true;
+                GetControlByType(WordType.BadKnown).IsModified = true;
+                GetControlByType(WordType.Known).IsModified = true;
+                RefreshTitle();
+            }
+            catch (System.Exception ex)
+            {
+                ShowError(ex.Message);
+            }
+        }
+
         private void RefreshTabHeader(WordType type)
         {
             var control = GetControlByType(type);
@@ -66,7 +90,11 @@ namespace MyVocabulary
         {
             if (_Filename.IsNullOrEmpty())
             {
-                var dialog = new System.Windows.Forms.SaveFileDialog();
+                var dialog = new System.Windows.Forms.SaveFileDialog()
+                {
+                    Filter = DIALOG_Filter,
+                    DefaultExt = DEFAULT_Extension
+                };
 
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
                 {
@@ -269,30 +297,33 @@ namespace MyVocabulary
                 }
             }
 
-            var dialog = new System.Windows.Forms.OpenFileDialog();
+            var dialog = new System.Windows.Forms.OpenFileDialog()
+                {
+                    Filter = DIALOG_Filter,
+                    DefaultExt = DEFAULT_Extension
+                };
 
             if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
             {
                 return;
             }
 
-            try
-            {
-                _Provider.Load(dialog.FileName);
-                _Filename = dialog.FileName;
-                GetControlByType(WordType.Unknown).IsModified = true;
-                GetControlByType(WordType.BadKnown).IsModified = true;
-                GetControlByType(WordType.Known).IsModified = true;
-                RefreshTitle();
-            }
-            catch (System.Exception ex)
-            {
-                ShowError(ex.Message);
-            }
-        }
+            OpenFile(dialog.FileName);
+        }        
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (TabItemImport.IsVisible && TabItemImport.Content.To<WordListControl>().Words.Any())
+            {
+                var result = MessageBox.Show(RS.MESSAGEBOX_HaveWordsInImportTab, RS.TITLE_Warning, MessageBoxButton.OKCancel, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Cancel)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
             if (_Provider.IsModified)
             {
                 var result = MessageBox.Show(RS.MESSAGEBOX_DocumentModified, RS.TITLE_Warning, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
@@ -323,6 +354,14 @@ namespace MyVocabulary
                 TabItemImport.Visibility = Visibility.Visible;
                 TabItemImport.Content = CreateImportListControl(dialog.Words);
                 TabControlMain.SelectedItem = TabItemImport;
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (Environment.GetCommandLineArgs().Length > 1)
+            {
+                OpenFile(Environment.GetCommandLineArgs()[1]);
             }
         }
 
