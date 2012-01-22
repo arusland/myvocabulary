@@ -20,7 +20,7 @@ namespace MyVocabulary
         {
             Checker.NotNull(words, "words");
 
-            _Words = words.OrderBy(p => p).Select(p => new Word(p, WordType.Unknown)).ToList();
+            _Words = words.OrderBy(p => p).Select(p => new Word(p, WordType.None)).ToList();
         }
         
         #endregion

@@ -7,6 +7,7 @@
              d:DesignHeight="30"
              d:DesignWidth="180"
              mc:Ignorable="d"
+             x:ClassModifier="internal"
              MouseLeftButtonUp="UserControl_MouseLeftButtonUp">
     <Grid>
         <Border x:Name="BorderMain" BorderThickness="1">

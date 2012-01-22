@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using MyVocabulary.Dialogs;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
@@ -9,7 +10,7 @@ using Shared.Helpers;
 
 namespace MyVocabulary.Controls
 {
-    public partial class WordItemControl : UserControl
+    internal partial class WordItemControl : UserControl
     {
         #region Fields
 
@@ -36,7 +37,15 @@ namespace MyVocabulary.Controls
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             CheckBoxMain.Content = word.WordRaw;
             RefreshBackground();
-        }
+            this.ContextMenu = new ContextMenu().Duck(p =>
+                {
+                    p.Items.Add(new MenuItem().Duck(m =>
+                    {
+                        m.Header = "Edit...";
+                        m.Click += Menu_Click;
+                    }));
+                });
+        }        
        
         #endregion
 
@@ -85,6 +94,8 @@ namespace MyVocabulary.Controls
                     return _BadKnownBrush;
                 case WordType.Unknown:
                     return _UnknownBrush;
+                case WordType.None:
+                    return Brushes.Transparent;
                 default:
                     throw new InvalidOperationException("Unsupported word type: " + Word.Type.ToString());
             }
@@ -97,6 +108,8 @@ namespace MyVocabulary.Controls
         #region Events
         
         public event EventHandler OnChecked;
+
+        public event EventHandler<OnWordRenameEventArgs> OnRename;
         
         #endregion
 
@@ -114,6 +127,24 @@ namespace MyVocabulary.Controls
         {
             CheckBoxMain.IsChecked = !CheckBoxMain.IsChecked;
             e.Handled = true;
+        }
+
+        private void Menu_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new WordEditDialog(Word.WordRaw);
+            dialog.OnRename += dialog_OnRename;
+
+            if (dialog.ShowDialog() == true)
+            {
+                Word = new Word(dialog.Word, Word.Type);
+            }
+
+            dialog.OnRename -= dialog_OnRename;
+        }
+
+        private void dialog_OnRename(object sender, OnWordRenameEventArgs e)
+        {
+            OnRename.DoIfNotNull(p => p(this, e));
         }
         
         #endregion

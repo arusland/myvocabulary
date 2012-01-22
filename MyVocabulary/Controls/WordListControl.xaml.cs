@@ -127,6 +127,7 @@ namespace MyVocabulary.Controls
             WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
                 {
                     p.OnChecked -= Control_OnChecked;
+                    p.OnRename -= Control_OnRename;
                 });
 
             WrapPanelMain.Children.Clear();
@@ -138,6 +139,7 @@ namespace MyVocabulary.Controls
                 WrapPanelMain.Children.Add(new WordItemControl(item).Duck(p =>
                 {
                     p.OnChecked += Control_OnChecked;
+                    p.OnRename += Control_OnRename;
                 }));
 
                 ScrollViewerMain.ScrollToEnd();
@@ -199,6 +201,11 @@ namespace MyVocabulary.Controls
             RefreshSelectedCount();
         }
 
+        private void Control_OnRename(object sender, OnWordRenameEventArgs e)
+        {
+            OnRename.DoIfNotNull(p => p(this, e));
+        }
+
         private void RefreshSelectedCount()
         {
             _SelectedCount = AllControls.Where(p => p.IsChecked).Count();
@@ -254,6 +261,8 @@ namespace MyVocabulary.Controls
         public event EventHandler OnModified;
 
         public event EventHandler OnClose;
+
+        public event EventHandler<OnWordRenameEventArgs> OnRename;
 
         #endregion
 

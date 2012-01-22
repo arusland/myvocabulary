@@ -60,13 +60,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\OnWordRenameEventArgs.cs" />
+    <Compile Include="Dialogs\WordEditDialog.xaml.cs">
+      <DependentUpon>WordEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\FileAssociateHelper.cs" />
     <Compile Include="Helpers\WordsFinder.cs" />
     <Compile Include="IWordsStorageImportProvider.cs" />
     <Compile Include="Operation.cs" />
     <Compile Include="WordListImportProvider.cs" />
     <Compile Include="WordListProvider.cs" />
-    <Compile Include="WordsImportDialog.xaml.cs">
+    <Compile Include="Dialogs\WordsImportDialog.xaml.cs">
       <DependentUpon>WordsImportDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="WordsOperationEventsArgs.cs" />
@@ -75,6 +79,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\WordListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\WordEditDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -97,7 +105,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="WordsImportDialog.xaml">
+    <Page Include="Dialogs\WordsImportDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

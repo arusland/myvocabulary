@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using MyVocabulary.Controls;
+using MyVocabulary.Dialogs;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
@@ -149,6 +150,7 @@ namespace MyVocabulary
                 {
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
+                    p.OnRename += ListControl_OnRename;
                 });
         }
 
@@ -180,6 +182,13 @@ namespace MyVocabulary
 
             if (TabItemImport.IsVisible)
             {
+                var result = MessageBox.Show(RS.MESSAGEBOX_SureToCloseImport, RS.TITLE_Warning, MessageBoxButton.OKCancel, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+
                 TabItemImport.Content = null;
                 control.Tag = null;
                 TabItemImport.Visibility = Visibility.Collapsed;
@@ -198,7 +207,12 @@ namespace MyVocabulary
         {
             var control = sender.To<WordListControl>();
             RefreshTabHeader(control.Type);
-        }        
+        }
+
+        private void ListControl_OnRename(object sender, OnWordRenameEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
 
         private static string GetTypeString(WordType type)
         {
@@ -225,10 +239,14 @@ namespace MyVocabulary
                 case Operation.Delete:
                     if (!fromImport)
                     {
-                        if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning, 
+                        if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning,
                             MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         {
                             _Provider.Delete(e.Words);
+                        }
+                        else
+                        {
+                            return;
                         }
                     }
                     break;

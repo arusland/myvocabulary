@@ -88,11 +88,29 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Such word already exists..
+        /// </summary>
+        internal static string MESSAGEBOX_SuchWordAlreadyExists {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_SuchWordAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Are you sure to delete selected {0} word(s)?.
         /// </summary>
         internal static string MESSAGEBOX_SureDeleteSelectedWords {
             get {
                 return ResourceManager.GetString("MESSAGEBOX_SureDeleteSelectedWords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure to close Import tab?.
+        /// </summary>
+        internal static string MESSAGEBOX_SureToCloseImport {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_SureToCloseImport", resourceCulture);
             }
         }
         

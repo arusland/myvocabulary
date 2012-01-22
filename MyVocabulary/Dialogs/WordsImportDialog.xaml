@@ -1,4 +1,4 @@
-﻿<Window x:Class="MyVocabulary.WordsImportDialog"
+﻿<Window x:Class="MyVocabulary.Dialogs.WordsImportDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Import Words"

@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Media;
 using MyVocabulary.Helpers;
 
-namespace MyVocabulary
+namespace MyVocabulary.Dialogs
 {
     public partial class WordsImportDialog : Window
     {
