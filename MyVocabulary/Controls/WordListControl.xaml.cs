@@ -21,7 +21,9 @@ namespace MyVocabulary.Controls
         private bool _IsModified;
         private int _SelectedCount;
         private bool _IsActive;
-
+        private bool _IsBlocked;
+        private bool _LockSelectedCount;
+        
         #endregion
 
         #region Ctors
@@ -50,6 +52,25 @@ namespace MyVocabulary.Controls
         #region Properties
 
         #region Public
+
+        public bool IsBlocked
+        {
+            get { return _IsBlocked; }
+            set 
+            { 
+                _IsBlocked = value;
+
+                TextBoxFilter.IsEnabled = !_IsBlocked;
+                //ButtonFilterClear.IsEnabled =
+                //ButtonClose.IsEnabled =
+                //ButtonDelete.IsEnabled =
+                //ButtonToBadKnown.IsEnabled =
+                //ButtonToKnown.IsEnabled =
+                //ButtonToUnknown.IsEnabled = !_IsBlocked;
+
+                OnIsBlockedChanged.DoIfNotNull(p => p(this, EventArgs.Empty));
+            }
+        }
 
         public WordType Type
         {
@@ -124,6 +145,8 @@ namespace MyVocabulary.Controls
 
         public void LoadItems()
         {
+            IsBlocked = true;
+
             WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
                 {
                     p.OnChecked -= Control_OnChecked;
@@ -131,6 +154,10 @@ namespace MyVocabulary.Controls
                 });
 
             WrapPanelMain.Children.Clear();
+            RefreshSelectedCount();
+
+            var text = TextBoxFilter.Text.Trim();
+            bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
 
             int i = 0;
 
@@ -140,6 +167,7 @@ namespace MyVocabulary.Controls
                 {
                     p.OnChecked += Control_OnChecked;
                     p.OnRename += Control_OnRename;
+                    p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
                 }));
 
                 ScrollViewerMain.ScrollToEnd();
@@ -149,26 +177,39 @@ namespace MyVocabulary.Controls
                     Dispatcher.DoEvents();
                 }
             }
+
+            IsBlocked = false;
         }
 
         #endregion
 
         #region Private
 
+        private void ClearFilter()
+        {
+            if (!IsBlocked)
+            {
+                TextBoxFilter.Text = RS.FILTER_Text;
+                TextBoxFilter.Foreground = Brushes.Gray;
+            }
+        }
+
         private void RefreshFilter()
         {
-            if (!TextBoxFilter.IsFocused)
+            if (!IsBlocked)
             {
-                if (TextBoxFilter.Text.IsNullOrEmpty())
+                if (!TextBoxFilter.IsFocused)
                 {
-                    TextBoxFilter.Text = RS.FILTER_Text;
-                    TextBoxFilter.Foreground = Brushes.Gray;
+                    if (TextBoxFilter.Text.IsNullOrEmpty())
+                    {
+                        ClearFilter();
+                    }
                 }
-            }
-            else
-            {
-                TextBoxFilter.Text = string.Empty;
-                TextBoxFilter.Foreground = Brushes.Black;
+                else
+                {
+                    TextBoxFilter.Text = string.Empty;
+                    TextBoxFilter.Foreground = Brushes.Black;
+                }
             }
         }
 
@@ -198,7 +239,10 @@ namespace MyVocabulary.Controls
 
         private void Control_OnChecked(object sender, EventArgs e)
         {
-            RefreshSelectedCount();
+            if (!_LockSelectedCount)
+            {
+                RefreshSelectedCount();
+            }
         }
 
         private void Control_OnRename(object sender, OnWordRenameEventArgs e)
@@ -239,13 +283,16 @@ namespace MyVocabulary.Controls
 
         private void DoOnOperationEvent(Operation operation)
         {
-            if (OnOperation.IsNotNull())
+            if (!IsBlocked)
             {
-                var words = AllControls.Where(p => p.IsChecked).Select(p => p.Word).ToList();
-
-                if (words.Count > 0)
+                if (OnOperation.IsNotNull())
                 {
-                    OnOperation(this, new WordsOperationEventsArgs(words, operation));
+                    var words = AllControls.Where(p => p.IsChecked).Select(p => p.Word).ToList();
+
+                    if (words.Count > 0)
+                    {
+                        OnOperation(this, new WordsOperationEventsArgs(words, operation));
+                    }
                 }
             }
         }
@@ -262,6 +309,8 @@ namespace MyVocabulary.Controls
 
         public event EventHandler OnClose;
 
+        public event EventHandler OnIsBlockedChanged;
+
         public event EventHandler<OnWordRenameEventArgs> OnRename;
 
         #endregion
@@ -270,43 +319,79 @@ namespace MyVocabulary.Controls
 
         private void HyperLinkSelectAll_Click(object sender, RoutedEventArgs e)
         {
-            AllControls.CallOnEach(p => p.IsChecked = true);
+            if (!IsBlocked)
+            {
+                _LockSelectedCount = true;
+
+                AllControls.CallOnEach(p =>
+                {
+                    if (p.IsVisible)
+                    {
+                        p.IsChecked = true;
+                        Dispatcher.DoEvents();
+                    }
+                });
+
+                _LockSelectedCount = false;
+                RefreshSelectedCount();
+            }
         }
 
         private void HyperLinkDeselectAll_Click(object sender, RoutedEventArgs e)
         {
-            AllControls.CallOnEach(p => p.IsChecked = false);
+            if (!IsBlocked)
+            {
+                _LockSelectedCount = true;
+
+                AllControls.CallOnEach(p =>
+                    {
+                        p.IsChecked = false;
+                        Dispatcher.DoEvents();
+                    });
+
+                _LockSelectedCount = false;
+                RefreshSelectedCount();
+            }
         }
 
         private void ButtonOperation_Click(object sender, RoutedEventArgs e)
         {
-            var op = FromButton(sender.To<Button>());
+            if (!IsBlocked)
+            {
+                var op = FromButton(sender.To<Button>());
 
-            DoOnOperationEvent(op);
+                DoOnOperationEvent(op);
 
-            RefreshSelectedCount();
+                RefreshSelectedCount();
+            }
         }
 
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
         {
-            OnClose.DoIfNotNull(p => p(this, EventArgs.Empty));
+            if (!IsBlocked)
+            {
+                OnClose.DoIfNotNull(p => p(this, EventArgs.Empty));
+            }
         }
 
         private void TextBoxFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
-            var text = TextBoxFilter.Text.Trim();
-            bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
-            
-            AllControls.CallOnEach(p => 
-                {
-                    p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
-                });
+            if (!IsBlocked)
+            {
+                var text = TextBoxFilter.Text.Trim();
+                bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
+
+                AllControls.CallOnEach(p =>
+                    {
+                        p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
+                    });
+            }
         }
 
         private void ButtonFilterClear_Click(object sender, RoutedEventArgs e)
         {
-            TextBoxFilter.Text = RS.FILTER_Text;
-        }
+            ClearFilter();            
+        }        
 
         private void TextBoxFilter_GotFocus(object sender, RoutedEventArgs e)
         {

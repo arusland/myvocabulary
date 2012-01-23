@@ -38,22 +38,29 @@ namespace MyVocabulary.Dialogs
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
-            var text = TextBoxWord.Text.Trim();
+            var text = TextBoxWord.Text.Trim().ToLower();
 
             if (text.IsNotEmpty())
             {
-                var ea = new OnWordRenameEventArgs(text, Word);
-
-                OnRename.DoIfNotNull(p => p(this, ea));
-
-                if (!ea.Cancel)
+                if (text != Word)
                 {
-                    Word = text;
-                    DialogResult = true;
+                    var ea = new OnWordRenameEventArgs(text, Word);
+
+                    OnRename.DoIfNotNull(p => p(this, ea));
+
+                    if (!ea.Cancel)
+                    {
+                        Word = text;
+                        DialogResult = true;
+                    }
+                    else
+                    {
+                        MessageBox.Show(RS.MESSAGEBOX_SuchWordAlreadyExists, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
                 else
                 {
-                    MessageBox.Show(RS.MESSAGEBOX_SuchWordAlreadyExists, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(RS.MESSAGEBOX_YouMustChangeWord, RS.TITLE_Warning, MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 }
             }
         }

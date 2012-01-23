@@ -35,7 +35,8 @@
                     HorizontalAlignment="Right"
                     Click="ButtonClose_Click"
                     Content="Close"
-                    DockPanel.Dock="Right" IsCancel="True" />
+                    DockPanel.Dock="Right"
+                    IsCancel="True" />
             <Button x:Name="ButtonProcess"
                     Width="90"
                     Height="25"

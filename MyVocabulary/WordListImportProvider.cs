@@ -46,6 +46,25 @@ namespace MyVocabulary
             }
         }
 
+        public bool Rename(string oldWord, string newWord)
+        {
+            if (_Words.FindIndex(p => p.WordRaw == newWord) >= 0)
+            {
+                return false;
+            }
+
+            int indexOld = _Words.FindIndex(p => p.WordRaw == oldWord);
+
+            if (indexOld < 0)
+            {
+                return false;
+            }
+
+            _Words[indexOld] = new Word(newWord, _Words[indexOld].Type);
+
+            return true;
+        }
+
         #endregion
     }
 }

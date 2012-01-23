@@ -20,6 +20,8 @@ namespace MyVocabulary.StorageProvider
 
         void Delete(IEnumerable<Word> words);
 
+        bool Rename(string oldWord, string newWord);
+
         void Save();
     }
 }

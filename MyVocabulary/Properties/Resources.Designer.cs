@@ -88,7 +88,7 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Such word already exists..
+        ///   Looks up a localized string similar to That word already exists..
         /// </summary>
         internal static string MESSAGEBOX_SuchWordAlreadyExists {
             get {
@@ -111,6 +111,15 @@ namespace MyVocabulary.Properties {
         internal static string MESSAGEBOX_SureToCloseImport {
             get {
                 return ResourceManager.GetString("MESSAGEBOX_SureToCloseImport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must change the word..
+        /// </summary>
+        internal static string MESSAGEBOX_YouMustChangeWord {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_YouMustChangeWord", resourceCulture);
             }
         }
         

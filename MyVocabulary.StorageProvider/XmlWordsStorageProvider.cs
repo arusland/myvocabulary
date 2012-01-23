@@ -150,7 +150,27 @@ namespace MyVocabulary.StorageProvider
 
             IsModified = false;
         }
+
+        public bool Rename(string oldWord, string newWord)
+        {
+            if (_AllWords.FindIndex(p => p.WordRaw == newWord) >= 0)
+            {
+                return false;
+            }
+
+            int indexOld = _AllWords.FindIndex(p => p.WordRaw == oldWord);
+
+            if (indexOld < 0)
+            {
+                return false;
+            }
+
+            _AllWords[indexOld] = new Word(newWord, _AllWords[indexOld].Type);
+            IsModified = true;
+
+            return true;
+        }
         
-        #endregion        
+        #endregion
     }
 }

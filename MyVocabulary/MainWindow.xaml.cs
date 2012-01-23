@@ -24,7 +24,7 @@ namespace MyVocabulary
 
         private readonly bool _Inited;
         private WordListControl _LastControl;
-        private readonly XmlWordsStorageProvider _Provider;
+        private readonly IWordsStorageProvider _Provider;
         private string _Filename;
 
         #endregion
@@ -52,15 +52,56 @@ namespace MyVocabulary
 
         #endregion
 
+        #region Properties
+        
+        #region Private
+        
+        private bool IsAnyTabBlocked
+        {
+            get
+            {
+                return TabControlMain.Items.Cast<TabItem>().Where(p => p.Content.IsNotNull()).Select(p => p.Content.To<WordListControl>()).Any(p => p.IsBlocked);
+            }
+        }
+        
+        #endregion
+        
+        #endregion
+
         #region Methods
 
         #region Private
+
+        private bool CloseImportTab()
+        {
+            if (TabItemImport.IsVisible)
+            {
+                var control = TabItemImport.Content.To<WordListControl>();
+
+                if (control.Words.Any())
+                {
+                    var result = MessageBox.Show(RS.MESSAGEBOX_SureToCloseImport, RS.TITLE_Warning, MessageBoxButton.OKCancel, MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Cancel)
+                    {
+                        return false;
+                    }
+                }
+
+                TabItemImport.Content = null;
+                control.Tag = null;
+                TabItemImport.Visibility = Visibility.Collapsed;
+                TabControlMain.SelectedIndex = 0;
+            }
+
+            return true;
+        }
 
         private void OpenFile(string filename)
         {
             try
             {
-                _Provider.Load(filename);
+                _Provider.To<XmlWordsStorageProvider>().Load(filename);
                 _Filename = filename;
                 GetControlByType(WordType.Unknown).IsModified = true;
                 GetControlByType(WordType.BadKnown).IsModified = true;
@@ -71,6 +112,26 @@ namespace MyVocabulary
             {
                 ShowError(ex.Message);
             }
+        }
+
+        private void RefreshControls()
+        {
+            bool isBlocked = IsAnyTabBlocked;
+
+            TabControlMain.Items.Cast<TabItem>().Where(p => p.Content.IsNotNull()).CallOnEach(p =>
+                {
+                    var control = p.Content.To<WordListControl>();
+
+                    if (!control.IsBlocked || !isBlocked)
+                    {
+                        p.IsEnabled = !isBlocked;
+                    }
+                });
+
+           // TabControlMain.IsEnabled = 
+            ButtonSave.IsEnabled =
+            ButtonOpen.IsEnabled =
+            ButtonImport.IsEnabled = !isBlocked;
         }
 
         private void RefreshTabHeader(WordType type)
@@ -103,7 +164,7 @@ namespace MyVocabulary
                 }
 
                 _Filename = dialog.FileName;
-                _Provider.SetPath(_Filename);
+                _Provider.To<XmlWordsStorageProvider>().SetPath(_Filename);
             }
 
             _Provider.Save();
@@ -151,8 +212,9 @@ namespace MyVocabulary
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
                     p.OnRename += ListControl_OnRename;
+                    p.OnIsBlockedChanged += ListControl_OnIsBlockedChanged;
                 });
-        }
+        }        
 
         private WordListControl CreateImportListControl(string[] words)
         {
@@ -162,13 +224,15 @@ namespace MyVocabulary
             {
                 p.OnOperation += ListControl_OnOperation;
                 p.OnModified += Import_OnModified;
+                p.OnIsBlockedChanged += ListControl_OnIsBlockedChanged;
                 p.OnClose += Import_OnClose;
+                p.OnRename += Import_OnRename;
             });
 
             result.Tag = provider;
 
             return result;
-        }        
+        }                
 
         #endregion
 
@@ -176,24 +240,22 @@ namespace MyVocabulary
 
         #region Event Handlers
 
-        private void Import_OnClose(object sender, EventArgs e)
+        private void Import_OnRename(object sender, OnWordRenameEventArgs e)
         {
             var control = sender.To<WordListControl>();
+            var provider = control.Tag.To<IWordsStorageImportProvider>();
 
-            if (TabItemImport.IsVisible)
+            e.Cancel = !provider.Rename(e.OldWord, e.NewWord);
+
+            if (!e.Cancel)
             {
-                var result = MessageBox.Show(RS.MESSAGEBOX_SureToCloseImport, RS.TITLE_Warning, MessageBoxButton.OKCancel, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Cancel)
-                {
-                    return;
-                }
-
-                TabItemImport.Content = null;
-                control.Tag = null;
-                TabItemImport.Visibility = Visibility.Collapsed;
-                TabControlMain.SelectedIndex = 0;
+                control.IsModified = true;
             }
+        }
+
+        private void Import_OnClose(object sender, EventArgs e)
+        {
+            CloseImportTab();
         }        
 
         private void Import_OnModified(object sender, EventArgs e)
@@ -209,9 +271,20 @@ namespace MyVocabulary
             RefreshTabHeader(control.Type);
         }
 
+        private void ListControl_OnIsBlockedChanged(object sender, EventArgs e)
+        {
+            RefreshControls();
+        }
+        
         private void ListControl_OnRename(object sender, OnWordRenameEventArgs e)
         {
-            throw new NotImplementedException();
+            e.Cancel = !_Provider.Rename(e.OldWord, e.NewWord);
+
+            if (!e.Cancel)
+            {
+                var control = sender.To<WordListControl>();
+                control.IsModified = true;
+            }
         }
 
         private static string GetTypeString(WordType type)
@@ -237,17 +310,23 @@ namespace MyVocabulary
             switch (e.Operation)
             {
                 case Operation.Delete:
-                    if (!fromImport)
-                    {
-                        if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning,
+                    if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning,
                             MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        if (fromImport)
                         {
-                            _Provider.Delete(e.Words);
+                            var provider = control.Tag.To<IWordsStorageImportProvider>();
+                            provider.Delete(e.Words);
+                            return;
                         }
                         else
                         {
-                            return;
+                            _Provider.Delete(e.Words);
                         }
+                    }
+                    else
+                    {
+                        return;
                     }
                     break;
                 case Operation.MakeKnown:
@@ -331,6 +410,12 @@ namespace MyVocabulary
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            if (IsAnyTabBlocked)
+            {
+                e.Cancel = true;
+                return;
+            }
+
             if (TabItemImport.IsVisible && TabItemImport.Content.To<WordListControl>().Words.Any())
             {
                 var result = MessageBox.Show(RS.MESSAGEBOX_HaveWordsInImportTab, RS.TITLE_Warning, MessageBoxButton.OKCancel, MessageBoxImage.Question);
@@ -365,13 +450,16 @@ namespace MyVocabulary
 
         private void ButtonImport_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new WordsImportDialog();
-
-            if (dialog.ShowDialog() == true)
+            if (CloseImportTab())
             {
-                TabItemImport.Visibility = Visibility.Visible;
-                TabItemImport.Content = CreateImportListControl(dialog.Words);
-                TabControlMain.SelectedItem = TabItemImport;
+                var dialog = new WordsImportDialog();
+
+                if (dialog.ShowDialog() == true)
+                {
+                    TabItemImport.Visibility = Visibility.Visible;
+                    TabItemImport.Content = CreateImportListControl(dialog.Words);
+                    TabControlMain.SelectedItem = TabItemImport;
+                }
             }
         }
 

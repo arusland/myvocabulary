@@ -127,13 +127,16 @@
     <value>You have words in the tab Import. Are you sure to close application?</value>
   </data>
   <data name="MESSAGEBOX_SuchWordAlreadyExists" xml:space="preserve">
-    <value>Such word already exists.</value>
+    <value>That word already exists.</value>
   </data>
   <data name="MESSAGEBOX_SureDeleteSelectedWords" xml:space="preserve">
     <value>Are you sure to delete selected {0} word(s)?</value>
   </data>
   <data name="MESSAGEBOX_SureToCloseImport" xml:space="preserve">
     <value>Are you sure to close Import tab?</value>
+  </data>
+  <data name="MESSAGEBOX_YouMustChangeWord" xml:space="preserve">
+    <value>You must change the word.</value>
   </data>
   <data name="TAB_HEADER_Import" xml:space="preserve">
     <value>Import</value>
