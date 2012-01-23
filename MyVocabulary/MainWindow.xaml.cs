@@ -456,8 +456,11 @@ namespace MyVocabulary
 
                 if (dialog.ShowDialog() == true)
                 {
+                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown).ToList();
+                    var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
+
                     TabItemImport.Visibility = Visibility.Visible;
-                    TabItemImport.Content = CreateImportListControl(dialog.Words);
+                    TabItemImport.Content = CreateImportListControl(filtered);
                     TabControlMain.SelectedItem = TabItemImport;
                 }
             }

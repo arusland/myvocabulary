@@ -77,7 +77,7 @@ namespace MyVocabulary.StorageProvider
         
         private Word LoadFromXml(XmlNode node)
         {
-            return new Word(node.GetAttribute("word"), (WordType)Convert.ToInt32(node.GetAttribute("type")));
+            return new Word(node.GetAttribute("word").ToLower(), (WordType)Convert.ToInt32(node.GetAttribute("type")));
         }
         
         #endregion
@@ -141,7 +141,7 @@ namespace MyVocabulary.StorageProvider
             doc.LoadXml("<?xml version=\"1.0\" encoding=\"utf-8\" ?><MyVocabulary version=\"1.0\"></MyVocabulary>");
             var nodeWords = doc.DocumentElement.AddNode("Words");
 
-            _AllWords.OrderBy(p => p.Type).CallOnEach(p => 
+            _AllWords.OrderBy(p => p.WordRaw).CallOnEach(p => 
                 {
                     nodeWords.AddNode("Item").AddAttribute("word", p.WordRaw).AddAttribute("type", ((int)p.Type).ToString());
                 });
