@@ -291,7 +291,14 @@ namespace MyVocabulary
 
             if (!e.Cancel)
             {
-                control.IsModified = true;
+                if (_Provider.Get().Any(p => p.WordRaw == e.NewWord))
+                {
+                    e.Cancel = true;
+                }
+                else
+                {
+                    control.IsModified = true;
+                }
             }
         }
 

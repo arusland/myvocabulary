@@ -3,6 +3,7 @@ using RS = MyVocabulary.Properties.Resources;
 using System.Windows;
 using MyVocabulary.Controls;
 using Shared.Extensions;
+using System.Windows.Input;
 
 namespace MyVocabulary.Dialogs
 {
@@ -38,6 +39,33 @@ namespace MyVocabulary.Dialogs
 
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
+            HandleOkButton();
+
+        }
+        
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            TextBoxWord.Text = Word;
+            TextBoxWord.Focus();
+            TextBoxWord.SelectAll();
+        }
+
+        private void TextBoxWord_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                HandleOkButton();
+            }
+        }
+
+        #endregion
+
+        #region Methods
+        
+        #region Private
+
+        private void HandleOkButton()
+        {
             var text = TextBoxWord.Text.Trim().ToLower();
 
             if (text.IsNotEmpty())
@@ -64,13 +92,8 @@ namespace MyVocabulary.Dialogs
                 }
             }
         }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            TextBoxWord.Text = Word;
-            TextBoxWord.Focus();
-            TextBoxWord.SelectAll();
-        }
+        
+        #endregion
         
         #endregion
 

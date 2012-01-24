@@ -22,7 +22,7 @@
                      Width="150"
                      Margin="3"
                      HorizontalAlignment="Right"
-                     MaxLength="100" />
+                     MaxLength="100" PreviewKeyDown="TextBoxWord_PreviewKeyDown" />
         </DockPanel>
 
         <DockPanel Grid.Row="1">

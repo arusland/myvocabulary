@@ -29,7 +29,7 @@ namespace MyVocabulary
 
         public IEnumerable<Word> Get()
         {
-            return _Words;
+            return _Words.OrderBy(p => p.WordRaw);
         }
 
         #endregion

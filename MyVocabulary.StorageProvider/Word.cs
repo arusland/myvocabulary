@@ -36,5 +36,18 @@ namespace MyVocabulary.StorageProvider
         #endregion
         
         #endregion
+
+        #region Methods
+        
+        #region Public
+
+        public override string ToString()
+        {
+            return WordRaw;
+        }
+        
+        #endregion
+        
+        #endregion
     }
 }
