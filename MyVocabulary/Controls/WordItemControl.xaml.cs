@@ -31,8 +31,8 @@ namespace MyVocabulary.Controls
 
             _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
             _KnownBrush = Brushes.LightGreen;
-            _BadKnownBrush = Brushes.OrangeRed;
-            _UnknownBrush = new SolidColorBrush(Color.FromRgb(225, 45, 45));
+            _BadKnownBrush = new SolidColorBrush(Color.FromRgb(255, 200, 100));
+            _UnknownBrush = new SolidColorBrush(Color.FromRgb(221, 75, 57));
             Word = word;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             CheckBoxMain.Content = word.WordRaw;
@@ -42,6 +42,7 @@ namespace MyVocabulary.Controls
                     p.Items.Add(new MenuItem().Duck(m =>
                     {
                         m.Header = "Edit...";
+                        m.InputGestureText = "E";
                         m.Click += Menu_Click;
                     }));
                 });

@@ -11,6 +11,8 @@ using RS = MyVocabulary.Properties.Resources;
 using System.Windows.Input;
 using System.Text;
 
+
+
 namespace MyVocabulary
 {
     public partial class MainWindow : Window

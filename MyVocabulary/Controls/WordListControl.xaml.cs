@@ -279,9 +279,9 @@ namespace MyVocabulary.Controls
 
         private void InitControls()
         {
-            ButtonToKnown.Background = Brushes.LightGreen;
-            ButtonToBadKnown.Background = Brushes.OrangeRed;
-            ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(225, 45, 45));
+            ButtonToKnown.Background = Brushes.LightGreen; 
+            ButtonToBadKnown.Background = new SolidColorBrush(Color.FromRgb(255, 200, 100));
+            ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(221, 75, 57));
 
             switch (_Type)
             {
