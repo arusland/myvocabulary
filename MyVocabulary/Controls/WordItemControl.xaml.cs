@@ -76,6 +76,23 @@ namespace MyVocabulary.Controls
         #endregion
 
         #region Methods
+
+        #region Public
+
+        public void EditWord()
+        {
+            var dialog = new WordEditDialog(Word.WordRaw);
+            dialog.OnRename += dialog_OnRename;
+
+            if (dialog.ShowDialog() == true)
+            {
+                Word = new Word(dialog.Word, Word.Type);
+            }
+
+            dialog.OnRename -= dialog_OnRename;
+        }
+        
+        #endregion
         
         #region Private
 
@@ -131,17 +148,9 @@ namespace MyVocabulary.Controls
 
         private void Menu_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new WordEditDialog(Word.WordRaw);
-            dialog.OnRename += dialog_OnRename;
-
-            if (dialog.ShowDialog() == true)
-            {
-                Word = new Word(dialog.Word, Word.Type);
-            }
-
-            dialog.OnRename -= dialog_OnRename;
+            EditWord();
         }
-
+        
         private void dialog_OnRename(object sender, OnWordRenameEventArgs e)
         {
             OnRename.DoIfNotNull(p => p(this, e));

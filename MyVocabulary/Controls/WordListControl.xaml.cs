@@ -23,6 +23,7 @@ namespace MyVocabulary.Controls
         private bool _IsActive;
         private bool _IsBlocked;
         private bool _LockSelectedCount;
+        private WordItemControl _LastCheckedControl;
         
         #endregion
 
@@ -135,6 +136,14 @@ namespace MyVocabulary.Controls
 
         #region Public
 
+        public void EditSelected()
+        {
+            if (_LastCheckedControl.IsNotNull() && AllControls.Any(p => p.IsChecked && _LastCheckedControl == p))
+            {
+                _LastCheckedControl.EditWord();
+            }
+        }
+
         public void Activate()
         {
             _IsActive = true;
@@ -154,6 +163,8 @@ namespace MyVocabulary.Controls
         public void LoadItems()
         {
             IsBlocked = true;
+
+            _LastCheckedControl = null;
 
             WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
                 {
@@ -247,6 +258,8 @@ namespace MyVocabulary.Controls
 
         private void Control_OnChecked(object sender, EventArgs e)
         {
+            _LastCheckedControl = sender.To<WordItemControl>();
+
             if (!_LockSelectedCount)
             {
                 RefreshSelectedCount();
@@ -342,6 +355,7 @@ namespace MyVocabulary.Controls
 
                 _LockSelectedCount = false;
                 RefreshSelectedCount();
+                _LastCheckedControl = null;
             }
         }
 
@@ -359,6 +373,7 @@ namespace MyVocabulary.Controls
 
                 _LockSelectedCount = false;
                 RefreshSelectedCount();
+                _LastCheckedControl = null;
             }
         }
 

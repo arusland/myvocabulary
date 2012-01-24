@@ -74,6 +74,11 @@ namespace MyVocabulary
 
         #region Private
 
+        private void OnEdit()
+        {
+            TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>().EditSelected();
+        }
+
         private void OnCopy()
         {
             var words = TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>().SelectedWords.Select(p => p.WordRaw).ToList();
@@ -258,15 +263,23 @@ namespace MyVocabulary
 
         private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            switch (e.Key)
             {
-                switch (e.Key)
-                {
-                    case Key.C:
+                case Key.C:
+                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                    {
                         OnCopy();
-                        break;
-                }
-            }
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.E:
+                    if (Keyboard.Modifiers == ModifierKeys.None)
+                    {
+                        OnEdit();
+                        e.Handled = true;
+                    }
+                    break;
+            }            
         }
         
         private void Import_OnRename(object sender, OnWordRenameEventArgs e)
