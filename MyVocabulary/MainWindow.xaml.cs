@@ -8,6 +8,8 @@ using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
+using System.Windows.Input;
+using System.Text;
 
 namespace MyVocabulary
 {
@@ -71,6 +73,20 @@ namespace MyVocabulary
         #region Methods
 
         #region Private
+
+        private void OnCopy()
+        {
+            var words = TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>().SelectedWords.Select(p => p.WordRaw).ToList();
+
+            var builder = new StringBuilder();
+
+            foreach (var word in words)
+            {
+                builder.AppendFormat("{0} ", word);
+            }
+
+            Clipboard.SetText(builder.ToString().TrimEnd());
+        }
 
         private bool CloseImportTab()
         {
@@ -240,6 +256,14 @@ namespace MyVocabulary
 
         #region Event Handlers
 
+        private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.C && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                OnCopy();
+            }
+        }
+        
         private void Import_OnRename(object sender, OnWordRenameEventArgs e)
         {
             var control = sender.To<WordListControl>();
@@ -475,5 +499,7 @@ namespace MyVocabulary
         }
 
         #endregion
+
+        
     }
 }

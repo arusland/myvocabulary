@@ -53,6 +53,14 @@ namespace MyVocabulary.Controls
 
         #region Public
 
+        public IEnumerable<Word> SelectedWords
+        {
+            get
+            {
+                return AllControls.Where(p => p.IsChecked).Select(p => p.Word);
+            }
+        }
+
         public bool IsBlocked
         {
             get { return _IsBlocked; }

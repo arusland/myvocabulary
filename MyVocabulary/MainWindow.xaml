@@ -8,6 +8,7 @@
         Closing="Window_Closing"
         Icon="/MyVocabulary;component/Images/MainApp.ico"
         Loaded="Window_Loaded"
+        PreviewKeyDown="Window_PreviewKeyDown"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.ColumnDefinitions>

@@ -68,6 +68,8 @@ namespace MyVocabulary.Dialogs
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             TextBoxWord.Text = Word;
+            TextBoxWord.Focus();
+            TextBoxWord.SelectAll();
         }
         
         #endregion
