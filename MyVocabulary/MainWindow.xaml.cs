@@ -258,9 +258,14 @@ namespace MyVocabulary
 
         private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == Key.C && (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
             {
-                OnCopy();
+                switch (e.Key)
+                {
+                    case Key.C:
+                        OnCopy();
+                        break;
+                }
             }
         }
         
@@ -337,13 +342,7 @@ namespace MyVocabulary
                     if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning,
                             MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                     {
-                        if (fromImport)
-                        {
-                            var provider = control.Tag.To<IWordsStorageImportProvider>();
-                            provider.Delete(e.Words);
-                            return;
-                        }
-                        else
+                        if (!fromImport)
                         {
                             _Provider.Delete(e.Words);
                         }

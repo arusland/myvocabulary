@@ -11,18 +11,18 @@ namespace MyVocabulary
         #region Fields
 
         private readonly List<Word> _Words;
-        
+
         #endregion
 
         #region Ctors
-        
+
         public WordListImportProvider(string[] words)
         {
             Checker.NotNull(words, "words");
 
             _Words = words.OrderBy(p => p).Select(p => new Word(p, WordType.None)).ToList();
         }
-        
+
         #endregion
 
         #region IWordListProvider
@@ -42,7 +42,10 @@ namespace MyVocabulary
             {
                 int index = _Words.FindIndex(p => p.WordRaw == word.WordRaw);
 
-                _Words.RemoveAt(index);
+                if (index >= 0)
+                {
+                    _Words.RemoveAt(index);
+                }
             }
         }
 
