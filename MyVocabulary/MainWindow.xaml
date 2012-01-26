@@ -35,7 +35,11 @@
                     Height="25"
                     Margin="3"
                     Click="ButtonImport_Click"
-                    Content="Import" />
+                    Content="Import"
+                    ToolTip="Import new words from text" />
+            <TextBlock x:Name="TextBlockTotalCount"
+                       Margin="5"
+                       VerticalAlignment="Center" />
             <Button x:Name="ButtonSave"
                     Width="90"
                     Height="25"
@@ -43,14 +47,16 @@
                     HorizontalAlignment="Right"
                     Click="ButtonSave_Click"
                     Content="Save"
-                    DockPanel.Dock="Right" />
+                    DockPanel.Dock="Right"
+                    ToolTip="Save words to vocabulary file" />
             <Button x:Name="ButtonOpen"
                     Width="90"
                     Height="25"
                     Margin="3"
                     HorizontalAlignment="Right"
                     Click="ButtonOpen_Click"
-                    Content="Open" />
+                    Content="Open"
+                    ToolTip="Open vocabulary file" />
         </DockPanel>
     </Grid>
 </Window>

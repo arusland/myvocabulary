@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using MyVocabulary.Controls;
 using MyVocabulary.Dialogs;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
-using System.Windows.Input;
-using System.Text;
 
 
 
@@ -164,11 +164,72 @@ namespace MyVocabulary
             var count = control.Words.Count();
 
             tab.Header = count > 0 ? string.Format("{0} ({1})", GetTypeString(control.Type), count) : GetTypeString(control.Type);
+            RefreshTotalCount();
+        }
+
+        private void RefreshTotalCount()
+        {
+            int totalCount = GetControlByType(WordType.Known).Words.Count() + GetControlByType(WordType.BadKnown).Words.Count() + 
+                GetControlByType(WordType.Unknown).Words.Count();
+
+            TextBlockTotalCount.Text = totalCount > 0 ? string.Format(RS.XAML_TotalCount, totalCount) : string.Empty;
         }
 
         private void ShowError(string message)
         {
             MessageBox.Show(message, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void OpenDocument()
+        {
+            if (_Provider.IsModified)
+            {
+                var result = MessageBox.Show(RS.MESSAGEBOX_DocumentModified, RS.TITLE_Warning, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Cancel)
+                {
+                    return;
+                }
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (!SaveDocument())
+                    {
+                        return;
+                    }
+                }
+            }
+
+            var dialog = new System.Windows.Forms.OpenFileDialog()
+            {
+                Filter = DIALOG_Filter,
+                DefaultExt = DEFAULT_Extension
+            };
+
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
+            {
+                return;
+            }
+
+            OpenFile(dialog.FileName);
+        }
+
+        private void ImportNewWords()
+        {
+            if (CloseImportTab())
+            {
+                var dialog = new WordsImportDialog();
+
+                if (dialog.ShowDialog() == true)
+                {
+                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown).ToList();
+                    var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
+
+                    TabItemImport.Visibility = Visibility.Visible;
+                    TabItemImport.Content = CreateImportListControl(filtered);
+                    TabControlMain.SelectedItem = TabItemImport;
+                }
+            }
         }
 
         private bool SaveDocument()
@@ -278,6 +339,27 @@ namespace MyVocabulary
                     if (Keyboard.Modifiers == ModifierKeys.None)
                     {
                         OnEdit();
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.S:
+                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                    {
+                        SaveDocument();
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.O:
+                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                    {
+                        OpenDocument();
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.I:
+                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                    {
+                        ImportNewWords();
                         e.Handled = true;
                     }
                     break;
@@ -421,38 +503,10 @@ namespace MyVocabulary
 
         private void ButtonOpen_Click(object sender, RoutedEventArgs e)
         {
-            if (_Provider.IsModified)
-            {
-                var result = MessageBox.Show(RS.MESSAGEBOX_DocumentModified, RS.TITLE_Warning, MessageBoxButton.YesNoCancel, MessageBoxImage.Question);
-
-                if (result == MessageBoxResult.Cancel)
-                {
-                    return;
-                }
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    if (!SaveDocument())
-                    {
-                        return;
-                    }
-                }
-            }
-
-            var dialog = new System.Windows.Forms.OpenFileDialog()
-                {
-                    Filter = DIALOG_Filter,
-                    DefaultExt = DEFAULT_Extension
-                };
-
-            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.Cancel)
-            {
-                return;
-            }
-
-            OpenFile(dialog.FileName);
-        }        
-
+            OpenDocument();
+            return;
+        }
+        
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (IsAnyTabBlocked)
@@ -495,22 +549,10 @@ namespace MyVocabulary
 
         private void ButtonImport_Click(object sender, RoutedEventArgs e)
         {
-            if (CloseImportTab())
-            {
-                var dialog = new WordsImportDialog();
+            ImportNewWords();
 
-                if (dialog.ShowDialog() == true)
-                {
-                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown).ToList();
-                    var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
-
-                    TabItemImport.Visibility = Visibility.Visible;
-                    TabItemImport.Content = CreateImportListControl(filtered);
-                    TabControlMain.SelectedItem = TabItemImport;
-                }
-            }
         }
-
+        
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             if (Environment.GetCommandLineArgs().Length > 1)
@@ -519,8 +561,6 @@ namespace MyVocabulary
             }
         }
 
-        #endregion
-
-        
+        #endregion        
     }
 }

@@ -185,5 +185,14 @@ namespace MyVocabulary.Properties {
                 return ResourceManager.GetString("WORD_TYPE_Unknown", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Total count: {0}.
+        /// </summary>
+        internal static string XAML_TotalCount {
+            get {
+                return ResourceManager.GetString("XAML_TotalCount", resourceCulture);
+            }
+        }
     }
 }

@@ -159,4 +159,7 @@
   <data name="WORD_TYPE_Unknown" xml:space="preserve">
     <value>Unknown</value>
   </data>
+  <data name="XAML_TotalCount" xml:space="preserve">
+    <value>Total count: {0}</value>
+  </data>
 </root>
