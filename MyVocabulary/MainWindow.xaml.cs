@@ -222,7 +222,7 @@ namespace MyVocabulary
 
                 if (dialog.ShowDialog() == true)
                 {
-                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown).ToList();
+                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown || p.Type == WordType.Unknown).ToList();
                     var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
 
                     TabItemImport.Visibility = Visibility.Visible;
@@ -550,7 +550,6 @@ namespace MyVocabulary
         private void ButtonImport_Click(object sender, RoutedEventArgs e)
         {
             ImportNewWords();
-
         }
         
         private void Window_Loaded(object sender, RoutedEventArgs e)
