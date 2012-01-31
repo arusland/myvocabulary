@@ -385,6 +385,7 @@ namespace MyVocabulary
             {
                 if (_Provider.Get().Any(p => p.WordRaw == e.NewWord))
                 {
+                    provider.Rename(e.NewWord, e.OldWord);
                     e.Cancel = true;
                 }
                 else
