@@ -112,7 +112,8 @@ namespace MyVocabulary
                 TabItemImport.Content = null;
                 control.Tag = null;
                 TabItemImport.Visibility = Visibility.Collapsed;
-                TabControlMain.SelectedIndex = 0;
+                TabControlMain.SelectedItem = TabItemBadKnown;
+                TabControlMain.Focus();
             }
 
             return true;
