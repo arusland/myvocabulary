@@ -11,8 +11,6 @@ using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
 
-
-
 namespace MyVocabulary
 {
     public partial class MainWindow : Window
@@ -52,7 +50,7 @@ namespace MyVocabulary
             RefreshTabHeader(WordType.Known);
             RefreshTabHeader(WordType.BadKnown);
             RefreshTabHeader(WordType.Unknown);
-        }
+        }       
 
         #endregion
 
@@ -225,9 +223,12 @@ namespace MyVocabulary
                     var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown || p.Type == WordType.Unknown).ToList();
                     var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
 
+                    var control = CreateImportListControl(filtered);
                     TabItemImport.Visibility = Visibility.Visible;
-                    TabItemImport.Content = CreateImportListControl(filtered);
+                    TabItemImport.Content = control;
                     TabControlMain.SelectedItem = TabItemImport;
+                    Dispatcher.DoEvents();
+                    control.Activate(true);
                 }
             }
         }
@@ -326,44 +327,50 @@ namespace MyVocabulary
 
         private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            switch (e.Key)
+            if (!IsAnyTabBlocked)
             {
-                case Key.C:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-                    {
-                        OnCopy();
-                        e.Handled = true;
-                    }
-                    break;
-                case Key.E:
-                    if (Keyboard.Modifiers == ModifierKeys.None)
-                    {
-                        OnEdit();
-                        e.Handled = true;
-                    }
-                    break;
-                case Key.S:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-                    {
-                        SaveDocument();
-                        e.Handled = true;
-                    }
-                    break;
-                case Key.O:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-                    {
-                        OpenDocument();
-                        e.Handled = true;
-                    }
-                    break;
-                case Key.I:
-                    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
-                    {
-                        ImportNewWords();
-                        e.Handled = true;
-                    }
-                    break;
-            }            
+                switch (e.Key)
+                {
+                    case Key.C:
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                        {
+                            OnCopy();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.E:
+                        if (Keyboard.Modifiers == ModifierKeys.None)
+                        {
+                            OnEdit();
+                        }
+                        break;
+                    case Key.S:
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                        {
+                            SaveDocument();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.O:
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                        {
+                            OpenDocument();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.I:
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                        {
+                            ImportNewWords();
+                            e.Handled = true;
+                        }
+                        break;
+                }
+            }
+            else
+            {
+                e.Handled = true;
+            }
         }
         
         private void Import_OnRename(object sender, OnWordRenameEventArgs e)
@@ -558,7 +565,7 @@ namespace MyVocabulary
             {
                 OpenFile(Environment.GetCommandLineArgs()[1]);
             }
-        }
+        }        
 
         #endregion        
     }

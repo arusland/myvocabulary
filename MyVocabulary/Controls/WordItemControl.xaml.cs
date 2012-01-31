@@ -17,6 +17,7 @@ namespace MyVocabulary.Controls
         private readonly Brush _SelectedBrush;
         private readonly Brush _KnownBrush;
         private readonly Brush _BadKnownBrush;
+        private Word _Word;
         private readonly Brush _UnknownBrush;
         
         #endregion
@@ -33,10 +34,9 @@ namespace MyVocabulary.Controls
             _KnownBrush = Brushes.LightGreen;
             _BadKnownBrush = new SolidColorBrush(Color.FromRgb(255, 200, 100));
             _UnknownBrush = new SolidColorBrush(Color.FromRgb(221, 75, 57));
-            Word = word;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
-            CheckBoxMain.Content = word.WordRaw;
-            RefreshBackground();
+            Word = word;
+            RefreshWord();
             this.ContextMenu = new ContextMenu().Duck(p =>
                 {
                     p.Items.Add(new MenuItem().Duck(m =>
@@ -56,8 +56,20 @@ namespace MyVocabulary.Controls
 
         public Word Word
         {
-            get;
-            private set;
+            get
+            {
+                return _Word;
+            }
+            set
+            {
+                var oldWord = _Word;
+                _Word = value;
+
+                if (oldWord.IsNull() || oldWord.WordRaw != _Word.WordRaw || oldWord.Type != _Word.Type)
+                {
+                    RefreshWord();
+                }
+            }
         }
         
         public bool IsChecked
@@ -87,7 +99,8 @@ namespace MyVocabulary.Controls
 
             if (dialog.ShowDialog() == true)
             {
-                Word = new Word(dialog.Word, Word.Type);
+                //Word = new Word(dialog.Word, Word.Type);
+                //RefreshWord();
             }
 
             dialog.OnRename -= dialog_OnRename;
@@ -96,6 +109,12 @@ namespace MyVocabulary.Controls
         #endregion
         
         #region Private
+
+        private void RefreshWord()
+        {
+            CheckBoxMain.Content = Word.WordRaw;
+            RefreshBackground();
+        }
 
         private void RefreshBackground()
         {

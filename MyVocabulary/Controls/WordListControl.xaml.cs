@@ -23,8 +23,9 @@ namespace MyVocabulary.Controls
         private bool _IsActive;
         private bool _IsBlocked;
         private bool _LockSelectedCount;
+        private bool _LockRefreshActive;
         private WordItemControl _LastCheckedControl;
-        
+
         #endregion
 
         #region Ctors
@@ -46,7 +47,7 @@ namespace MyVocabulary.Controls
 
             InitControls();
             RefreshFilter();
-        }        
+        }
 
         #endregion
 
@@ -65,8 +66,8 @@ namespace MyVocabulary.Controls
         public bool IsBlocked
         {
             get { return _IsBlocked; }
-            set 
-            { 
+            set
+            {
                 _IsBlocked = value;
 
                 TextBoxFilter.IsEnabled = !_IsBlocked;
@@ -93,13 +94,13 @@ namespace MyVocabulary.Controls
             {
                 _IsModified = value;
 
-                if (IsModified && _IsActive)
+                OnModified.DoIfNotNull(p => p(this, EventArgs.Empty));
+
+                if (IsModified && _IsActive && !_LockRefreshActive)
                 {
                     IsModified = false;
                     LoadItems();
                 }
-
-                OnModified.DoIfNotNull(p => p(this, EventArgs.Empty));
             }
         }
 
@@ -140,14 +141,22 @@ namespace MyVocabulary.Controls
         {
             if (_LastCheckedControl.IsNotNull() && AllControls.Any(p => p.IsChecked && _LastCheckedControl == p))
             {
+                _LockRefreshActive = true;
                 _LastCheckedControl.EditWord();
+
+                if (IsModified)
+                {
+                    LoadItems();
+                }
+                _LockRefreshActive = false;
             }
         }
 
-        public void Activate()
+        public void Activate(bool forceLoad = false)
         {
             _IsActive = true;
-            if (IsModified)
+
+            if (IsModified && forceLoad)
             {
                 IsModified = false;
                 LoadItems();
@@ -162,40 +171,138 @@ namespace MyVocabulary.Controls
 
         public void LoadItems()
         {
-            IsBlocked = true;
+            if (!IsBlocked)
+            {
+                IsBlocked = true;
 
-            _LastCheckedControl = null;
+                _LastCheckedControl = null;
 
-            WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
+                WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
                 {
                     p.OnChecked -= Control_OnChecked;
                     p.OnRename -= Control_OnRename;
                 });
 
-            WrapPanelMain.Children.Clear();
-            RefreshSelectedCount();
+                WrapPanelMain.Children.Clear();
+                RefreshSelectedCount();
+
+                var text = TextBoxFilter.Text.Trim();
+                bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
+
+                var items = _Provider.Get().ToList();
+                InitProgressBar(items.Count);
+
+
+                int i = 0;
+
+                foreach (var item in items)
+                {
+                    WrapPanelMain.Children.Add(new WordItemControl(item).Duck(p =>
+                    {
+                        p.OnChecked += Control_OnChecked;
+                        p.OnRename += Control_OnRename;
+                        p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
+                    }));
+
+                    //ScrollViewerMain.ScrollToEnd();
+
+                    if (++i % 10 == 0)
+                    {
+                        ProgressBarMain.Value = i;
+                        Dispatcher.DoEvents();
+                    }
+                }
+
+                CloseProgressBar();
+                IsBlocked = false;
+            }
+        }
+
+        private void InitProgressBar(int count)
+        {
+            ProgressBarMain.Maximum = count;
+            ProgressBarMain.Minimum = 0;
+            ProgressBarMain.Value = 0;
+            ProgressBarMain.Visibility = Visibility.Visible;
+        }
+
+        private void CloseProgressBar()
+        {
+            ProgressBarMain.Visibility = Visibility.Collapsed;
+        }
+
+        public void LoadItems2()
+        {
+            IsBlocked = true;
+
+            _LastCheckedControl = null;
+
+            var items = _Provider.Get().ToList();
+
+            int min = Math.Min(WrapPanelMain.Children.Count, items.Count);
 
             var text = TextBoxFilter.Text.Trim();
             bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
+            ProgressBarMain.Maximum = items.Count;
+            ProgressBarMain.Minimum = 0;
+            ProgressBarMain.Value = 0;
 
-            int i = 0;
-
-            foreach (var item in _Provider.Get())
+            for (int i = 0; i < min; i++)
             {
-                WrapPanelMain.Children.Add(new WordItemControl(item).Duck(p =>
-                {
-                    p.OnChecked += Control_OnChecked;
-                    p.OnRename += Control_OnRename;
-                    p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
-                }));
+                WrapPanelMain.Children[i].To<WordItemControl>().Word = items[i];
 
-                ScrollViewerMain.ScrollToEnd();
-
-                if (++i % 10 == 0)
+                if (i % 10 == 0)
                 {
+                    ProgressBarMain.Value = i;
                     Dispatcher.DoEvents();
                 }
             }
+
+            if (items.Count > min)
+            {
+                for (int i = min; i < items.Count; i++)
+                {
+                    WrapPanelMain.Children.Add(new WordItemControl(items[i]).Duck(p =>
+                    {
+                        p.OnChecked += Control_OnChecked;
+                        p.OnRename += Control_OnRename;
+                        p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
+                    }));
+
+                    if (i % 10 == 0)
+                    {
+                        ProgressBarMain.Value = i;
+                        Dispatcher.DoEvents();
+                    }
+                }
+            }
+            else
+            {
+                var toRemove = new List<WordItemControl>();
+
+                for (int i = min; i < WrapPanelMain.Children.Count; i++)
+                {
+                    WrapPanelMain.Children[i].To<WordItemControl>().Duck(p =>
+                        {
+                            p.OnChecked -= Control_OnChecked;
+                            p.OnRename -= Control_OnRename;
+                            toRemove.Add(p);
+                        });
+
+                    if (i % 10 == 0)
+                    {
+                        ProgressBarMain.Value = i;
+                        Dispatcher.DoEvents();
+                    }
+                }
+
+                toRemove.CallOnEach(p => WrapPanelMain.Children.Remove(p));
+            }
+
+            ProgressBarMain.Value = items.Count;
+
+            RefreshSelectedCount();            
+            //Dispatcher.DoEvents();
 
             IsBlocked = false;
         }
@@ -279,7 +386,7 @@ namespace MyVocabulary.Controls
 
         private void InitControls()
         {
-            ButtonToKnown.Background = Brushes.LightGreen; 
+            ButtonToKnown.Background = Brushes.LightGreen;
             ButtonToBadKnown.Background = new SolidColorBrush(Color.FromRgb(255, 200, 100));
             ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(221, 75, 57));
 
@@ -338,24 +445,44 @@ namespace MyVocabulary.Controls
 
         #region Event Handlers
 
+        private void UserControl_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (IsModified && _IsActive)
+            {
+                IsModified = false;
+                LoadItems();
+            }
+        }
+
         private void HyperLinkSelectAll_Click(object sender, RoutedEventArgs e)
         {
             if (!IsBlocked)
             {
+                IsBlocked = true;
                 _LockSelectedCount = true;
+                int i = 0;
+                InitProgressBar(AllControls.Count());
 
                 AllControls.CallOnEach(p =>
                 {
                     if (p.IsVisible)
                     {
                         p.IsChecked = true;
+                    }
+
+                    if (++i % 10 == 0)
+                    {
+                        ProgressBarMain.Value = i;
                         Dispatcher.DoEvents();
                     }
                 });
 
+                CloseProgressBar();
+
                 _LockSelectedCount = false;
                 RefreshSelectedCount();
                 _LastCheckedControl = null;
+                IsBlocked = false;
             }
         }
 
@@ -363,17 +490,28 @@ namespace MyVocabulary.Controls
         {
             if (!IsBlocked)
             {
+                IsBlocked = true;
                 _LockSelectedCount = true;
+                int i = 0;
+                InitProgressBar(AllControls.Count());
 
                 AllControls.CallOnEach(p =>
                     {
                         p.IsChecked = false;
-                        Dispatcher.DoEvents();
+
+                        if (++i % 10 == 0)
+                        {
+                            ProgressBarMain.Value = i;
+                            Dispatcher.DoEvents();
+                        }
                     });
+
+                CloseProgressBar();
 
                 _LockSelectedCount = false;
                 RefreshSelectedCount();
                 _LastCheckedControl = null;
+                IsBlocked = false;
             }
         }
 
@@ -413,8 +551,8 @@ namespace MyVocabulary.Controls
 
         private void ButtonFilterClear_Click(object sender, RoutedEventArgs e)
         {
-            ClearFilter();            
-        }        
+            ClearFilter();
+        }
 
         private void TextBoxFilter_GotFocus(object sender, RoutedEventArgs e)
         {

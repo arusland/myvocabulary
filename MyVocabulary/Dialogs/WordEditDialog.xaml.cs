@@ -1,9 +1,9 @@
 ﻿using System;
-using RS = MyVocabulary.Properties.Resources;
 using System.Windows;
+using System.Windows.Input;
 using MyVocabulary.Controls;
 using Shared.Extensions;
-using System.Windows.Input;
+using RS = MyVocabulary.Properties.Resources;
 
 namespace MyVocabulary.Dialogs
 {
@@ -40,7 +40,6 @@ namespace MyVocabulary.Dialogs
         private void ButtonOK_Click(object sender, RoutedEventArgs e)
         {
             HandleOkButton();
-
         }
         
         private void Window_Loaded(object sender, RoutedEventArgs e)

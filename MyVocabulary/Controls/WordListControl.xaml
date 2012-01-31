@@ -6,6 +6,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              d:DesignHeight="422"
              d:DesignWidth="802"
+             GotFocus="UserControl_GotFocus"
              x:ClassModifier="internal"
              mc:Ignorable="d">
 
@@ -94,10 +95,20 @@
         </Border>
 
         <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
             <TextBlock Margin="5">
                 <Hyperlink x:Name="HyperLinkSelectAll" Click="HyperLinkSelectAll_Click">Select all</Hyperlink>
                 <Hyperlink x:Name="HyperLinkDeselectAll" Click="HyperLinkDeselectAll_Click">Deselect all</Hyperlink>
             </TextBlock>
+
+            <ProgressBar x:Name="ProgressBarMain"
+                         Grid.Column="1"
+                         Margin="3"
+                         Visibility="Collapsed" />
         </Grid>
     </Grid>
 </UserControl>
