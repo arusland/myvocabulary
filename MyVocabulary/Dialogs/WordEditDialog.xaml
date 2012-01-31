@@ -6,6 +6,7 @@
         ResizeMode="NoResize"
         SizeToContent="WidthAndHeight"
         WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing"
         x:ClassModifier="internal">
     <Grid>
         <Grid.RowDefinitions>

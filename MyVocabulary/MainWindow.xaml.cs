@@ -425,6 +425,7 @@ namespace MyVocabulary
             {
                 var control = sender.To<WordListControl>();
                 control.IsModified = true;
+                RefreshTitle();
             }
         }
 

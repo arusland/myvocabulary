@@ -32,31 +32,6 @@ namespace MyVocabulary.Dialogs
         
         #endregion
 
-        private void ButtonCancel_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-        }
-
-        private void ButtonOK_Click(object sender, RoutedEventArgs e)
-        {
-            HandleOkButton();
-        }
-        
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            TextBoxWord.Text = Word;
-            TextBoxWord.Focus();
-            TextBoxWord.SelectAll();
-        }
-
-        private void TextBoxWord_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                HandleOkButton();
-            }
-        }
-
         #endregion
 
         #region Methods
@@ -72,7 +47,6 @@ namespace MyVocabulary.Dialogs
                 if (text != Word)
                 {
                     var ea = new OnWordRenameEventArgs(text, Word);
-
                     OnRename.DoIfNotNull(p => p(this, ea));
 
                     if (!ea.Cancel)
@@ -99,6 +73,40 @@ namespace MyVocabulary.Dialogs
         #region Events
 
         public event EventHandler<OnWordRenameEventArgs> OnRename;
+        
+        #endregion
+
+        #region Event Handlers
+
+        private void ButtonCancel_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+        }
+
+        private void ButtonOK_Click(object sender, RoutedEventArgs e)
+        {
+            HandleOkButton();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            TextBoxWord.Text = Word;
+            TextBoxWord.Focus();
+            TextBoxWord.SelectAll();
+        }
+
+        private void TextBoxWord_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                HandleOkButton();
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = !ButtonOK.IsEnabled;
+        }
         
         #endregion
     }

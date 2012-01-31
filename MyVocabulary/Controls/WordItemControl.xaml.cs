@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using MyVocabulary.Dialogs;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
@@ -43,7 +42,7 @@ namespace MyVocabulary.Controls
                     {
                         m.Header = "Edit...";
                         m.InputGestureText = "E";
-                        m.Click += Menu_Click;
+                        m.Click += MenuRename_Click;
                     }));
                 });
         }        
@@ -88,25 +87,7 @@ namespace MyVocabulary.Controls
 
         #endregion
 
-        #region Methods
-
-        #region Public
-
-        public void EditWord()
-        {
-            var dialog = new WordEditDialog(Word.WordRaw);
-            dialog.OnRename += dialog_OnRename;
-
-            if (dialog.ShowDialog() == true)
-            {
-                //Word = new Word(dialog.Word, Word.Type);
-                //RefreshWord();
-            }
-
-            dialog.OnRename -= dialog_OnRename;
-        }
-        
-        #endregion
+        #region Methods        
         
         #region Private
 
@@ -146,7 +127,7 @@ namespace MyVocabulary.Controls
         
         public event EventHandler OnChecked;
 
-        public event EventHandler<OnWordRenameEventArgs> OnRename;
+        public event EventHandler OnRenameCommand;
         
         #endregion
 
@@ -166,14 +147,9 @@ namespace MyVocabulary.Controls
             e.Handled = true;
         }
 
-        private void Menu_Click(object sender, RoutedEventArgs e)
+        private void MenuRename_Click(object sender, RoutedEventArgs e)
         {
-            EditWord();
-        }
-        
-        private void dialog_OnRename(object sender, OnWordRenameEventArgs e)
-        {
-            OnRename.DoIfNotNull(p => p(this, e));
+            OnRenameCommand.DoIfNotNull(p => p(this, EventArgs.Empty));
         }
         
         #endregion

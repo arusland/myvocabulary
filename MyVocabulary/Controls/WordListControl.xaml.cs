@@ -9,6 +9,7 @@ using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
 using RS = MyVocabulary.Properties.Resources;
+using MyVocabulary.Dialogs;
 
 namespace MyVocabulary.Controls
 {
@@ -141,14 +142,7 @@ namespace MyVocabulary.Controls
         {
             if (_LastCheckedControl.IsNotNull() && AllControls.Any(p => p.IsChecked && _LastCheckedControl == p))
             {
-                _LockRefreshActive = true;
-                _LastCheckedControl.EditWord();
-
-                if (IsModified)
-                {
-                    LoadItems();
-                }
-                _LockRefreshActive = false;
+                RenameCommand(_LastCheckedControl);
             }
         }
 
@@ -180,7 +174,7 @@ namespace MyVocabulary.Controls
                 WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
                 {
                     p.OnChecked -= Control_OnChecked;
-                    p.OnRename -= Control_OnRename;
+                    p.OnRenameCommand -= Control_OnRenameCommand;
                 });
 
                 WrapPanelMain.Children.Clear();
@@ -200,7 +194,7 @@ namespace MyVocabulary.Controls
                     WrapPanelMain.Children.Add(new WordItemControl(item).Duck(p =>
                     {
                         p.OnChecked += Control_OnChecked;
-                        p.OnRename += Control_OnRename;
+                        p.OnRenameCommand += Control_OnRenameCommand;
                         p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
                     }));
 
@@ -218,98 +212,53 @@ namespace MyVocabulary.Controls
             }
         }
 
+        void Control_OnRenameCommand(object sender, EventArgs e)
+        {
+            RenameCommand(sender.To<WordItemControl>());
+        }
+
         private void InitProgressBar(int count)
         {
             ProgressBarMain.Maximum = count;
             ProgressBarMain.Minimum = 0;
             ProgressBarMain.Value = 0;
             ProgressBarMain.Visibility = Visibility.Visible;
+            TextBlockLoadingStatus.Visibility = Visibility.Visible;
         }
 
         private void CloseProgressBar()
         {
             ProgressBarMain.Visibility = Visibility.Collapsed;
+            TextBlockLoadingStatus.Visibility = Visibility.Collapsed;
         }
-
-        public void LoadItems2()
-        {
-            IsBlocked = true;
-
-            _LastCheckedControl = null;
-
-            var items = _Provider.Get().ToList();
-
-            int min = Math.Min(WrapPanelMain.Children.Count, items.Count);
-
-            var text = TextBoxFilter.Text.Trim();
-            bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
-            ProgressBarMain.Maximum = items.Count;
-            ProgressBarMain.Minimum = 0;
-            ProgressBarMain.Value = 0;
-
-            for (int i = 0; i < min; i++)
-            {
-                WrapPanelMain.Children[i].To<WordItemControl>().Word = items[i];
-
-                if (i % 10 == 0)
-                {
-                    ProgressBarMain.Value = i;
-                    Dispatcher.DoEvents();
-                }
-            }
-
-            if (items.Count > min)
-            {
-                for (int i = min; i < items.Count; i++)
-                {
-                    WrapPanelMain.Children.Add(new WordItemControl(items[i]).Duck(p =>
-                    {
-                        p.OnChecked += Control_OnChecked;
-                        p.OnRename += Control_OnRename;
-                        p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
-                    }));
-
-                    if (i % 10 == 0)
-                    {
-                        ProgressBarMain.Value = i;
-                        Dispatcher.DoEvents();
-                    }
-                }
-            }
-            else
-            {
-                var toRemove = new List<WordItemControl>();
-
-                for (int i = min; i < WrapPanelMain.Children.Count; i++)
-                {
-                    WrapPanelMain.Children[i].To<WordItemControl>().Duck(p =>
-                        {
-                            p.OnChecked -= Control_OnChecked;
-                            p.OnRename -= Control_OnRename;
-                            toRemove.Add(p);
-                        });
-
-                    if (i % 10 == 0)
-                    {
-                        ProgressBarMain.Value = i;
-                        Dispatcher.DoEvents();
-                    }
-                }
-
-                toRemove.CallOnEach(p => WrapPanelMain.Children.Remove(p));
-            }
-
-            ProgressBarMain.Value = items.Count;
-
-            RefreshSelectedCount();            
-            //Dispatcher.DoEvents();
-
-            IsBlocked = false;
-        }
-
+       
         #endregion
 
         #region Private
+
+        private void RenameCommand(WordItemControl control)
+        {
+            _LockRefreshActive = true;
+            var dialog = new WordEditDialog(control.Word.WordRaw);
+            dialog.OnRename += dialog_OnRename;
+
+            if (dialog.ShowDialog() == true)
+            {
+                if (IsModified)
+                {
+                    LoadItems();
+                }
+            }
+
+            dialog.OnRename -= dialog_OnRename;
+
+            _LockRefreshActive = false;
+        }
+
+        private void dialog_OnRename(object sender, OnWordRenameEventArgs e)
+        {
+            OnRename.DoIfNotNull(p => p(this, e));
+        }
 
         private void ClearFilter()
         {
