@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using MyVocabulary.StorageProvider;
 using Shared.Helpers;
-using System.Collections.ObjectModel;
 
 namespace MyVocabulary
 {

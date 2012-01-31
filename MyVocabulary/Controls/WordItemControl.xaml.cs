@@ -41,11 +41,47 @@ namespace MyVocabulary.Controls
                     p.Items.Add(new MenuItem().Duck(m =>
                     {
                         m.Header = "Edit...";
-                        m.InputGestureText = "E";
                         m.Click += MenuRename_Click;
                     }));
+
+                    if (Word.WordRaw.EndsWith("ed"))
+                    {
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Remove -ed";
+                            m.Tag = "ed";
+                            m.Click += RemoveEnding_Click;
+                        }));
+
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Remove -d";
+                            m.Tag = "d";
+                            m.Click += RemoveEnding_Click;
+                        }));
+                    }
+
+                    if (Word.WordRaw.EndsWith("es"))
+                    {
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Remove -es";
+                            m.Tag = "es";
+                            m.Click += RemoveEnding_Click;
+                        }));
+                    }
+
+                    if (Word.WordRaw.EndsWith("s"))
+                    {
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Remove -s";
+                            m.Tag = "s";
+                            m.Click += RemoveEnding_Click;
+                        }));
+                    }
                 });
-        }        
+        }                
        
         #endregion
 
@@ -128,6 +164,8 @@ namespace MyVocabulary.Controls
         public event EventHandler OnChecked;
 
         public event EventHandler OnRenameCommand;
+
+        public event EventHandler<OnWordRenameEventArgs> OnRemoveEnding;
         
         #endregion
 
@@ -150,6 +188,14 @@ namespace MyVocabulary.Controls
         private void MenuRename_Click(object sender, RoutedEventArgs e)
         {
             OnRenameCommand.DoIfNotNull(p => p(this, EventArgs.Empty));
+        }
+
+        private void RemoveEnding_Click(object sender, RoutedEventArgs e)
+        {
+            var ending = sender.To<MenuItem>().Tag.ToString();
+            var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length);
+            var ea = new OnWordRenameEventArgs(newWord, Word.WordRaw);
+            OnRemoveEnding.DoIfNotNull(p => p(this, ea));
         }
         
         #endregion

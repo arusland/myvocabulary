@@ -175,6 +175,7 @@ namespace MyVocabulary.Controls
                 {
                     p.OnChecked -= Control_OnChecked;
                     p.OnRenameCommand -= Control_OnRenameCommand;
+                    p.OnRemoveEnding -= Control_OnRemoveEnding;
                 });
 
                 WrapPanelMain.Children.Clear();
@@ -195,6 +196,7 @@ namespace MyVocabulary.Controls
                     {
                         p.OnChecked += Control_OnChecked;
                         p.OnRenameCommand += Control_OnRenameCommand;
+                        p.OnRemoveEnding += Control_OnRemoveEnding;
                         p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
                     }));
 
@@ -212,7 +214,25 @@ namespace MyVocabulary.Controls
             }
         }
 
-        void Control_OnRenameCommand(object sender, EventArgs e)
+        private void Control_OnRemoveEnding(object sender, OnWordRenameEventArgs e)
+        {
+            OnRename.DoIfNotNull(p =>
+                {
+                    double oldOffset = ScrollViewerMain.VerticalOffset;
+                    p(this, e);
+
+                    if (e.Cancel)
+                    {
+                        MessageBox.Show(RS.MESSAGEBOX_SuchWordAlreadyExists, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    else
+                    {
+                        ScrollViewerMain.ScrollToVerticalOffset(oldOffset);
+                    }
+                });
+        }
+
+        private void Control_OnRenameCommand(object sender, EventArgs e)
         {
             RenameCommand(sender.To<WordItemControl>());
         }
