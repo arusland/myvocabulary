@@ -172,6 +172,7 @@ namespace MyVocabulary.Controls
                 _LastCheckedControl = null;
 
                 double oldOffset = ScrollViewerMain.VerticalOffset;
+                var selectedWords = SelectedWords.Select(p => p.WordRaw).ToList();
 
                 WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
                 {
@@ -200,6 +201,11 @@ namespace MyVocabulary.Controls
                         p.OnRenameCommand += Control_OnRenameCommand;
                         p.OnRemoveEnding += Control_OnRemoveEnding;
                         p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
+
+                        if (selectedWords.Any(g => g == item.WordRaw))
+                        {
+                            p.IsChecked = true;
+                        }
                     }));
 
                     //ScrollViewerMain.ScrollToEnd();
@@ -211,7 +217,7 @@ namespace MyVocabulary.Controls
                     }
                 }
 
-                ScrollViewerMain.ScrollToVerticalOffset(oldOffset);
+                ScrollViewerMain.ScrollToVerticalOffset(oldOffset);                
 
                 CloseProgressBar();
                 IsBlocked = false;
