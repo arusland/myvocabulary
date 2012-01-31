@@ -171,6 +171,8 @@ namespace MyVocabulary.Controls
 
                 _LastCheckedControl = null;
 
+                double oldOffset = ScrollViewerMain.VerticalOffset;
+
                 WrapPanelMain.Children.OfType<WordItemControl>().CallOnEach(p =>
                 {
                     p.OnChecked -= Control_OnChecked;
@@ -209,6 +211,8 @@ namespace MyVocabulary.Controls
                     }
                 }
 
+                ScrollViewerMain.ScrollToVerticalOffset(oldOffset);
+
                 CloseProgressBar();
                 IsBlocked = false;
             }
@@ -218,17 +222,12 @@ namespace MyVocabulary.Controls
         {
             OnRename.DoIfNotNull(p =>
                 {
-                    double oldOffset = ScrollViewerMain.VerticalOffset;
                     p(this, e);
 
                     if (e.Cancel)
                     {
                         MessageBox.Show(RS.MESSAGEBOX_SuchWordAlreadyExists, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    else
-                    {
-                        ScrollViewerMain.ScrollToVerticalOffset(oldOffset);
-                    }
+                    }                    
                 });
         }
 
