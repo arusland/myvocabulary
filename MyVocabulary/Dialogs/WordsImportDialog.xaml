@@ -28,6 +28,17 @@
         </Border>
 
         <DockPanel Grid.Row="2">
+            <CheckBox x:Name="CheckBoxParseByLine"
+                      Margin="3"
+                      VerticalAlignment="Center"
+                      Content="Parse by line" />
+
+            <CheckBox x:Name="CheckBoxParseOnlyLatin"
+                      Margin="3"
+                      VerticalAlignment="Center"
+                      Content="Parse only Latin"
+                      IsChecked="True" />
+
             <Button x:Name="ButtonClose"
                     Width="90"
                     Height="25"

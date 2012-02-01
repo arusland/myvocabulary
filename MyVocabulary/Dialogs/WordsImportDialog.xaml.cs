@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Windows;
-using System.Windows.Media;
 using MyVocabulary.Helpers;
 
 namespace MyVocabulary.Dialogs
@@ -48,7 +47,9 @@ namespace MyVocabulary.Dialogs
 
         private void ButtonProcess_Click(object sender, RoutedEventArgs e)
         {
-            var words = new WordsFinder().Parse(TextBoxMain.Text).ToArray();
+            var words = new WordsFinder().Parse(TextBoxMain.Text, 
+                new ParseOptions(CheckBoxParseOnlyLatin.IsChecked == true, CheckBoxParseByLine.IsChecked == true))
+                .ToArray();
 
             if (words.Length > 0)
             {

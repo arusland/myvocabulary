@@ -4,17 +4,23 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using MyVocabulary.Dialogs;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
 using RS = MyVocabulary.Properties.Resources;
-using MyVocabulary.Dialogs;
 
 namespace MyVocabulary.Controls
 {
     internal partial class WordListControl : UserControl
     {
+        #region Constants
+
+        private const int INVALIDATE_Count = 50;
+        
+        #endregion        
+
         #region Fields
 
         private readonly IWordListProvider _Provider;
@@ -138,6 +144,14 @@ namespace MyVocabulary.Controls
 
         #region Public
 
+        public void CloseTab()
+        {
+            if (!IsBlocked && ButtonClose.IsEnabled)
+            {
+                OnClose.DoIfNotNull(p => p(this, EventArgs.Empty));
+            }
+        }
+
         public void EditSelected()
         {
             if (_LastCheckedControl.IsNotNull() && AllControls.Any(p => p.IsChecked && _LastCheckedControl == p))
@@ -188,7 +202,7 @@ namespace MyVocabulary.Controls
                 bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
 
                 var items = _Provider.Get().ToList();
-                InitProgressBar(items.Count);
+                InitProgressBar(items.Count, RS.PROGRESS_STATUS_LoadingWords);
 
 
                 int i = 0;
@@ -210,7 +224,7 @@ namespace MyVocabulary.Controls
 
                     //ScrollViewerMain.ScrollToEnd();
 
-                    if (++i % 10 == 0)
+                    if (++i % INVALIDATE_Count == 0)
                     {
                         ProgressBarMain.Value = i;
                         Dispatcher.DoEvents();
@@ -242,11 +256,12 @@ namespace MyVocabulary.Controls
             RenameCommand(sender.To<WordItemControl>());
         }
 
-        private void InitProgressBar(int count)
+        private void InitProgressBar(int count, string text)
         {
             ProgressBarMain.Maximum = count;
             ProgressBarMain.Minimum = 0;
             ProgressBarMain.Value = 0;
+            TextBlockLoadingStatus.Text = text;
             ProgressBarMain.Visibility = Visibility.Visible;
             TextBlockLoadingStatus.Visibility = Visibility.Visible;
         }
@@ -435,7 +450,7 @@ namespace MyVocabulary.Controls
                 IsBlocked = true;
                 _LockSelectedCount = true;
                 int i = 0;
-                InitProgressBar(AllControls.Count());
+                InitProgressBar(AllControls.Count(), RS.PROGRESS_STATUS_SelectingWords);
 
                 AllControls.CallOnEach(p =>
                 {
@@ -444,7 +459,7 @@ namespace MyVocabulary.Controls
                         p.IsChecked = true;
                     }
 
-                    if (++i % 10 == 0)
+                    if (++i % INVALIDATE_Count == 0)
                     {
                         ProgressBarMain.Value = i;
                         Dispatcher.DoEvents();
@@ -467,13 +482,13 @@ namespace MyVocabulary.Controls
                 IsBlocked = true;
                 _LockSelectedCount = true;
                 int i = 0;
-                InitProgressBar(AllControls.Count());
+                InitProgressBar(AllControls.Count(), RS.PROGRESS_STATUS_DeselectingWords);
 
                 AllControls.CallOnEach(p =>
                     {
                         p.IsChecked = false;
 
-                        if (++i % 10 == 0)
+                        if (++i % INVALIDATE_Count == 0)
                         {
                             ProgressBarMain.Value = i;
                             Dispatcher.DoEvents();
@@ -503,11 +518,8 @@ namespace MyVocabulary.Controls
 
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
         {
-            if (!IsBlocked)
-            {
-                OnClose.DoIfNotNull(p => p(this, EventArgs.Empty));
-            }
-        }
+            CloseTab();
+        }        
 
         private void TextBoxFilter_TextChanged(object sender, TextChangedEventArgs e)
         {

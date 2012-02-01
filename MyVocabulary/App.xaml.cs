@@ -22,7 +22,7 @@ namespace MyVocabulary
                 string appPath = this.GetType().Assembly.Location;
                 FileAssociateHelper.AssociateFile("myvoc", "My Vocabulary File", appPath, appPath, 0);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // go ahead anyway
             }

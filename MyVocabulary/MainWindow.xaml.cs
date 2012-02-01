@@ -79,6 +79,16 @@ namespace MyVocabulary
             TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>().EditSelected();
         }
 
+        private void OnCloseCurrentTab()
+        {
+            if (TabItemImport.IsVisible && TabControlMain.SelectedItem == TabItemImport)
+            {
+                var control = TabItemImport.Content.To<WordListControl>();
+
+                control.CloseTab();
+            }
+        }
+
         private void OnCopy()
         {
             var words = TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>().SelectedWords.Select(p => p.WordRaw).ToList();
@@ -363,6 +373,13 @@ namespace MyVocabulary
                         if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
                         {
                             ImportNewWords();
+                            e.Handled = true;
+                        }
+                        break;
+                    case Key.W:
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+                        {
+                            OnCloseCurrentTab();
                             e.Handled = true;
                         }
                         break;

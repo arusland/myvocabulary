@@ -124,6 +124,33 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deselecting words....
+        /// </summary>
+        internal static string PROGRESS_STATUS_DeselectingWords {
+            get {
+                return ResourceManager.GetString("PROGRESS_STATUS_DeselectingWords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading words....
+        /// </summary>
+        internal static string PROGRESS_STATUS_LoadingWords {
+            get {
+                return ResourceManager.GetString("PROGRESS_STATUS_LoadingWords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Selecting words....
+        /// </summary>
+        internal static string PROGRESS_STATUS_SelectingWords {
+            get {
+                return ResourceManager.GetString("PROGRESS_STATUS_SelectingWords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Import.
         /// </summary>
         internal static string TAB_HEADER_Import {

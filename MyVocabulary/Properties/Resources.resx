@@ -138,6 +138,15 @@
   <data name="MESSAGEBOX_YouMustChangeWord" xml:space="preserve">
     <value>You must change the word.</value>
   </data>
+  <data name="PROGRESS_STATUS_DeselectingWords" xml:space="preserve">
+    <value>Deselecting words...</value>
+  </data>
+  <data name="PROGRESS_STATUS_LoadingWords" xml:space="preserve">
+    <value>Loading words...</value>
+  </data>
+  <data name="PROGRESS_STATUS_SelectingWords" xml:space="preserve">
+    <value>Selecting words...</value>
+  </data>
   <data name="TAB_HEADER_Import" xml:space="preserve">
     <value>Import</value>
   </data>

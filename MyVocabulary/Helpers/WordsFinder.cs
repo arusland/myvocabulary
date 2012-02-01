@@ -10,12 +10,25 @@ namespace MyVocabulary.Helpers
         
         #region Public
         
-        public IEnumerable<string> Parse(string rawtext)
+        public IEnumerable<string> Parse(string rawtext, ParseOptions options)
         {
-            var mc = Regex.Matches(rawtext, @"[a-zA-Z]+(\-[a-zA-Z]+)*");
-            var rgx = new Regex(@"[a-zA-Z]");
+            var rgxDigit = new Regex(@"^[\d\-]+$");
 
-            return mc.Cast<Match>().Select(p => p.Value.ToLower()).Where(p => p.Length > 1 && rgx.IsMatch(p)).Distinct();
+            if (options.ByLine)
+            {
+                return Regex.Split(rawtext, @"[\r\n]+").Select(p => p.Trim().ToLower())
+                    .Where(p => p.Length > 1 && !rgxDigit.IsMatch(p))
+                    .Distinct();
+            }
+            else
+            {
+                var rgxEnc = new Regex(options.OnlyLatin ? @"[a-zA-Z]+(\-[a-zA-Z]+)*" : @"[\w]+(\-[\w]+)*");
+                var mc = rgxEnc.Matches(rawtext);
+
+                return mc.Cast<Match>().Select(p => p.Value.ToLower())
+                    .Where(p => p.Length > 1 && !rgxDigit.IsMatch(p))
+                    .Distinct();
+            }
         }
         
         #endregion
