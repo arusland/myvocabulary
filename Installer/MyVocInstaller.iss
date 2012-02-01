@@ -1,7 +1,7 @@
 ;Installer script for My Vocabulary Project
 
 #define MyAppName "My Vocabulary"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0"
 #define MyAppPublisher "Ruslan Absalyamov" 
 #define MyAppURL "http://code.google.com/p/myvocabulary/"
 #define MyAppExeName "MyVocabulary.exe"
