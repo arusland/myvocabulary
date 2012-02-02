@@ -78,7 +78,8 @@ namespace MyVocabulary.Controls
                                 m.Click += RemoveEnding_Click;
                             }));
                         }
-                        else if (Word.WordRaw.EndsWith("ies"))
+                        
+                        if (Word.WordRaw.EndsWith("ies"))
                         {
                             p.Items.Add(new MenuItem().Duck(m =>
                             {
