@@ -59,9 +59,8 @@ namespace MyVocabulary.Controls
                             m.Tag = "d";
                             m.Click += RemoveEnding_Click;
                         }));
-                    }
-
-                    if (Word.WordRaw.EndsWith("es"))
+                    } 
+                    else if (Word.WordRaw.EndsWith("es"))
                     {
                         p.Items.Add(new MenuItem().Duck(m =>
                         {
@@ -70,8 +69,7 @@ namespace MyVocabulary.Controls
                             m.Click += RemoveEnding_Click;
                         }));
                     }
-
-                    if (Word.WordRaw.EndsWith("s"))
+                    else if (Word.WordRaw.EndsWith("s"))
                     {
                         p.Items.Add(new MenuItem().Duck(m =>
                         {
@@ -80,8 +78,35 @@ namespace MyVocabulary.Controls
                             m.Click += RemoveEnding_Click;
                         }));
                     }
+                    else if (Word.WordRaw.EndsWith("ly"))
+                    {
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Remove -ly";
+                            m.Tag = "ly";
+                            m.Click += RemoveEnding_Click;
+                        }));
+                    }
+                    else if (Word.WordRaw.EndsWith("ing"))
+                    {
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Remove -ing";
+                            m.Tag = "ing";
+                            m.Click += RemoveEnding_Click;
+                        }));
+                    }
+                    else if (Word.WordRaw.EndsWith("ies"))
+                    {
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Remove -ies";
+                            m.Tag = "ies|y";
+                            m.Click += ReplaceEnding_Click;
+                        }));
+                    }
                 });
-        }                
+        }        
        
         #endregion
 
@@ -194,6 +219,14 @@ namespace MyVocabulary.Controls
         {
             var ending = sender.To<MenuItem>().Tag.ToString();
             var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length);
+            var ea = new OnWordRenameEventArgs(newWord, Word.WordRaw);
+            OnRemoveEnding.DoIfNotNull(p => p(this, ea));
+        }
+
+        private void ReplaceEnding_Click(object sender, RoutedEventArgs e)
+        {
+            var ending = sender.To<MenuItem>().Tag.ToString().Split('|');
+            var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending[0].Length) + ending[1];
             var ea = new OnWordRenameEventArgs(newWord, Word.WordRaw);
             OnRemoveEnding.DoIfNotNull(p => p(this, ea));
         }
