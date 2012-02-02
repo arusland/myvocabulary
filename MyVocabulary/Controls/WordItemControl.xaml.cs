@@ -78,6 +78,15 @@ namespace MyVocabulary.Controls
                                 m.Click += RemoveEnding_Click;
                             }));
                         }
+                        else if (Word.WordRaw.EndsWith("ies"))
+                        {
+                            p.Items.Add(new MenuItem().Duck(m =>
+                            {
+                                m.Header = "Form -ies -> y";
+                                m.Tag = "ies|y";
+                                m.Click += ReplaceEnding_Click;
+                            }));
+                        }
                     }
                     else if (Word.WordRaw.EndsWith("ly"))
                     {
@@ -96,16 +105,7 @@ namespace MyVocabulary.Controls
                             m.Tag = "ing";
                             m.Click += RemoveEnding_Click;
                         }));
-                    }
-                    else if (Word.WordRaw.EndsWith("ies"))
-                    {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Form -ies -> y";
-                            m.Tag = "ies|y";
-                            m.Click += ReplaceEnding_Click;
-                        }));
-                    }
+                    }                    
                     else if (Word.WordRaw.EndsWith("er"))
                     {
                         p.Items.Add(new MenuItem().Duck(m =>
@@ -115,14 +115,24 @@ namespace MyVocabulary.Controls
                             m.Click += RemoveEnding_Click;
                         }));
                     }
-                    else if (Word.WordRaw.EndsWith("est"))
+                    else if (Word.WordRaw.EndsWith("st"))
                     {
                         p.Items.Add(new MenuItem().Duck(m =>
                         {
-                            m.Header = "Remove -est";
-                            m.Tag = "est";
+                            m.Header = "Remove -st";
+                            m.Tag = "st";
                             m.Click += RemoveEnding_Click;
                         }));
+
+                        if (Word.WordRaw.EndsWith("est"))
+                        {
+                            p.Items.Add(new MenuItem().Duck(m =>
+                            {
+                                m.Header = "Remove -est";
+                                m.Tag = "est";
+                                m.Click += RemoveEnding_Click;
+                            }));
+                        }
                     }
                 });
         }        
