@@ -65,6 +65,7 @@
       <DependentUpon>WordEditDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\FileAssociateHelper.cs" />
+    <Compile Include="Helpers\FilterHelper.cs" />
     <Compile Include="Helpers\ParseOptions.cs" />
     <Compile Include="Helpers\WordsFinder.cs" />
     <Compile Include="IWordsStorageImportProvider.cs" />

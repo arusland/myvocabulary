@@ -10,6 +10,7 @@ using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
 using RS = MyVocabulary.Properties.Resources;
+using MyVocabulary.Helpers;
 
 namespace MyVocabulary.Controls
 {
@@ -198,13 +199,10 @@ namespace MyVocabulary.Controls
                 WrapPanelMain.Children.Clear();
                 RefreshSelectedCount();
 
-                var text = TextBoxFilter.Text.Trim();
-                bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
-
                 var items = _Provider.Get().ToList();
                 InitProgressBar(items.Count, RS.PROGRESS_STATUS_LoadingWords);
 
-
+                var fhelper = new FilterHelper(TextBoxFilter.Text);
                 int i = 0;
 
                 foreach (var item in items)
@@ -214,7 +212,7 @@ namespace MyVocabulary.Controls
                         p.OnChecked += Control_OnChecked;
                         p.OnRenameCommand += Control_OnRenameCommand;
                         p.OnRemoveEnding += Control_OnRemoveEnding;
-                        p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
+                        p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw) ? Visibility.Visible : Visibility.Collapsed;
 
                         if (selectedWords.Any(g => g == item.WordRaw))
                         {
@@ -310,7 +308,7 @@ namespace MyVocabulary.Controls
         {
             if (!IsBlocked)
             {
-                TextBoxFilter.Text = RS.FILTER_Text;
+                TextBoxFilter.Text = FilterHelper.WaterMarkText;
                 TextBoxFilter.Foreground = Brushes.Gray;
             }
         }
@@ -531,12 +529,11 @@ namespace MyVocabulary.Controls
         {
             if (!IsBlocked)
             {
-                var text = TextBoxFilter.Text.Trim();
-                bool showAll = text.Equals(RS.FILTER_Text) || text.IsEmpty();
+                var fhelper = new FilterHelper(TextBoxFilter.Text);
 
                 AllControls.CallOnEach(p =>
                     {
-                        p.Visibility = showAll || p.Word.WordRaw.IndexOf(text) >= 0 ? Visibility.Visible : Visibility.Collapsed;
+                        p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw) ? Visibility.Visible : Visibility.Collapsed;
                     });
             }
         }
