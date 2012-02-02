@@ -240,15 +240,18 @@ namespace MyVocabulary.Controls
 
         private void Control_OnRemoveEnding(object sender, OnWordRenameEventArgs e)
         {
-            OnRename.DoIfNotNull(p =>
-                {
-                    p(this, e);
-
-                    if (e.Cancel)
+            if (!IsBlocked)
+            {
+                OnRename.DoIfNotNull(p =>
                     {
-                        MessageBox.Show(RS.MESSAGEBOX_SuchWordAlreadyExists, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
-                    }                    
-                });
+                        p(this, e);
+
+                        if (e.Cancel)
+                        {
+                            MessageBox.Show(RS.MESSAGEBOX_SuchWordAlreadyExists, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    });
+            }
         }
 
         private void Control_OnRenameCommand(object sender, EventArgs e)
@@ -278,21 +281,24 @@ namespace MyVocabulary.Controls
 
         private void RenameCommand(WordItemControl control)
         {
-            _LockRefreshActive = true;
-            var dialog = new WordEditDialog(control.Word.WordRaw);
-            dialog.OnRename += dialog_OnRename;
-
-            if (dialog.ShowDialog() == true)
+            if (!IsBlocked)
             {
-                if (IsModified)
+                _LockRefreshActive = true;
+                var dialog = new WordEditDialog(control.Word.WordRaw);
+                dialog.OnRename += dialog_OnRename;
+
+                if (dialog.ShowDialog() == true)
                 {
-                    LoadItems();
+                    if (IsModified)
+                    {
+                        LoadItems();
+                    }
                 }
+
+                dialog.OnRename -= dialog_OnRename;
+
+                _LockRefreshActive = false;
             }
-
-            dialog.OnRename -= dialog_OnRename;
-
-            _LockRefreshActive = false;
         }
 
         private void dialog_OnRename(object sender, OnWordRenameEventArgs e)
