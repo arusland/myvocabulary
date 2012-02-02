@@ -33,6 +33,14 @@ namespace MyVocabulary.Dialogs
                 return _Words ?? new string[0];
             }            
         }
+
+        public bool IgnoreUnknownTab
+        {
+            get
+            {
+                return CheckBoxIgnoreUnknownTab.IsChecked == true;
+            }
+        }
         
         #endregion
         

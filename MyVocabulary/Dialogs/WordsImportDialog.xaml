@@ -39,6 +39,12 @@
                       Content="Parse only Latin"
                       IsChecked="True" />
 
+            <CheckBox x:Name="CheckBoxIgnoreUnknownTab"
+                      Margin="3"
+                      VerticalAlignment="Center"
+                      Content="Ignore Unknown Tab"
+                      IsChecked="False" />
+
             <Button x:Name="ButtonClose"
                     Width="90"
                     Height="25"

@@ -57,6 +57,16 @@ namespace MyVocabulary
         #region Properties
         
         #region Private
+
+        private string VersionString
+        {
+            get
+            {
+                var ver = this.GetType().Assembly.GetName().Version;
+
+                return string.Format("{0}.{1}", ver.Major, ver.Minor);
+            }
+        }
         
         private bool IsAnyTabBlocked
         {
@@ -231,7 +241,8 @@ namespace MyVocabulary
 
                 if (dialog.ShowDialog() == true)
                 {
-                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown || p.Type == WordType.Unknown).ToList();
+                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown || 
+                        (p.Type == WordType.Unknown && !dialog.IgnoreUnknownTab)).ToList();
                     var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
 
                     var control = CreateImportListControl(filtered);
@@ -273,7 +284,7 @@ namespace MyVocabulary
         {
             if (_Filename.IsNotNullOrEmpty())
             {
-                Title = string.Format("{0} - {1}", RS.TITLE_MainWindow, _Filename);
+                Title = string.Format("{0} {2} - {1}", RS.TITLE_MainWindow, _Filename, VersionString);
 
                 if (_Provider.IsModified)
                 {
@@ -282,7 +293,7 @@ namespace MyVocabulary
             }
             else
             {
-                Title = RS.TITLE_MainWindow;
+                Title = string.Format("{0} {1} - Untitled", RS.TITLE_MainWindow, VersionString); 
             }
         }
 
