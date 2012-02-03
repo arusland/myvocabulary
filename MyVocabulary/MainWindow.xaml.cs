@@ -10,10 +10,14 @@ using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using MyVocabulary.Interfaces;
+using System.Media;
 
 namespace MyVocabulary
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IMessageBox
     {
         #region Constants
 
@@ -83,6 +87,29 @@ namespace MyVocabulary
         #region Methods
 
         #region Private
+
+        private void AnimateLabel(Label label, Color color, int durationTimeInSeconds)
+        {
+            LabelMessage.Visibility = Visibility.Visible;
+            NameScope.SetNameScope(label, new NameScope());
+            label.Background = new SolidColorBrush(color);
+            label.RegisterName("Brush", label.Background);
+
+            ColorAnimation highlightAnimation = new ColorAnimation();
+            highlightAnimation.Completed += (s, e) =>
+            {
+                LabelMessage.Visibility = Visibility.Collapsed;
+            };
+            highlightAnimation.To = Colors.Transparent;
+            highlightAnimation.Duration = TimeSpan.FromSeconds(durationTimeInSeconds);
+
+            Storyboard.SetTargetName(highlightAnimation, "Brush");
+            Storyboard.SetTargetProperty(highlightAnimation, new PropertyPath(SolidColorBrush.ColorProperty));
+
+            Storyboard sb = new Storyboard();
+            sb.Children.Add(highlightAnimation);
+            sb.Begin(label);
+        }
 
         private void OnEdit()
         {
@@ -157,7 +184,7 @@ namespace MyVocabulary
             }
             catch (System.Exception ex)
             {
-                ShowError(ex.Message);
+                ShowErrorBox(ex.Message);
             }
         }
 
@@ -199,7 +226,7 @@ namespace MyVocabulary
             TextBlockTotalCount.Text = totalCount > 0 ? string.Format(RS.XAML_TotalCount, totalCount) : string.Empty;
         }
 
-        private void ShowError(string message)
+        private void ShowErrorBox(string message)
         {
             MessageBox.Show(message, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
@@ -319,7 +346,7 @@ namespace MyVocabulary
 
         private WordListControl CreateListControl(WordType type)
         {
-            return new WordListControl(CreateProvider(type), type).Duck(p =>
+            return new WordListControl(CreateProvider(type), type, this).Duck(p =>
                 {
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
@@ -332,7 +359,7 @@ namespace MyVocabulary
         {
             var provider = new WordListImportProvider(words);
 
-            var result = new WordListControl(provider, WordType.None).Duck(p =>
+            var result = new WordListControl(provider, WordType.None, this).Duck(p =>
             {
                 p.OnOperation += ListControl_OnOperation;
                 p.OnModified += Import_OnModified;
@@ -610,5 +637,16 @@ namespace MyVocabulary
         }        
 
         #endregion        
+
+        #region IMessageBox
+
+        void IMessageBox.ShowError(string message)
+        {
+            SystemSounds.Beep.Play();
+            LabelMessage.Content = message;
+            AnimateLabel(LabelMessage, Colors.Red, 8);
+        }
+
+        #endregion
     }
 }

@@ -29,7 +29,7 @@
                      Visibility="Collapsed" />
         </TabControl>
 
-        <DockPanel Grid.Row="1">
+        <DockPanel Grid.Row="1" Height="39">
             <Button x:Name="ButtonImport"
                     Width="90"
                     Height="25"
@@ -37,9 +37,17 @@
                     Click="ButtonImport_Click"
                     Content="Import"
                     ToolTip="Import new words from text" />
+
             <TextBlock x:Name="TextBlockTotalCount"
                        Margin="5"
                        VerticalAlignment="Center" />
+
+            <Label x:Name="LabelMessage"
+                   Margin="5"
+                   VerticalAlignment="Center"
+                   FontSize="14"
+                   Foreground="Blue" />
+
             <Button x:Name="ButtonSave"
                     Width="90"
                     Height="25"

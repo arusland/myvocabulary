@@ -11,6 +11,7 @@ using Shared.Extensions;
 using Shared.Helpers;
 using RS = MyVocabulary.Properties.Resources;
 using MyVocabulary.Helpers;
+using MyVocabulary.Interfaces;
 
 namespace MyVocabulary.Controls
 {
@@ -33,14 +34,16 @@ namespace MyVocabulary.Controls
         private bool _LockSelectedCount;
         private bool _LockRefreshActive;
         private WordItemControl _LastCheckedControl;
+        private readonly IMessageBox _MessageBox;
 
         #endregion
 
         #region Ctors
 
-        public WordListControl(IWordListProvider provider, WordType type)
+        public WordListControl(IWordListProvider provider, WordType type, IMessageBox messageBox)
         {
             Checker.NotNull(provider, "provider");
+            Checker.NotNull(messageBox, "messageBox");
             //Checker.AreNotEqual(WordType.None, type);
 
             InitializeComponent();
@@ -51,6 +54,7 @@ namespace MyVocabulary.Controls
             _SelectedCount = 0;
             _Provider = provider;
             _Type = type;
+            _MessageBox = messageBox;
             IsModified = true;
 
             InitControls();
@@ -251,7 +255,7 @@ namespace MyVocabulary.Controls
 
                         if (e.Cancel)
                         {
-                            MessageBox.Show(RS.MESSAGEBOX_SuchWordAlreadyExists, RS.TITLE_Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                            _MessageBox.ShowError(RS.MESSAGEBOX_SuchWordAlreadyExists);
                         }
                     });
             }
