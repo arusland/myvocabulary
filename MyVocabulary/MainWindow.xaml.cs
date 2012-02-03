@@ -89,6 +89,11 @@ namespace MyVocabulary
             TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>().EditSelected();
         }
 
+        private void OnDelete()
+        {
+            TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>().DeleteSelected();
+        }
+
         private void OnCloseCurrentTab()
         {
             if (TabItemImport.IsVisible && TabControlMain.SelectedItem == TabItemImport)
@@ -392,6 +397,12 @@ namespace MyVocabulary
                         {
                             OnCloseCurrentTab();
                             e.Handled = true;
+                        }
+                        break;
+                    case Key.F8:
+                        if (Keyboard.Modifiers == ModifierKeys.None)
+                        {
+                            OnDelete();
                         }
                         break;
                 }

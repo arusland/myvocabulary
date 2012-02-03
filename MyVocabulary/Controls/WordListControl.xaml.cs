@@ -153,6 +153,11 @@ namespace MyVocabulary.Controls
             }
         }
 
+        public void DeleteSelected()
+        {
+            DoOnOperationEvent(Operation.Delete);
+        }
+
         public void EditSelected()
         {
             if (_LastCheckedControl.IsNotNull() && AllControls.Any(p => p.IsChecked && _LastCheckedControl == p))
@@ -415,6 +420,8 @@ namespace MyVocabulary.Controls
                         OnOperation(this, new WordsOperationEventsArgs(words, operation));
                     }
                 }
+
+                RefreshSelectedCount();
             }
         }
 
@@ -515,8 +522,6 @@ namespace MyVocabulary.Controls
                 var op = FromButton(sender.To<Button>());
 
                 DoOnOperationEvent(op);
-
-                RefreshSelectedCount();
             }
         }
 
