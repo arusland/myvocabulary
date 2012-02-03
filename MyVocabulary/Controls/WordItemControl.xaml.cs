@@ -18,6 +18,7 @@ namespace MyVocabulary.Controls
         private readonly Brush _BadKnownBrush;
         private Word _Word;
         private readonly Brush _UnknownBrush;
+        private readonly Brush _BlockedBrush;
         
         #endregion
 
@@ -33,6 +34,7 @@ namespace MyVocabulary.Controls
             _KnownBrush = Brushes.LightGreen;
             _BadKnownBrush = new SolidColorBrush(Color.FromRgb(255, 200, 100));
             _UnknownBrush = new SolidColorBrush(Color.FromRgb(221, 75, 57));
+            _BlockedBrush = Brushes.LightGray;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             Word = word;
             RefreshWord();
@@ -203,6 +205,8 @@ namespace MyVocabulary.Controls
                     return _BadKnownBrush;
                 case WordType.Unknown:
                     return _UnknownBrush;
+                case WordType.Blocked:
+                    return _BlockedBrush;
                 case WordType.None:
                     return Brushes.Transparent;
                 default:

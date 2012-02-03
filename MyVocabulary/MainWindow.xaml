@@ -27,6 +27,9 @@
             <TabItem x:Name="TabItemImport"
                      Header="Import"
                      Visibility="Collapsed" />
+            <TabItem x:Name="TabItemBlocked"
+                     Header="Blocked"
+                     Visibility="Collapsed" />
         </TabControl>
 
         <DockPanel Grid.Row="1" Height="39">

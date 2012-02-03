@@ -403,6 +403,7 @@ namespace MyVocabulary.Controls
                 case WordType.Unknown:
                     ButtonToUnknown.Visibility = Visibility.Collapsed;
                     break;
+                case WordType.Blocked:
                 case WordType.None:
                     ButtonClose.Visibility = Visibility.Visible;
                     break;

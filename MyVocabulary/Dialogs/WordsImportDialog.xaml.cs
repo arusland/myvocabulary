@@ -34,11 +34,11 @@ namespace MyVocabulary.Dialogs
             }            
         }
 
-        public bool IgnoreUnknownTab
+        public bool UseOnlyKnownTab
         {
             get
             {
-                return CheckBoxIgnoreUnknownTab.IsChecked == true;
+                return CheckBoxUseOnlyKnownTab.IsChecked == true;
             }
         }
         

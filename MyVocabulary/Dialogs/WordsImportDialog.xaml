@@ -39,11 +39,11 @@
                       Content="Parse only Latin"
                       IsChecked="True" />
 
-            <CheckBox x:Name="CheckBoxIgnoreUnknownTab"
+            <CheckBox x:Name="CheckBoxUseOnlyKnownTab"
                       Margin="3"
                       VerticalAlignment="Center"
-                      Content="Ignore Unknown Tab"
-                      IsChecked="False" />
+                      Content="Use only Known words"
+                      IsChecked="True" />
 
             <Button x:Name="ButtonClose"
                     Width="90"

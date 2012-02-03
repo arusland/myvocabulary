@@ -9,6 +9,8 @@ namespace MyVocabulary.StorageProvider.Enums
 
         BadKnown = 2,
 
-        Unknown = 3
+        Unknown = 3,
+
+        Blocked = 4
     }
 }

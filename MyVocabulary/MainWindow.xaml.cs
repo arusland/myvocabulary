@@ -23,8 +23,8 @@ namespace MyVocabulary
 
         private const string DIALOG_Filter = "My Vocabulary Files (*.myvoc)|*.myvoc|All Files (*.*)|*.*";
         private const string DEFAULT_Extension = "*.myvoc";
-        
-        #endregion        
+
+        #endregion
 
         #region Fields
 
@@ -46,6 +46,8 @@ namespace MyVocabulary
             TabItemBadKnown.Content = CreateListControl(WordType.BadKnown);
             TabItemKnown.Content = CreateListControl(WordType.Known);
             TabItemUnknown.Content = CreateListControl(WordType.Unknown);
+            TabItemBlocked.Content = CreateListControl(WordType.Blocked);
+            //TabItemBlocked.Visibility = Visibility.Visible;
 
             TabControlMain.SelectionChanged += TabControlMain_SelectionChanged;
 
@@ -54,12 +56,22 @@ namespace MyVocabulary
             RefreshTabHeader(WordType.Known);
             RefreshTabHeader(WordType.BadKnown);
             RefreshTabHeader(WordType.Unknown);
-        }       
+            RefreshTabHeader(WordType.Blocked);
+
+            this.ContextMenu = new ContextMenu().Duck(p =>
+            {
+                p.Items.Add(new MenuItem().Duck(m =>
+                {
+                    m.Header = "Show Blocked Words...";
+                    m.Click += MenuShowBlockedTab_Click;
+                }));
+            });
+        }        
 
         #endregion
 
         #region Properties
-        
+
         #region Private
 
         private string VersionString
@@ -71,7 +83,7 @@ namespace MyVocabulary
                 return string.Format("{0}.{1}", ver.Major, ver.Minor);
             }
         }
-        
+
         private bool IsAnyTabBlocked
         {
             get
@@ -79,9 +91,9 @@ namespace MyVocabulary
                 return TabControlMain.Items.Cast<TabItem>().Where(p => p.Content.IsNotNull()).Select(p => p.Content.To<WordListControl>()).Any(p => p.IsBlocked);
             }
         }
-        
+
         #endregion
-        
+
         #endregion
 
         #region Methods
@@ -145,6 +157,23 @@ namespace MyVocabulary
             Clipboard.SetText(builder.ToString().TrimEnd());
         }
 
+        private void ShowBlockedTab()
+        {
+            var control = TabItemBlocked.Content.To<WordListControl>();
+            TabItemBlocked.Visibility = Visibility.Visible;
+            TabControlMain.SelectedItem = TabItemBlocked;
+            TabControlMain.Focus();
+            Dispatcher.DoEvents();
+            control.Activate(true);
+        }
+
+        private void CloseBlockedTab()
+        {
+            TabItemBlocked.Visibility = Visibility.Collapsed;
+            TabControlMain.SelectedItem = TabItemBadKnown;
+            TabControlMain.Focus();
+        }
+
         private bool CloseImportTab()
         {
             if (TabItemImport.IsVisible)
@@ -180,6 +209,7 @@ namespace MyVocabulary
                 GetControlByType(WordType.Unknown).IsModified = true;
                 GetControlByType(WordType.BadKnown).IsModified = true;
                 GetControlByType(WordType.Known).IsModified = true;
+                GetControlByType(WordType.Blocked).IsModified = true;
                 RefreshTitle();
             }
             catch (System.Exception ex)
@@ -202,7 +232,7 @@ namespace MyVocabulary
                     }
                 });
 
-           // TabControlMain.IsEnabled = 
+            // TabControlMain.IsEnabled = 
             ButtonSave.IsEnabled =
             ButtonOpen.IsEnabled =
             ButtonImport.IsEnabled = !isBlocked;
@@ -220,7 +250,7 @@ namespace MyVocabulary
 
         private void RefreshTotalCount()
         {
-            int totalCount = GetControlByType(WordType.Known).Words.Count() + GetControlByType(WordType.BadKnown).Words.Count() + 
+            int totalCount = GetControlByType(WordType.Known).Words.Count() + GetControlByType(WordType.BadKnown).Words.Count() +
                 GetControlByType(WordType.Unknown).Words.Count();
 
             TextBlockTotalCount.Text = totalCount > 0 ? string.Format(RS.XAML_TotalCount, totalCount) : string.Empty;
@@ -273,8 +303,8 @@ namespace MyVocabulary
 
                 if (dialog.ShowDialog() == true)
                 {
-                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.BadKnown || 
-                        (p.Type == WordType.Unknown && !dialog.IgnoreUnknownTab)).ToList();
+                    var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.Blocked ||
+                        ((p.Type == WordType.BadKnown || p.Type == WordType.Unknown) && !dialog.UseOnlyKnownTab)).ToList();
                     var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
 
                     var control = CreateImportListControl(filtered);
@@ -325,7 +355,7 @@ namespace MyVocabulary
             }
             else
             {
-                Title = string.Format("{0} {1} - Untitled", RS.TITLE_MainWindow, VersionString); 
+                Title = string.Format("{0} {1} - Untitled", RS.TITLE_MainWindow, VersionString);
             }
         }
 
@@ -351,9 +381,10 @@ namespace MyVocabulary
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
                     p.OnRename += ListControl_OnRename;
+                    p.OnClose += Import_OnClose;
                     p.OnIsBlockedChanged += ListControl_OnIsBlockedChanged;
                 });
-        }        
+        }
 
         private WordListControl CreateImportListControl(string[] words)
         {
@@ -371,13 +402,18 @@ namespace MyVocabulary
             result.Tag = provider;
 
             return result;
-        }                
+        }
 
         #endregion
 
         #endregion
 
         #region Event Handlers
+
+        private void MenuShowBlockedTab_Click(object sender, RoutedEventArgs e)
+        {
+            ShowBlockedTab();
+        }
 
         private void Window_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -439,7 +475,7 @@ namespace MyVocabulary
                 e.Handled = true;
             }
         }
-        
+
         private void Import_OnRename(object sender, OnWordRenameEventArgs e)
         {
             var control = sender.To<WordListControl>();
@@ -463,15 +499,24 @@ namespace MyVocabulary
 
         private void Import_OnClose(object sender, EventArgs e)
         {
-            CloseImportTab();
-        }        
+            var control = sender.To<WordListControl>();
+
+            if (control.Type == WordType.None)
+            {
+                CloseImportTab();
+            }
+            else if (control.Type == WordType.Blocked)
+            {
+                CloseBlockedTab();
+            }
+        }
 
         private void Import_OnModified(object sender, EventArgs e)
         {
             var control = sender.To<WordListControl>();
 
             TabItemImport.Header = string.Format("{0} ({1})", RS.TAB_HEADER_Import, control.Words.Count());
-        }        
+        }
 
         private void ListControl_OnModified(object sender, EventArgs e)
         {
@@ -483,7 +528,7 @@ namespace MyVocabulary
         {
             RefreshControls();
         }
-        
+
         private void ListControl_OnRename(object sender, OnWordRenameEventArgs e)
         {
             e.Cancel = !_Provider.Rename(e.OldWord, e.NewWord);
@@ -498,7 +543,7 @@ namespace MyVocabulary
 
         private static string GetTypeString(WordType type)
         {
-            switch(type)
+            switch (type)
             {
                 case WordType.Known:
                     return RS.WORD_TYPE_Known;
@@ -506,6 +551,8 @@ namespace MyVocabulary
                     return RS.WORD_TYPE_BadKnown;
                 case WordType.Unknown:
                     return RS.WORD_TYPE_Unknown;
+                case WordType.Blocked:
+                    return RS.WORD_TYPE_Blocked;
                 default:
                     throw new InvalidOperationException("Unsupported wordtype: " + type.ToString());
             }
@@ -519,17 +566,23 @@ namespace MyVocabulary
             switch (e.Operation)
             {
                 case Operation.Delete:
-                    if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning,
-                            MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    if (control.Type == WordType.Blocked)
                     {
-                        if (!fromImport)
+                        if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning,
+                            MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
                         {
                             _Provider.Delete(e.Words);
                         }
+                        else
+                            return;
                     }
                     else
                     {
-                        return;
+                        if (!fromImport)
+                        {
+                            _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Blocked)));
+                            GetControlByType(WordType.Blocked).IsModified = true;
+                        }
                     }
                     break;
                 case Operation.MakeKnown:
@@ -550,13 +603,15 @@ namespace MyVocabulary
 
             if (fromImport)
             {
+                _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Blocked)));
+                GetControlByType(WordType.Blocked).IsModified = true;
                 var provider = control.Tag.To<IWordsStorageImportProvider>();
                 provider.Delete(e.Words);
             }
 
             control.IsModified = true;
             RefreshTitle();
-        }        
+        }
 
         private void TabControlMain_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -575,14 +630,14 @@ namespace MyVocabulary
         private void ButtonSave_Click(object sender, RoutedEventArgs e)
         {
             SaveDocument();
-        }        
+        }
 
         private void ButtonOpen_Click(object sender, RoutedEventArgs e)
         {
             OpenDocument();
             return;
         }
-        
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (IsAnyTabBlocked)
@@ -627,16 +682,16 @@ namespace MyVocabulary
         {
             ImportNewWords();
         }
-        
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             if (Environment.GetCommandLineArgs().Length > 1)
             {
                 OpenFile(Environment.GetCommandLineArgs()[1]);
             }
-        }        
+        }
 
-        #endregion        
+        #endregion
 
         #region IMessageBox
 

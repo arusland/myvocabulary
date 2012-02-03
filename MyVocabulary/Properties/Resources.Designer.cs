@@ -196,6 +196,15 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Blocked.
+        /// </summary>
+        internal static string WORD_TYPE_Blocked {
+            get {
+                return ResourceManager.GetString("WORD_TYPE_Blocked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Known.
         /// </summary>
         internal static string WORD_TYPE_Known {

@@ -162,6 +162,9 @@
   <data name="WORD_TYPE_BadKnown" xml:space="preserve">
     <value>Bad Known</value>
   </data>
+  <data name="WORD_TYPE_Blocked" xml:space="preserve">
+    <value>Blocked</value>
+  </data>
   <data name="WORD_TYPE_Known" xml:space="preserve">
     <value>Known</value>
   </data>
