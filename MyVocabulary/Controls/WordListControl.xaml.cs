@@ -5,13 +5,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using MyVocabulary.Dialogs;
+using MyVocabulary.Helpers;
+using MyVocabulary.Interfaces;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
 using RS = MyVocabulary.Properties.Resources;
-using MyVocabulary.Helpers;
-using MyVocabulary.Interfaces;
 
 namespace MyVocabulary.Controls
 {
@@ -164,7 +164,7 @@ namespace MyVocabulary.Controls
 
         public void EditSelected()
         {
-            if (_LastCheckedControl.IsNotNull() && AllControls.Any(p => p.IsChecked && _LastCheckedControl == p))
+            if (_LastCheckedControl.IsNotNull() && AllControls.Any(p => p.IsChecked && _LastCheckedControl == p) && !TextBoxFilter.IsFocused)
             {
                 RenameCommand(_LastCheckedControl);
             }
@@ -251,11 +251,17 @@ namespace MyVocabulary.Controls
             {
                 OnRename.DoIfNotNull(p =>
                     {
+                        var wasSelected = sender.To<WordItemControl>().IsChecked;
+
                         p(this, e);
 
                         if (e.Cancel)
                         {
                             _MessageBox.ShowError(RS.MESSAGEBOX_SuchWordAlreadyExists);
+                        }
+                        else
+                        {
+                            AllControls.FirstOrDefault(g => g.Word.WordRaw == e.NewWord).DoIfNotNull(g => g.IsChecked = wasSelected);
                         }
                     });
             }
@@ -291,6 +297,7 @@ namespace MyVocabulary.Controls
             if (!IsBlocked)
             {
                 _LockRefreshActive = true;
+                var wasSelected = control.IsChecked;
                 var dialog = new WordEditDialog(control.Word.WordRaw);
                 dialog.OnRename += dialog_OnRename;
 
@@ -305,6 +312,8 @@ namespace MyVocabulary.Controls
                 dialog.OnRename -= dialog_OnRename;
 
                 _LockRefreshActive = false;
+
+                AllControls.FirstOrDefault(p => p.Word.WordRaw == dialog.Word).DoIfNotNull(p => p.IsChecked = wasSelected);
             }
         }
 
@@ -390,7 +399,7 @@ namespace MyVocabulary.Controls
         {
             ButtonToKnown.Background = Brushes.LightGreen;
             ButtonToBadKnown.Background = new SolidColorBrush(Color.FromRgb(255, 200, 100));
-            ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(221, 75, 57));
+            ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(250, 116, 100));
 
             switch (_Type)
             {
@@ -427,6 +436,11 @@ namespace MyVocabulary.Controls
                 }
 
                 RefreshSelectedCount();
+
+                if (!AllControls.Any(p => p.IsVisible))
+                {
+                    ClearFilter();
+                }
             }
         }
 

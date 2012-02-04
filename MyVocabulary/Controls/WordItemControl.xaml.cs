@@ -33,7 +33,7 @@ namespace MyVocabulary.Controls
             _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
             _KnownBrush = Brushes.LightGreen;
             _BadKnownBrush = new SolidColorBrush(Color.FromRgb(255, 200, 100));
-            _UnknownBrush = new SolidColorBrush(Color.FromRgb(221, 75, 57));
+            _UnknownBrush = new SolidColorBrush(Color.FromRgb(250, 116, 100));
             _BlockedBrush = Brushes.LightGray;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             Word = word;
@@ -46,21 +46,34 @@ namespace MyVocabulary.Controls
                         m.Click += MenuRename_Click;
                     }));
 
-                    if (Word.WordRaw.EndsWith("ed"))
+                    if (Word.WordRaw.EndsWith("d"))
                     {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Remove -ed";
-                            m.Tag = "ed";
-                            m.Click += RemoveEnding_Click;
-                        }));
-
                         p.Items.Add(new MenuItem().Duck(m =>
                         {
                             m.Header = "Remove -d";
                             m.Tag = "d";
                             m.Click += RemoveEnding_Click;
                         }));
+
+                        if (Word.WordRaw.EndsWith("ed"))
+                        {
+                            p.Items.Add(new MenuItem().Duck(m =>
+                            {
+                                m.Header = "Remove -ed";
+                                m.Tag = "ed";
+                                m.Click += RemoveEnding_Click;
+                            }));
+                        }
+
+                        if (Word.WordRaw.EndsWith("ied"))
+                        {
+                            p.Items.Add(new MenuItem().Duck(m =>
+                            {
+                                m.Header = "Form -ied -> -y";
+                                m.Tag = "ied|y";
+                                m.Click += ReplaceEnding_Click;
+                            }));
+                        }
                     } 
                     else if (Word.WordRaw.EndsWith("s"))
                     {
@@ -85,7 +98,7 @@ namespace MyVocabulary.Controls
                         {
                             p.Items.Add(new MenuItem().Duck(m =>
                             {
-                                m.Header = "Form -ies -> y";
+                                m.Header = "Form -ies -> -y";
                                 m.Tag = "ies|y";
                                 m.Click += ReplaceEnding_Click;
                             }));
@@ -107,6 +120,13 @@ namespace MyVocabulary.Controls
                             m.Header = "Remove -ing";
                             m.Tag = "ing";
                             m.Click += RemoveEnding_Click;
+                        }));
+
+                        p.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = "Form -ing -> -e";
+                            m.Tag = "ing|e";
+                            m.Click += ReplaceEnding_Click;
                         }));
                     }                    
                     else if (Word.WordRaw.EndsWith("er"))

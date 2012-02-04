@@ -135,10 +135,10 @@ namespace MyVocabulary
 
         private void OnCloseCurrentTab()
         {
-            if (TabItemImport.IsVisible && TabControlMain.SelectedItem == TabItemImport)
-            {
-                var control = TabItemImport.Content.To<WordListControl>();
+            var control = TabControlMain.SelectedItem.To<TabItem>().Content.To<WordListControl>();
 
+            if (control.Type == WordType.None || control.Type == WordType.Blocked)
+            {
                 control.CloseTab();
             }
         }
@@ -578,11 +578,8 @@ namespace MyVocabulary
                     }
                     else
                     {
-                        if (!fromImport)
-                        {
-                            _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Blocked)));
-                            GetControlByType(WordType.Blocked).IsModified = true;
-                        }
+                        _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Blocked)));
+                        GetControlByType(WordType.Blocked).IsModified = true;
                     }
                     break;
                 case Operation.MakeKnown:
@@ -603,8 +600,6 @@ namespace MyVocabulary
 
             if (fromImport)
             {
-                _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Blocked)));
-                GetControlByType(WordType.Blocked).IsModified = true;
                 var provider = control.Tag.To<IWordsStorageImportProvider>();
                 provider.Delete(e.Words);
             }
