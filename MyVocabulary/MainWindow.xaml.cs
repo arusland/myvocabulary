@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Linq;
+using System.Media;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using MyVocabulary.Controls;
 using MyVocabulary.Dialogs;
+using MyVocabulary.Interfaces;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using MyVocabulary.Interfaces;
-using System.Media;
 
 namespace MyVocabulary
 {
@@ -463,10 +463,7 @@ namespace MyVocabulary
                         }
                         break;
                     case Key.F8:
-                        if (Keyboard.Modifiers == ModifierKeys.None)
-                        {
-                            OnDelete();
-                        }
+                        OnDelete();
                         break;
                 }
             }
@@ -562,11 +559,12 @@ namespace MyVocabulary
         {
             var control = sender.To<WordListControl>();
             bool fromImport = TabItemImport.IsVisible && control.Type == WordType.None;
+            bool shifted = (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
 
             switch (e.Operation)
             {
                 case Operation.Delete:
-                    if (control.Type == WordType.Blocked)
+                    if (control.Type == WordType.Blocked || shifted)
                     {
                         if (MessageBox.Show(string.Format(RS.MESSAGEBOX_SureDeleteSelectedWords, e.Words.Count), RS.TITLE_Warning,
                             MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
