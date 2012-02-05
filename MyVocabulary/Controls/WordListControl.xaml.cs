@@ -223,7 +223,7 @@ namespace MyVocabulary.Controls
                         p.OnRemoveEnding += Control_OnRemoveEnding;
                         p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw) ? Visibility.Visible : Visibility.Collapsed;
 
-                        if (selectedWords.Any(g => g == item.WordRaw))
+                        if (p.IsVisible && selectedWords.Any(g => g == item.WordRaw))
                         {
                             p.IsChecked = true;
                         }
@@ -558,6 +558,11 @@ namespace MyVocabulary.Controls
                 AllControls.CallOnEach(p =>
                     {
                         p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw) ? Visibility.Visible : Visibility.Collapsed;
+
+                        if (!p.IsVisible && p.IsChecked)
+                        {
+                            p.IsChecked = false;
+                        }
                     });
             }
         }
