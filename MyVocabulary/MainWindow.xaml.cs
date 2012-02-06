@@ -154,7 +154,14 @@ namespace MyVocabulary
                 builder.AppendFormat("{0} ", word);
             }
 
-            Clipboard.SetText(builder.ToString().TrimEnd());
+            try
+            {
+                Clipboard.SetText(builder.ToString().TrimEnd());
+            }
+            catch (Exception)
+            {            	
+                // to skip dummy clipboard exception
+            }
         }
 
         private void ShowBlockedTab()
