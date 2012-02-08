@@ -70,6 +70,15 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Are you sure you want to abandon your changes?.
+        /// </summary>
+        internal static string MESSAGEBOX_AbandonChanges {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_AbandonChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Document is modified. Save changes?.
         /// </summary>
         internal static string MESSAGEBOX_DocumentModified {
@@ -84,6 +93,15 @@ namespace MyVocabulary.Properties {
         internal static string MESSAGEBOX_HaveWordsInImportTab {
             get {
                 return ResourceManager.GetString("MESSAGEBOX_HaveWordsInImportTab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File changed by another program. Reload with changes?.
+        /// </summary>
+        internal static string MESSAGEBOX_ReloadChanges {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_ReloadChanges", resourceCulture);
             }
         }
         

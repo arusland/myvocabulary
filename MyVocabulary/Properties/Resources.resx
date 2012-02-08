@@ -120,11 +120,17 @@
   <data name="FILTER_Text" xml:space="preserve">
     <value>Type filter text...</value>
   </data>
+  <data name="MESSAGEBOX_AbandonChanges" xml:space="preserve">
+    <value>Are you sure you want to abandon your changes?</value>
+  </data>
   <data name="MESSAGEBOX_DocumentModified" xml:space="preserve">
     <value>Document is modified. Save changes?</value>
   </data>
   <data name="MESSAGEBOX_HaveWordsInImportTab" xml:space="preserve">
     <value>You have words in the tab Import. Are you sure to close application?</value>
+  </data>
+  <data name="MESSAGEBOX_ReloadChanges" xml:space="preserve">
+    <value>File changed by another program. Reload with changes?</value>
   </data>
   <data name="MESSAGEBOX_SuchWordAlreadyExists" xml:space="preserve">
     <value>That word already exists.</value>

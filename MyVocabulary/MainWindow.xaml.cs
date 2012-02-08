@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Media;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using MyVocabulary.Controls;
 using MyVocabulary.Dialogs;
 using MyVocabulary.Interfaces;
@@ -32,6 +34,8 @@ namespace MyVocabulary
         private WordListControl _LastControl;
         private readonly IWordsStorageProvider _Provider;
         private string _Filename;
+        private readonly FileSystemWatcher _FileWatcher;
+        private DateTime _LastFileTime;
 
         #endregion
 
@@ -42,6 +46,8 @@ namespace MyVocabulary
             InitializeComponent();
 
             _Provider = new XmlWordsStorageProvider();
+            _FileWatcher = new FileSystemWatcher();
+            _FileWatcher.Changed += FileWatcher_Changed;
 
             TabItemBadKnown.Content = CreateListControl(WordType.BadKnown);
             TabItemKnown.Content = CreateListControl(WordType.Known);
@@ -66,7 +72,7 @@ namespace MyVocabulary
                     m.Click += MenuShowBlockedTab_Click;
                 }));
             });
-        }        
+        }             
 
         #endregion
 
@@ -101,7 +107,7 @@ namespace MyVocabulary
         #region Private
 
         private void AnimateLabel(Label label, Color color, int durationTimeInSeconds)
-        {
+        {   
             LabelMessage.Visibility = Visibility.Visible;
             NameScope.SetNameScope(label, new NameScope());
             label.Background = new SolidColorBrush(color);
@@ -207,22 +213,36 @@ namespace MyVocabulary
             return true;
         }
 
-        private void OpenFile(string filename)
+        private void OpenFileInternal(string filename)
         {
             try
             {
                 _Provider.To<XmlWordsStorageProvider>().Load(filename);
                 _Filename = filename;
+
                 GetControlByType(WordType.Unknown).IsModified = true;
                 GetControlByType(WordType.BadKnown).IsModified = true;
                 GetControlByType(WordType.Known).IsModified = true;
                 GetControlByType(WordType.Blocked).IsModified = true;
                 RefreshTitle();
+                WatchFile(_Filename);
             }
             catch (System.Exception ex)
             {
                 ShowErrorBox(ex.Message);
             }
+        }
+
+        private void OpenFile(string filename)
+        {
+            OpenFileInternal(filename);
+        }
+
+        private void WatchFile(string filename)
+        {
+            _FileWatcher.Path = Path.GetDirectoryName(filename);
+            _FileWatcher.EnableRaisingEvents = true;
+            _LastFileTime = File.GetLastWriteTime(filename);
         }
 
         private void RefreshControls()
@@ -344,6 +364,7 @@ namespace MyVocabulary
             }
 
             _Provider.Save();
+            _LastFileTime = File.GetLastWriteTime(_Filename);
             RefreshTitle();
 
             return true;
@@ -416,6 +437,50 @@ namespace MyVocabulary
         #endregion
 
         #region Event Handlers
+
+        //void _FileWatcher_Error(object sender, ErrorEventArgs e)
+        //{
+        //    ShowErrorBox(e.GetException().ToString());
+        //}
+
+        private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            Dispatcher.SynchronizeCall(() =>
+                {
+                    if (_Filename.IsNotNullOrEmpty())
+                    {
+                        System.Threading.Thread.Sleep(500);
+                        var time = File.GetLastWriteTime(_Filename);
+
+                        if (!time.Equals(_LastFileTime))
+                        {
+                            _LastFileTime = time;
+                            Activate();
+
+                            var result = MessageBox.Show(this, RS.MESSAGEBOX_ReloadChanges,
+                                    RS.TITLE_Warning, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                            if (result == MessageBoxResult.Yes)
+                            {
+                                if (_Provider.IsModified)
+                                {
+                                    var result2 = MessageBox.Show(this, RS.MESSAGEBOX_AbandonChanges,
+                                        RS.TITLE_Warning, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                                    if (result2 == MessageBoxResult.Yes)
+                                    {
+                                        OpenFile(_Filename);
+                                    }
+                                }
+                                else
+                                {
+                                    OpenFile(_Filename);
+                                }
+                            }
+                        }
+                    }
+                });
+        }
 
         private void MenuShowBlockedTab_Click(object sender, RoutedEventArgs e)
         {
