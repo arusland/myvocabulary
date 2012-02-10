@@ -305,6 +305,7 @@ namespace MyVocabulary.Controls
                 {
                     if (IsModified)
                     {
+                        IsModified = false;
                         LoadItems();
                     }
                 }
