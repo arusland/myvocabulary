@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,20 +17,23 @@ namespace MyVocabulary.Controls
         private readonly Brush _SelectedBrush;
         private readonly Brush _KnownBrush;
         private readonly Brush _BadKnownBrush;
-        private Word _Word;
         private readonly Brush _UnknownBrush;
         private readonly Brush _BlockedBrush;
-        
+        private Word _Word;
+        private readonly IWordChecker _WordChecker;
+
         #endregion
 
         #region Ctors
 
-        public WordItemControl(Word word)
+        public WordItemControl(Word word, IWordChecker wordChecker)
         {
             Checker.NotNull(word, "word");
+            Checker.NotNull(wordChecker, "wordChecker");
 
             InitializeComponent();
 
+            _WordChecker = wordChecker;
             _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
             _KnownBrush = Brushes.LightGreen;
             _BadKnownBrush = new SolidColorBrush(Color.FromRgb(255, 200, 100));
@@ -38,132 +42,13 @@ namespace MyVocabulary.Controls
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             Word = word;
             RefreshWord();
-            this.ContextMenu = new ContextMenu().Duck(p =>
-                {
-                    p.Items.Add(new MenuItem().Duck(m =>
-                    {
-                        m.Header = "Edit...";
-                        m.Click += MenuRename_Click;
-                    }));
+            InitContextMenu();
+        }
 
-                    if (Word.WordRaw.EndsWith("d"))
-                    {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Remove -d";
-                            m.Tag = "d";
-                            m.Click += RemoveEnding_Click;
-                        }));
-
-                        if (Word.WordRaw.EndsWith("ed"))
-                        {
-                            p.Items.Add(new MenuItem().Duck(m =>
-                            {
-                                m.Header = "Remove -ed";
-                                m.Tag = "ed";
-                                m.Click += RemoveEnding_Click;
-                            }));
-                        }
-
-                        if (Word.WordRaw.EndsWith("ied"))
-                        {
-                            p.Items.Add(new MenuItem().Duck(m =>
-                            {
-                                m.Header = "Form -ied -> -y";
-                                m.Tag = "ied|y";
-                                m.Click += ReplaceEnding_Click;
-                            }));
-                        }
-                    } 
-                    else if (Word.WordRaw.EndsWith("s"))
-                    {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Remove -s";
-                            m.Tag = "s";
-                            m.Click += RemoveEnding_Click;
-                        }));
-
-                        if (Word.WordRaw.EndsWith("es"))
-                        {
-                            p.Items.Add(new MenuItem().Duck(m =>
-                            {
-                                m.Header = "Remove -es";
-                                m.Tag = "es";
-                                m.Click += RemoveEnding_Click;
-                            }));
-                        }
-                        
-                        if (Word.WordRaw.EndsWith("ies"))
-                        {
-                            p.Items.Add(new MenuItem().Duck(m =>
-                            {
-                                m.Header = "Form -ies -> -y";
-                                m.Tag = "ies|y";
-                                m.Click += ReplaceEnding_Click;
-                            }));
-                        }
-                    }
-                    else if (Word.WordRaw.EndsWith("ly"))
-                    {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Remove -ly";
-                            m.Tag = "ly";
-                            m.Click += RemoveEnding_Click;
-                        }));
-                    }
-                    else if (Word.WordRaw.EndsWith("ing"))
-                    {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Remove -ing";
-                            m.Tag = "ing";
-                            m.Click += RemoveEnding_Click;
-                        }));
-
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Form -ing -> -e";
-                            m.Tag = "ing|e";
-                            m.Click += ReplaceEnding_Click;
-                        }));
-                    }                    
-                    else if (Word.WordRaw.EndsWith("er"))
-                    {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Remove -er";
-                            m.Tag = "er";
-                            m.Click += RemoveEnding_Click;
-                        }));
-                    }
-                    else if (Word.WordRaw.EndsWith("st"))
-                    {
-                        p.Items.Add(new MenuItem().Duck(m =>
-                        {
-                            m.Header = "Remove -st";
-                            m.Tag = "st";
-                            m.Click += RemoveEnding_Click;
-                        }));
-
-                        if (Word.WordRaw.EndsWith("est"))
-                        {
-                            p.Items.Add(new MenuItem().Duck(m =>
-                            {
-                                m.Header = "Remove -est";
-                                m.Tag = "est";
-                                m.Click += RemoveEnding_Click;
-                            }));
-                        }
-                    }
-                });
-        }        
-       
         #endregion
 
         #region Properties
-        
+
         #region Public
 
         public Word Word
@@ -183,7 +68,7 @@ namespace MyVocabulary.Controls
                 }
             }
         }
-        
+
         public bool IsChecked
         {
             get
@@ -195,14 +80,28 @@ namespace MyVocabulary.Controls
                 CheckBoxMain.IsChecked = value;
             }
         }
-        
-        #endregion        
 
         #endregion
 
-        #region Methods        
-        
+        #endregion
+
+        #region Methods
+
         #region Private
+
+        private void InitContextMenu()
+        {
+            this.ContextMenu = new ContextMenu().Duck(p =>
+            {
+                p.Items.Add(new MenuItem().Duck(m =>
+                {
+                    m.Header = "Edit...";
+                    m.Click += MenuRename_Click;
+                }));
+            });
+
+            this.ContextMenu.Opened += ContextMenu_Opened;
+        }
 
         private void RefreshWord()
         {
@@ -214,10 +113,10 @@ namespace MyVocabulary.Controls
         {
             this.Background = IsChecked ? _SelectedBrush : GetTypeBrush();
         }
-        
+
         private Brush GetTypeBrush()
         {
-            switch(Word.Type)
+            switch (Word.Type)
             {
                 case WordType.Known:
                     return _KnownBrush;
@@ -233,19 +132,19 @@ namespace MyVocabulary.Controls
                     throw new InvalidOperationException("Unsupported word type: " + Word.Type.ToString());
             }
         }
-        
+
         #endregion
-        
+
         #endregion
 
         #region Events
-        
+
         public event EventHandler OnChecked;
 
         public event EventHandler OnRenameCommand;
 
         public event EventHandler<OnWordRenameEventArgs> OnRemoveEnding;
-        
+
         #endregion
 
         #region Event Handlers
@@ -253,10 +152,10 @@ namespace MyVocabulary.Controls
         private void CheckBoxMain_Checked(object sender, RoutedEventArgs e)
         {
             RefreshBackground();
-            
+
             OnChecked.DoIfNotNull(p => p(this, EventArgs.Empty));
             e.Handled = true;
-        }        
+        }
 
         private void UserControl_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -271,20 +170,101 @@ namespace MyVocabulary.Controls
 
         private void RemoveEnding_Click(object sender, RoutedEventArgs e)
         {
-            var ending = sender.To<MenuItem>().Tag.ToString();
-            var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length);
+            var newWord = sender.To<MenuItem>().Tag.ToString();
             var ea = new OnWordRenameEventArgs(newWord, Word.WordRaw);
             OnRemoveEnding.DoIfNotNull(p => p(this, ea));
         }
 
-        private void ReplaceEnding_Click(object sender, RoutedEventArgs e)
+        private void MakeRenameMenu(ContextMenu menu, string ending)
         {
-            var ending = sender.To<MenuItem>().Tag.ToString().Split('|');
-            var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending[0].Length) + ending[1];
-            var ea = new OnWordRenameEventArgs(newWord, Word.WordRaw);
-            OnRemoveEnding.DoIfNotNull(p => p(this, ea));
+            if (Word.WordRaw.EndsWith(ending))
+            {
+                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length);
+
+                if (!_WordChecker.Exists(newWord))
+                {
+                    if (menu.Items.Count == 1)
+                    {
+                        menu.Items.Add(new Separator());
+                    }
+
+                    menu.Items.Add(new MenuItem().Duck(m =>
+                    {
+                        m.Header = string.Format("Remove -{0}", ending);
+                        m.Tag = newWord;
+                        m.Click += RemoveEnding_Click;
+                    }));
+                }
+            }
         }
-        
+
+        private void MakeRenameMenu(ContextMenu menu, string ending, string ending2)
+        {
+            if (Word.WordRaw.EndsWith(ending))
+            {
+                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length) + ending2;
+
+                if (!_WordChecker.Exists(newWord))
+                {
+                    if (menu.Items.Count == 1)
+                    {
+                        menu.Items.Add(new Separator());
+                    }
+
+                    menu.Items.Add(new MenuItem().Duck(m =>
+                    {
+                        m.Header = string.Format("Remove -{0} -> {1}", ending, ending2);
+                        m.Tag = newWord;
+                        m.Click += RemoveEnding_Click;
+                    }));
+                }
+            }
+        }
+
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            var removing = ContextMenu.Items.OfType<MenuItem>().Where(p => p.Tag.IsNotNull()).ToList();
+
+            foreach (var menu in removing)
+            {
+                ContextMenu.Items.Remove(menu);
+            }
+
+            this.ContextMenu.Duck(p =>
+            {
+                if (Word.WordRaw.EndsWith("d"))
+                {
+                    MakeRenameMenu(p, "d");
+                    MakeRenameMenu(p, "ed");
+                    MakeRenameMenu(p, "ied", "y");
+                }
+                else if (Word.WordRaw.EndsWith("s"))
+                {
+                    MakeRenameMenu(p, "s");
+                    MakeRenameMenu(p, "es");
+                    MakeRenameMenu(p, "ies", "y");
+                }
+                else if (Word.WordRaw.EndsWith("ly"))
+                {
+                    MakeRenameMenu(p, "ly");
+                }
+                else if (Word.WordRaw.EndsWith("ing"))
+                {
+                    MakeRenameMenu(p, "ing");
+                    MakeRenameMenu(p, "ing", "e");
+                }
+                else if (Word.WordRaw.EndsWith("er"))
+                {
+                    MakeRenameMenu(p, "er");
+                }
+                else if (Word.WordRaw.EndsWith("st"))
+                {
+                    MakeRenameMenu(p, "st");
+                    MakeRenameMenu(p, "est");
+                }
+            });
+        }
+
         #endregion
     }
 }

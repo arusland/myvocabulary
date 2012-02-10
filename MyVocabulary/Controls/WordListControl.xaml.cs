@@ -35,12 +35,13 @@ namespace MyVocabulary.Controls
         private bool _LockRefreshActive;
         private WordItemControl _LastCheckedControl;
         private readonly IMessageBox _MessageBox;
+        private readonly IWordChecker _WordChecker;
 
         #endregion
 
         #region Ctors
 
-        public WordListControl(IWordListProvider provider, WordType type, IMessageBox messageBox)
+        public WordListControl(IWordListProvider provider, WordType type, IMessageBox messageBox, IWordChecker wordChecker)
         {
             Checker.NotNull(provider, "provider");
             Checker.NotNull(messageBox, "messageBox");
@@ -48,6 +49,7 @@ namespace MyVocabulary.Controls
 
             InitializeComponent();
 
+            _WordChecker = wordChecker;
             TextBlockStatus.Text = string.Empty;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(154, 191, 229));
 
@@ -216,7 +218,7 @@ namespace MyVocabulary.Controls
 
                 foreach (var item in items)
                 {
-                    WrapPanelMain.Children.Add(new WordItemControl(item).Duck(p =>
+                    WrapPanelMain.Children.Add(new WordItemControl(item, _WordChecker).Duck(p =>
                     {
                         p.OnChecked += Control_OnChecked;
                         p.OnRenameCommand += Control_OnRenameCommand;

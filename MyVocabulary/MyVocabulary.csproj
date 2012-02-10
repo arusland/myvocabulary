@@ -60,6 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\IWordChecker.cs" />
     <Compile Include="Controls\OnWordRenameEventArgs.cs" />
     <Compile Include="Dialogs\WordEditDialog.xaml.cs">
       <DependentUpon>WordEditDialog.xaml</DependentUpon>
@@ -68,6 +69,7 @@
     <Compile Include="Helpers\FilterHelper.cs" />
     <Compile Include="Helpers\ParseOptions.cs" />
     <Compile Include="Helpers\WordsFinder.cs" />
+    <Compile Include="ImportWordChecker.cs" />
     <Compile Include="Interfaces\IMessageBox.cs" />
     <Compile Include="IWordsStorageImportProvider.cs" />
     <Compile Include="Operation.cs" />

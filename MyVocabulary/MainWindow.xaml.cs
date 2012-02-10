@@ -19,7 +19,7 @@ using RS = MyVocabulary.Properties.Resources;
 
 namespace MyVocabulary
 {
-    public partial class MainWindow : Window, IMessageBox
+    public partial class MainWindow : Window, IMessageBox, IWordChecker
     {
         #region Constants
 
@@ -404,7 +404,7 @@ namespace MyVocabulary
 
         private WordListControl CreateListControl(WordType type)
         {
-            return new WordListControl(CreateProvider(type), type, this).Duck(p =>
+            return new WordListControl(CreateProvider(type), type, this, this).Duck(p =>
                 {
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
@@ -418,7 +418,7 @@ namespace MyVocabulary
         {
             var provider = new WordListImportProvider(words);
 
-            var result = new WordListControl(provider, WordType.None, this).Duck(p =>
+            var result = new WordListControl(provider, WordType.None, this, new ImportWordChecker(this, provider)).Duck(p =>
             {
                 p.OnOperation += ListControl_OnOperation;
                 p.OnModified += Import_OnModified;
@@ -767,6 +767,15 @@ namespace MyVocabulary
             AnimateLabel(LabelMessage, Colors.Red, 8);
         }
 
+        #endregion
+
+        #region IWordChecker
+
+        public bool Exists(string word)
+        {
+            return _Provider.Get().Any(p => p.WordRaw == word);
+        }
+        
         #endregion
     }
 }
