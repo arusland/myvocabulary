@@ -13,6 +13,7 @@ namespace MyVocabulary.StorageProvider
         #region Fields
 
         private readonly List<Word> _AllWords;
+        private readonly Version _Version;
         private string _Filename;
 
         #endregion
@@ -22,6 +23,7 @@ namespace MyVocabulary.StorageProvider
         public XmlWordsStorageProvider()
         {
             _AllWords = new List<Word>();
+            _Version = new Version(1, 0);
 
             //_AllWords.AddRange(new List<Word>() 
             //{ 
@@ -60,6 +62,14 @@ namespace MyVocabulary.StorageProvider
             doc.Load(filename);
 
             _AllWords.Clear();
+
+            var version = new Version(doc.DocumentElement.GetAttribute("version"));
+
+            if (version != _Version)
+            {
+                throw new InvalidOperationException(string.Format("Invalid file version - {0}", version.ToString()));
+            }
+
             _AllWords.AddRange(doc.DocumentElement.SelectNodes("Words/Item").OfType<XmlNode>().Select(p => LoadFromXml(p)));
             IsModified = false;
         }
