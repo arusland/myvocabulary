@@ -205,6 +205,7 @@ namespace MyVocabulary.Controls
                     p.OnChecked -= Control_OnChecked;
                     p.OnRenameCommand -= Control_OnRenameCommand;
                     p.OnRemoveEnding -= Control_OnRemoveEnding;
+                    p.OnWordSplit -= Control_OnWordSplit;
                 });
 
                 WrapPanelMain.Children.Clear();
@@ -223,6 +224,7 @@ namespace MyVocabulary.Controls
                         p.OnChecked += Control_OnChecked;
                         p.OnRenameCommand += Control_OnRenameCommand;
                         p.OnRemoveEnding += Control_OnRemoveEnding;
+                        p.OnWordSplit += Control_OnWordSplit;
                         p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw) ? Visibility.Visible : Visibility.Collapsed;
 
                         if (p.IsVisible && selectedWords.Any(g => g == item.WordRaw))
@@ -245,6 +247,25 @@ namespace MyVocabulary.Controls
                 CloseProgressBar();
                 IsBlocked = false;
             }
+        }
+
+        void Control_OnWordSplit(object sender, OnWordAddEventArgs e)
+        {
+            OnWordSplit.DoIfNotNull(p =>
+                {
+                    var wasSelected = sender.To<WordItemControl>().IsChecked;
+
+                    p(this, e);
+
+                    if (e.Cancel)
+                    {
+                        _MessageBox.ShowError(RS.MESSAGEBOX_SuchWordAlreadyExists);
+                    }
+                    else
+                    {
+                        AllControls.FirstOrDefault(g => g.Word.WordRaw == e.NewWord).DoIfNotNull(g => g.IsChecked = wasSelected);
+                    }
+                });
         }
 
         private void Control_OnRemoveEnding(object sender, OnWordRenameEventArgs e)
@@ -462,6 +483,8 @@ namespace MyVocabulary.Controls
         public event EventHandler OnIsBlockedChanged;
 
         public event EventHandler<OnWordRenameEventArgs> OnRename;
+
+        public event EventHandler<OnWordAddEventArgs> OnWordSplit;
 
         #endregion
 

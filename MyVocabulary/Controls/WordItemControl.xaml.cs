@@ -145,6 +145,8 @@ namespace MyVocabulary.Controls
 
         public event EventHandler<OnWordRenameEventArgs> OnRemoveEnding;
 
+        public event EventHandler<OnWordAddEventArgs> OnWordSplit;
+
         #endregion
 
         #region Event Handlers
@@ -194,9 +196,16 @@ namespace MyVocabulary.Controls
                         m.Tag = newWord;
                         m.Click += RemoveEnding_Click;
                     }));
+
+                    menu.Items.Add(new MenuItem().Duck(m =>
+                    {
+                        m.Header = string.Format("Add \"{0}\"", newWord);
+                        m.Tag = newWord;
+                        m.Click += SplitMenu_Click;
+                    }));
                 }
             }
-        }
+        }        
 
         private void MakeRenameMenu(ContextMenu menu, string ending, string ending2)
         {
@@ -263,6 +272,13 @@ namespace MyVocabulary.Controls
                     MakeRenameMenu(p, "est");
                 }
             });
+        }
+
+        private void SplitMenu_Click(object sender, RoutedEventArgs e)
+        {
+            var newWord = sender.To<MenuItem>().Tag.ToString();
+            var ea = new OnWordAddEventArgs(newWord, Word.Type);
+            OnWordSplit.DoIfNotNull(p => p(this, ea));
         }
 
         #endregion

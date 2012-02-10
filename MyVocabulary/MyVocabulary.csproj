@@ -60,6 +60,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\OnWordAddEventArgs.cs" />
     <Compile Include="Controls\IWordChecker.cs" />
     <Compile Include="Controls\OnWordRenameEventArgs.cs" />
     <Compile Include="Dialogs\WordEditDialog.xaml.cs">

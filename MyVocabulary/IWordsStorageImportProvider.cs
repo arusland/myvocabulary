@@ -8,5 +8,7 @@ namespace MyVocabulary
         void Delete(IEnumerable<Word> words);
 
         bool Rename(string oldWord, string newWord);
+
+        void Update(IEnumerable<Word> words);
     }
 }

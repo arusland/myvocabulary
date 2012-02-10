@@ -68,6 +68,13 @@ namespace MyVocabulary
             return true;
         }
 
+        public void Update(IEnumerable<Word> words)
+        {
+            Delete(words);
+
+            _Words.AddRange(words);
+        }
+
         #endregion
     }
 }

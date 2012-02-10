@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Media;
@@ -72,7 +73,7 @@ namespace MyVocabulary
                     m.Click += MenuShowBlockedTab_Click;
                 }));
             });
-        }             
+        }
 
         #endregion
 
@@ -107,7 +108,7 @@ namespace MyVocabulary
         #region Private
 
         private void AnimateLabel(Label label, Color color, int durationTimeInSeconds)
-        {   
+        {
             LabelMessage.Visibility = Visibility.Visible;
             NameScope.SetNameScope(label, new NameScope());
             label.Background = new SolidColorBrush(color);
@@ -165,7 +166,7 @@ namespace MyVocabulary
                 Clipboard.SetText(builder.ToString().TrimEnd());
             }
             catch (Exception)
-            {            	
+            {
                 // to skip dummy clipboard exception
             }
         }
@@ -411,6 +412,7 @@ namespace MyVocabulary
                     p.OnRename += ListControl_OnRename;
                     p.OnClose += Import_OnClose;
                     p.OnIsBlockedChanged += ListControl_OnIsBlockedChanged;
+                    p.OnWordSplit += ListControl_OnWordSplit;
                 });
         }
 
@@ -425,12 +427,13 @@ namespace MyVocabulary
                 p.OnIsBlockedChanged += ListControl_OnIsBlockedChanged;
                 p.OnClose += Import_OnClose;
                 p.OnRename += Import_OnRename;
+                p.OnWordSplit += Import_OnWordSplit;
             });
 
             result.Tag = provider;
 
             return result;
-        }
+        }        
 
         #endregion
 
@@ -545,6 +548,16 @@ namespace MyVocabulary
             }
         }
 
+        private void Import_OnWordSplit(object sender, OnWordAddEventArgs e)
+        {
+            var control = sender.To<WordListControl>();
+            var provider = control.Tag.To<IWordsStorageImportProvider>();
+
+            provider.Update(new List<Word> { new Word(e.NewWord, e.Type)});
+
+            control.IsModified = true;
+        }
+
         private void Import_OnRename(object sender, OnWordRenameEventArgs e)
         {
             var control = sender.To<WordListControl>();
@@ -591,6 +604,12 @@ namespace MyVocabulary
         {
             var control = sender.To<WordListControl>();
             RefreshTabHeader(control.Type);
+        }
+
+        private void ListControl_OnWordSplit(object sender, OnWordAddEventArgs e)
+        {
+            _Provider.Update(new List<Word>() { new Word(e.NewWord, e.Type) });
+            GetControlByType(e.Type).IsModified = true;
         }
 
         private void ListControl_OnIsBlockedChanged(object sender, EventArgs e)
@@ -775,7 +794,7 @@ namespace MyVocabulary
         {
             return _Provider.Get().Any(p => p.WordRaw == word);
         }
-        
+
         #endregion
     }
 }
