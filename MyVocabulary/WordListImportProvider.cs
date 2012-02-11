@@ -16,11 +16,11 @@ namespace MyVocabulary
 
         #region Ctors
 
-        public WordListImportProvider(string[] words)
+        public WordListImportProvider(string[] words, IList<WordLabel> labels)
         {
             Checker.NotNull(words, "words");
 
-            _Words = words.OrderBy(p => p).Select(p => new Word(p, WordType.None)).ToList();
+            _Words = words.OrderBy(p => p).Select(p => new Word(p, WordType.None, labels)).ToList();
         }
 
         #endregion
@@ -63,7 +63,7 @@ namespace MyVocabulary
                 return false;
             }
 
-            _Words[indexOld] = new Word(newWord, _Words[indexOld].Type);
+            _Words[indexOld] = new Word(newWord, _Words[indexOld].Type, _Words[indexOld].Labels);
 
             return true;
         }

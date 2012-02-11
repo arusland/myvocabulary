@@ -364,9 +364,17 @@ namespace MyVocabulary
                 _Provider.To<XmlWordsStorageProvider>().SetPath(_Filename);
             }
 
-            _Provider.Save();
-            _LastFileTime = File.GetLastWriteTime(_Filename);
-            RefreshTitle();
+            try
+            {
+                _Provider.Save();
+                _LastFileTime = File.GetLastWriteTime(_Filename);
+                RefreshTitle();
+            }
+            catch (System.Exception ex)
+            {
+                ShowErrorBox(ex.Message);
+                return false;
+            }
 
             return true;
         }
@@ -418,7 +426,7 @@ namespace MyVocabulary
 
         private WordListControl CreateImportListControl(string[] words)
         {
-            var provider = new WordListImportProvider(words);
+            var provider = new WordListImportProvider(words, new List<WordLabel>());
 
             var result = new WordListControl(provider, WordType.None, this, new ImportWordChecker(this, provider)).Duck(p =>
             {
@@ -553,7 +561,7 @@ namespace MyVocabulary
             var control = sender.To<WordListControl>();
             var provider = control.Tag.To<IWordsStorageImportProvider>();
 
-            provider.Update(new List<Word> { new Word(e.NewWord, e.Type)});
+            provider.Update(new List<Word> { new Word(e.NewWord, e.Type, e.Labels)});
 
             control.IsModified = true;
         }
@@ -608,7 +616,7 @@ namespace MyVocabulary
 
         private void ListControl_OnWordSplit(object sender, OnWordAddEventArgs e)
         {
-            _Provider.Update(new List<Word>() { new Word(e.NewWord, e.Type) });
+            _Provider.Update(new List<Word>() { new Word(e.NewWord, e.Type, e.Labels) });
             GetControlByType(e.Type).IsModified = true;
         }
 
@@ -667,20 +675,20 @@ namespace MyVocabulary
                     }
                     else
                     {
-                        _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Blocked)));
+                        _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Blocked, p.Labels)));
                         GetControlByType(WordType.Blocked).IsModified = true;
                     }
                     break;
                 case Operation.MakeKnown:
-                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Known)));
+                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Known, p.Labels)));
                     GetControlByType(WordType.Known).IsModified = true;
                     break;
                 case Operation.MakeBadKnown:
-                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.BadKnown)));
+                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.BadKnown, p.Labels)));
                     GetControlByType(WordType.BadKnown).IsModified = true;
                     break;
                 case Operation.MakeUnknown:
-                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Unknown)));
+                    _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Unknown, p.Labels)));
                     GetControlByType(WordType.Unknown).IsModified = true;
                     break;
                 default:

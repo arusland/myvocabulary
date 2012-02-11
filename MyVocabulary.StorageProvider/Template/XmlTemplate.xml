@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <MyVocabulary version="1.0">
   <Words>
-    <Item name="some word" type="1"/>
-    <Item name="another word" type="2"/>
-    <Item name="another word 2" type="3"/>
+    <Item word="some word" type="1"/>
+    <Item word="another word" type="2"/>
+    <Item word="another word 2" type="3"/>
   </Words>
 </MyVocabulary>

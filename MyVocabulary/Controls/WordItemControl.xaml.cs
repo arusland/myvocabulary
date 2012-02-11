@@ -226,6 +226,13 @@ namespace MyVocabulary.Controls
                         m.Tag = newWord;
                         m.Click += RemoveEnding_Click;
                     }));
+
+                    menu.Items.Add(new MenuItem().Duck(m =>
+                    {
+                        m.Header = string.Format("Add \"{0}\"", newWord);
+                        m.Tag = newWord;
+                        m.Click += SplitMenu_Click;
+                    }));
                 }
             }
         }
@@ -277,7 +284,7 @@ namespace MyVocabulary.Controls
         private void SplitMenu_Click(object sender, RoutedEventArgs e)
         {
             var newWord = sender.To<MenuItem>().Tag.ToString();
-            var ea = new OnWordAddEventArgs(newWord, Word.Type);
+            var ea = new OnWordAddEventArgs(newWord, Word.Type, Word.Labels);
             OnWordSplit.DoIfNotNull(p => p(this, ea));
         }
 

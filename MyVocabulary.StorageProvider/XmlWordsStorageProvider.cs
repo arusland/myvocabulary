@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
@@ -13,7 +14,8 @@ namespace MyVocabulary.StorageProvider
         #region Fields
 
         private readonly List<Word> _AllWords;
-        private readonly Version _Version;
+        private readonly List<WordLabel> _AllLabels;
+        private readonly Version _CurrentVersion;
         private string _Filename;
 
         #endregion
@@ -23,22 +25,8 @@ namespace MyVocabulary.StorageProvider
         public XmlWordsStorageProvider()
         {
             _AllWords = new List<Word>();
-            _Version = new Version(1, 0);
-
-            //_AllWords.AddRange(new List<Word>() 
-            //{ 
-            //    new Word("hello", WordType.Known), 
-            //    new Word("world", WordType.Known) ,
-            //    new Word("just", WordType.Known) ,
-            //    new Word("cat", WordType.Known) ,
-            //    new Word("cat", WordType.Known) ,
-            //    new Word("cat", WordType.Known) ,
-            //    new Word("cat", WordType.Known) ,
-            //    new Word("cat", WordType.Known) ,
-            //    new Word("cat", WordType.Known) ,
-            //    new Word("cat", WordType.Known) ,
-            //    new Word("dog", WordType.Known) 
-            //});
+            _AllLabels = new List<WordLabel>();
+            _CurrentVersion = new Version(1, 1);
         }
         
         #endregion
@@ -65,12 +53,35 @@ namespace MyVocabulary.StorageProvider
 
             var version = new Version(doc.DocumentElement.GetAttribute("version"));
 
-            if (version != _Version)
+            if (version > _CurrentVersion)
             {
-                throw new InvalidOperationException(string.Format("Invalid file version - {0}", version.ToString()));
+                throw new InvalidOperationException(string.Format("New file version - {0}. You should update the program.", version.ToString()));
             }
 
-            _AllWords.AddRange(doc.DocumentElement.SelectNodes("Words/Item").OfType<XmlNode>().Select(p => LoadFromXml(p)));
+            if (version == new Version(1, 0))
+            {
+                LoadV10(doc);
+            }
+            else if (version == _CurrentVersion)
+            {
+                LoadV11(doc);
+            }
+            else
+            {
+                throw new InvalidOperationException(string.Format("Invalid file version - {0}.", version.ToString()));
+            }
+        }
+
+        private void LoadV10(XmlDocument doc)
+        {
+            _AllWords.AddRange(doc.DocumentElement.SelectNodes("Words/Item").OfType<XmlNode>().Select(p => LoadFromXmlV10(p)));
+            IsModified = false;
+        }
+
+        private void LoadV11(XmlDocument doc)
+        {
+            _AllLabels.AddRange(doc.DocumentElement.SelectNodes("Labels/Item").OfType<XmlNode>().Select(p => LoadLabel(p)));
+            _AllWords.AddRange(doc.DocumentElement.SelectNodes("Words/Item").OfType<XmlNode>().Select(p => LoadFromXmlV11(p)));
             IsModified = false;
         }
 
@@ -85,9 +96,42 @@ namespace MyVocabulary.StorageProvider
 
         #region Private
         
-        private Word LoadFromXml(XmlNode node)
+        private Word LoadFromXmlV10(XmlNode node)
         {
-            return new Word(node.GetAttribute("word").ToLower(), (WordType)Convert.ToInt32(node.GetAttribute("type")));
+            return new Word(node.GetAttribute("word").ToLower(), (WordType)Convert.ToInt32(node.GetAttribute("type")), new List<WordLabel>());
+        }
+
+        private Word LoadFromXmlV11(XmlNode node)
+        {
+            var labels = LoadWordLabels(node.GetAttributeSafe("labels"));
+            return new Word(node.GetAttribute("word").ToLower(), (WordType)Convert.ToInt32(node.GetAttribute("type")), labels);
+        }
+
+        private IList<WordLabel> LoadWordLabels(string attr)
+        {
+            var splitted = attr.Split(',').Where(p => p.IsNotEmpty()).Select(p => Convert.ToInt32(p)).ToList();
+
+            return _AllLabels.Where(p => splitted.Contains(p.Id)).ToList();
+        }
+
+        private string LabelsToAttribute(IList<WordLabel> labels)
+        {
+            var result = new StringBuilder();
+
+            foreach (var label in labels.Where(p => _AllLabels.Any(l => l.Id == p.Id)))
+            {
+                if (result.Length > 0)
+                    result.AppendFormat(",{0}", label.Id.ToString());
+                else
+                    result.Append(label.Id.ToString());
+            }
+
+            return result.ToString();
+        }
+
+        private WordLabel LoadLabel(XmlNode node)
+        {
+            return new WordLabel(Convert.ToInt32(node.GetAttribute("type")), node.GetAttribute("name"));
         }
         
         #endregion
@@ -148,12 +192,26 @@ namespace MyVocabulary.StorageProvider
 
             var doc = new XmlDocument();
 
-            doc.LoadXml("<?xml version=\"1.0\" encoding=\"utf-8\" ?><MyVocabulary version=\"1.0\"></MyVocabulary>");
+            doc.LoadXml("<?xml version=\"1.0\" encoding=\"utf-8\" ?><MyVocabulary version=\"1.1\"></MyVocabulary>");
+            var nodeLabels = doc.DocumentElement.AddNode("Labels");
             var nodeWords = doc.DocumentElement.AddNode("Words");
+
+            _AllLabels.OrderBy(p => p.Label).CallOnEach(p =>
+                {
+                    nodeLabels.AddNode("Item").AddAttribute("name", p.Label).AddAttribute("id", p.Id.ToString());
+                });
 
             _AllWords.OrderBy(p => p.WordRaw).CallOnEach(p => 
                 {
-                    nodeWords.AddNode("Item").AddAttribute("word", p.WordRaw).AddAttribute("type", ((int)p.Type).ToString());
+                    var node = nodeWords.AddNode("Item");
+                    node.AddAttribute("word", p.WordRaw).AddAttribute("type", ((int)p.Type).ToString());
+
+                    var labels = LabelsToAttribute(p.Labels);
+
+                    if (labels.IsNotEmpty())
+                    {
+                        node.AddAttribute("labels", labels);
+                    }                        
                 });
 
             doc.Save(_Filename);
@@ -175,12 +233,17 @@ namespace MyVocabulary.StorageProvider
                 return false;
             }
 
-            _AllWords[indexOld] = new Word(newWord, _AllWords[indexOld].Type);
+            _AllWords[indexOld] = new Word(newWord, _AllWords[indexOld].Type, _AllWords[indexOld].Labels);
             IsModified = true;
 
             return true;
         }
+
+        public IEnumerable<WordLabel> GetLabels()
+        {
+            return _AllLabels;
+        }
         
-        #endregion
+        #endregion        
     }
 }

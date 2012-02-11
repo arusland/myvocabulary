@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<MyVocabulary version="1.1">
+  <Labels>
+    <Item name="Irregular verbs" id="1"/>
+    <Item name="Phrasal verbs" id="2"/>
+    <Item name="My favourite" id="3"/>
+  </Labels>
+  <Words>
+    <Item word="run" type="1" labels="1"/>
+    <Item word="carry out" type="2" labels="2,3"/>
+  </Words>
+</MyVocabulary>

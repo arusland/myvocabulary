@@ -12,6 +12,8 @@ namespace MyVocabulary.StorageProvider
 
         IEnumerable<Word> Get();
 
+        IEnumerable<WordLabel> GetLabels();
+
         IEnumerable<Word> Get(WordType type);
 
         IEnumerable<Word> Find(string text);
