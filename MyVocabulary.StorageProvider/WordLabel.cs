@@ -1,4 +1,5 @@
-﻿using Shared.Helpers;
+﻿using System;
+using Shared.Helpers;
 
 namespace MyVocabulary.StorageProvider
 {
@@ -8,9 +9,10 @@ namespace MyVocabulary.StorageProvider
         
         public WordLabel(int id, string label)
         {
-            Checker.NotNullOrEmpty(label, "label");
+            //Checker.NotNullOrEmpty(label, "label");
 
             Label = label;
+            Id = id;
         }
 
         public WordLabel(string label)
@@ -23,6 +25,14 @@ namespace MyVocabulary.StorageProvider
         #region Properties
         
         #region Public
+
+        public bool IsNew
+        {
+            get
+            {
+                return Id < 0;
+            }
+        }
 
         public int Id
         {
@@ -54,6 +64,11 @@ namespace MyVocabulary.StorageProvider
         public override string ToString()
         {
             return Label;
+        }
+
+        public bool EqualsName(WordLabel label)
+        {
+            return String.Compare(Label, label.Label, true) == 0;
         }
         
         #endregion

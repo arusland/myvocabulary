@@ -421,12 +421,13 @@ namespace MyVocabulary
                     p.OnClose += Import_OnClose;
                     p.OnIsBlockedChanged += ListControl_OnIsBlockedChanged;
                     p.OnWordSplit += ListControl_OnWordSplit;
+                    p.OnLabelEdit += ListControl_OnLabelEdit;
                 });
-        }
+        }        
 
         private WordListControl CreateImportListControl(string[] words)
         {
-            var provider = new WordListImportProvider(words, new List<WordLabel>());
+            var provider = new WordListImportProvider(words, new List<WordLabel>(), CreateProvider(WordType.Unknown));
 
             var result = new WordListControl(provider, WordType.None, this, new ImportWordChecker(this, provider)).Duck(p =>
             {
@@ -781,6 +782,11 @@ namespace MyVocabulary
             {
                 OpenFile(Environment.GetCommandLineArgs()[1]);
             }
+        }
+
+        private void ListControl_OnLabelEdit(object sender, OnLabelEditEventArgs e)
+        {
+            e.Result = _Provider.UpdateLabel(e.Label);
         }
 
         #endregion

@@ -20,8 +20,8 @@ namespace MyVocabulary.Controls
         #region Constants
 
         private const int INVALIDATE_Count = 50;
-        
-        #endregion        
+
+        #endregion
 
         #region Fields
 
@@ -242,7 +242,7 @@ namespace MyVocabulary.Controls
                     }
                 }
 
-                ScrollViewerMain.ScrollToVerticalOffset(oldOffset);                
+                ScrollViewerMain.ScrollToVerticalOffset(oldOffset);
 
                 CloseProgressBar();
                 IsBlocked = false;
@@ -310,7 +310,7 @@ namespace MyVocabulary.Controls
             ProgressBarMain.Visibility = Visibility.Collapsed;
             TextBlockLoadingStatus.Visibility = Visibility.Collapsed;
         }
-       
+
         #endregion
 
         #region Private
@@ -423,7 +423,7 @@ namespace MyVocabulary.Controls
         {
             ButtonToKnown.Background = Brushes.LightGreen;
             ButtonToBadKnown.Background = new SolidColorBrush(Color.FromRgb(255, 200, 100));
-            ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(250, 116, 100));
+            ButtonToUnknown.Background = new SolidColorBrush(Color.FromRgb(252, 144, 131));
 
             switch (_Type)
             {
@@ -485,6 +485,8 @@ namespace MyVocabulary.Controls
         public event EventHandler<OnWordRenameEventArgs> OnRename;
 
         public event EventHandler<OnWordAddEventArgs> OnWordSplit;
+
+        public event EventHandler<OnLabelEditEventArgs> OnLabelEdit;
 
         #endregion
 
@@ -573,7 +575,7 @@ namespace MyVocabulary.Controls
         private void ButtonClose_Click(object sender, RoutedEventArgs e)
         {
             CloseTab();
-        }        
+        }
 
         private void TextBoxFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -601,6 +603,45 @@ namespace MyVocabulary.Controls
         private void TextBoxFilter_GotFocus(object sender, RoutedEventArgs e)
         {
             RefreshFilter();
+        }
+
+        private void HyperLinkSetLabel_Click(object sender, RoutedEventArgs e)
+        {
+            var labels = _Provider.GetLabels().ToList();
+
+            ContextMenu menu = new ContextMenu();
+
+            foreach (var label in labels)
+            {
+                menu.Items.Add(new MenuItem() { Header = label.Label });
+            }
+
+            if (labels.Count > 0)
+            {
+                menu.Items.Add(new Separator());
+            }
+            menu.Items.Add(new MenuItem().Duck(p => 
+            {
+                p.Header = RS.MENU_AddNewLabel;
+                p.Click += MenuAddNewLabel_Click;
+            }));
+            menu.IsOpen = true;
+        }
+
+        private void MenuAddNewLabel_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new LabelEditDialog(new WordLabel(string.Empty));
+            dialog.OnLabelEdit += dialog_OnLabelEdit;
+
+            if (dialog.ShowDialog() == true)
+            {
+
+            }
+        }
+
+        private void dialog_OnLabelEdit(object sender, OnLabelEditEventArgs e)
+        {
+            OnLabelEdit.DoIfNotNull(p => p(this, e));
         }
 
         #endregion

@@ -11,15 +11,18 @@ namespace MyVocabulary
         #region Fields
 
         private readonly List<Word> _Words;
+        private readonly IWordListProvider _Provider;
 
         #endregion
 
         #region Ctors
 
-        public WordListImportProvider(string[] words, IList<WordLabel> labels)
+        public WordListImportProvider(string[] words, IList<WordLabel> labels, IWordListProvider provider)
         {
             Checker.NotNull(words, "words");
+            Checker.NotNull(provider, "provider");
 
+            _Provider = provider;
             _Words = words.OrderBy(p => p).Select(p => new Word(p, WordType.None, labels)).ToList();
         }
 
@@ -30,6 +33,11 @@ namespace MyVocabulary
         public IEnumerable<Word> Get()
         {
             return _Words.OrderBy(p => p.WordRaw);
+        }
+
+        public IEnumerable<WordLabel> GetLabels()
+        {
+            return _Provider.GetLabels();
         }
 
         #endregion
@@ -73,7 +81,7 @@ namespace MyVocabulary
             Delete(words);
 
             _Words.AddRange(words);
-        }
+        }        
 
         #endregion
     }

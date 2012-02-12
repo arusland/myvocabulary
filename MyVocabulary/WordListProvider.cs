@@ -37,6 +37,11 @@ namespace MyVocabulary
             return _Provider.Get(_WordType);
         }
 
+        public IEnumerable<WordLabel> GetLabels()
+        {
+            return _Provider.GetLabels();
+        }
+
         #endregion
     }
 }

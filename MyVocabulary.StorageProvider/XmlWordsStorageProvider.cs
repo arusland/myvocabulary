@@ -241,9 +241,71 @@ namespace MyVocabulary.StorageProvider
 
         public IEnumerable<WordLabel> GetLabels()
         {
-            return _AllLabels;
+            return _AllLabels.OrderBy(p => p.Label);
+        }
+
+        public WordLabel UpdateLabel(WordLabel label)
+        {
+            WordLabel result = null;
+
+            if (label.IsNew)
+            {
+                var found = _AllLabels.FirstOrDefault(p => p.EqualsName(label));
+
+                if (found.IsNotNull())
+                {
+                    return null;
+                }
+
+                result = new WordLabel(NextLabelId(), label.Label);
+                _AllLabels.Add(result);
+            }
+            else
+            {
+                var found = _AllLabels.FirstOrDefault(p => label.Id == p.Id);
+
+                if (found.IsNull())
+                {
+                    return null;
+                }
+
+                if (_AllLabels.Any(p => p.EqualsName(label)))
+                {
+                    return null;
+                }
+
+                found.SetLabel(label.Label);
+
+                result = found;
+            }
+
+            IsModified = true;
+
+            return result;
+        }
+
+        private int NextLabelId()
+        {
+            if (_AllLabels.Any())
+            {
+                return _AllLabels.Max(p => p.Id) + 1;
+            }
+
+            return 1;
+        }
+
+        public void DeleteLabels(IEnumerable<WordLabel> labels)
+        {
+            var toRemove = labels.Where(p => !p.IsNew).ToList();
+
+            foreach (var label in toRemove)
+            {
+                _AllLabels.Remove(label);
+            }
+
+            IsModified = true;
         }
         
-        #endregion        
+        #endregion
     }
 }

@@ -6,5 +6,7 @@ namespace MyVocabulary
     internal interface IWordListProvider
     {
         IEnumerable<Word> Get();
+
+        IEnumerable<WordLabel> GetLabels();
     }
 }

@@ -37,7 +37,7 @@ namespace MyVocabulary.Controls
             _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
             _KnownBrush = Brushes.LightGreen;
             _BadKnownBrush = new SolidColorBrush(Color.FromRgb(255, 200, 100));
-            _UnknownBrush = new SolidColorBrush(Color.FromRgb(250, 116, 100));
+            _UnknownBrush = new SolidColorBrush(Color.FromRgb(252, 144, 131));
             _BlockedBrush = Brushes.LightGray;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             Word = word;
@@ -263,6 +263,7 @@ namespace MyVocabulary.Controls
                 else if (Word.WordRaw.EndsWith("ly"))
                 {
                     MakeRenameMenu(p, "ly");
+                    MakeRenameMenu(p, "ly", "e");
                 }
                 else if (Word.WordRaw.EndsWith("ing"))
                 {
@@ -277,6 +278,10 @@ namespace MyVocabulary.Controls
                 {
                     MakeRenameMenu(p, "st");
                     MakeRenameMenu(p, "est");
+                }
+                else if (Word.WordRaw.EndsWith("ion"))
+                {
+                    MakeRenameMenu(p, "ion", "e");
                 }
             });
         }

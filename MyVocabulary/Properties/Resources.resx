@@ -120,6 +120,9 @@
   <data name="FILTER_Text" xml:space="preserve">
     <value>Type filter text...</value>
   </data>
+  <data name="MENU_AddNewLabel" xml:space="preserve">
+    <value>Add new Label...</value>
+  </data>
   <data name="MESSAGEBOX_AbandonChanges" xml:space="preserve">
     <value>Are you sure you want to abandon your changes?</value>
   </data>
@@ -132,6 +135,9 @@
   <data name="MESSAGEBOX_ReloadChanges" xml:space="preserve">
     <value>File changed by another program. Reload with changes?</value>
   </data>
+  <data name="MESSAGEBOX_SuchLabelAlreadyExists" xml:space="preserve">
+    <value>Label with this name already exists.</value>
+  </data>
   <data name="MESSAGEBOX_SuchWordAlreadyExists" xml:space="preserve">
     <value>That word already exists.</value>
   </data>
@@ -140,6 +146,9 @@
   </data>
   <data name="MESSAGEBOX_SureToCloseImport" xml:space="preserve">
     <value>Are you sure to close Import tab?</value>
+  </data>
+  <data name="MESSAGEBOX_YouMustChangeLabel" xml:space="preserve">
+    <value>You must change the label.</value>
   </data>
   <data name="MESSAGEBOX_YouMustChangeWord" xml:space="preserve">
     <value>You must change the word.</value>

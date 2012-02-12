@@ -83,8 +83,8 @@ namespace MyVocabulary.Helpers
 
             if (Regex.IsMatch(FilterText, @"[\*\?]"))
             {
-                var pat = Regex.Replace(FilterText, @"\*+", @"[\w\-]+");
-                pat = Regex.Replace(pat, @"\?", @"[\w\-]");
+                var pat = Regex.Replace(FilterText, @"\*+", @"[\w \-]+");
+                pat = Regex.Replace(pat, @"\?", @"[\w \-]");
                 WildCardPattern = new Regex("^" + pat + "$");
                 UseWildCard = true;
             }

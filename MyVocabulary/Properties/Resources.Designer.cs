@@ -70,6 +70,15 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add new Label....
+        /// </summary>
+        internal static string MENU_AddNewLabel {
+            get {
+                return ResourceManager.GetString("MENU_AddNewLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Are you sure you want to abandon your changes?.
         /// </summary>
         internal static string MESSAGEBOX_AbandonChanges {
@@ -106,6 +115,15 @@ namespace MyVocabulary.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Label with this name already exists..
+        /// </summary>
+        internal static string MESSAGEBOX_SuchLabelAlreadyExists {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_SuchLabelAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to That word already exists..
         /// </summary>
         internal static string MESSAGEBOX_SuchWordAlreadyExists {
@@ -129,6 +147,15 @@ namespace MyVocabulary.Properties {
         internal static string MESSAGEBOX_SureToCloseImport {
             get {
                 return ResourceManager.GetString("MESSAGEBOX_SureToCloseImport", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You must change the label..
+        /// </summary>
+        internal static string MESSAGEBOX_YouMustChangeLabel {
+            get {
+                return ResourceManager.GetString("MESSAGEBOX_YouMustChangeLabel", resourceCulture);
             }
         }
         

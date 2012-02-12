@@ -20,7 +20,11 @@ namespace MyVocabulary.StorageProvider
 
         void Update(IEnumerable<Word> words);
 
+        WordLabel UpdateLabel(WordLabel label);
+
         void Delete(IEnumerable<Word> words);
+
+        void DeleteLabels(IEnumerable<WordLabel> labels);
 
         bool Rename(string oldWord, string newWord);
 

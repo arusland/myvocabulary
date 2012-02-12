@@ -60,9 +60,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\OnLabelEditEventArgs.cs" />
     <Compile Include="Controls\OnWordAddEventArgs.cs" />
     <Compile Include="Controls\IWordChecker.cs" />
     <Compile Include="Controls\OnWordRenameEventArgs.cs" />
+    <Compile Include="Dialogs\LabelEditDialog.xaml.cs">
+      <DependentUpon>LabelEditDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\WordEditDialog.xaml.cs">
       <DependentUpon>WordEditDialog.xaml</DependentUpon>
     </Compile>
@@ -87,6 +91,10 @@
     <Page Include="Controls\WordListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\LabelEditDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\WordEditDialog.xaml">
       <SubType>Designer</SubType>
