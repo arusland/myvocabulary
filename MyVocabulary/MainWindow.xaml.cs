@@ -619,6 +619,7 @@ namespace MyVocabulary
         {
             _Provider.Update(new List<Word>() { new Word(e.NewWord, e.Type, e.Labels) });
             GetControlByType(e.Type).IsModified = true;
+            RefreshTitle();
         }
 
         private void ListControl_OnIsBlockedChanged(object sender, EventArgs e)

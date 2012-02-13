@@ -205,7 +205,46 @@ namespace MyVocabulary.Controls
                     }));
                 }
             }
-        }        
+        }
+
+        private void MakeDoubleLetterMenu(ContextMenu menu, string ending)
+        {
+            if (Word.WordRaw.EndsWith(ending))
+            {
+                if ((ending.Length + 2) <= Word.WordRaw.Length)
+                {
+                    var index = Word.WordRaw.Length - ending.Length - 1;
+
+                    if (Word.WordRaw[index] == Word.WordRaw[index - 1])
+                    {
+                        var newEnding = Word.WordRaw[index] + ending;
+                        var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - newEnding.Length);
+
+                        if (!_WordChecker.Exists(newWord))
+                        {
+                            if (menu.Items.Count == 1)
+                            {
+                                menu.Items.Add(new Separator());
+                            }
+
+                            menu.Items.Add(new MenuItem().Duck(m =>
+                            {
+                                m.Header = string.Format("Remove -{0}", newEnding);
+                                m.Tag = newWord;
+                                m.Click += RemoveEnding_Click;
+                            }));
+
+                            menu.Items.Add(new MenuItem().Duck(m =>
+                            {
+                                m.Header = string.Format("Add \"{0}\"", newWord);
+                                m.Tag = newWord;
+                                m.Click += SplitMenu_Click;
+                            }));
+                        }
+                    }
+                }
+            }
+        }
 
         private void MakeRenameMenu(ContextMenu menu, string ending, string ending2)
         {
@@ -252,6 +291,7 @@ namespace MyVocabulary.Controls
                 {
                     MakeRenameMenu(p, "d");
                     MakeRenameMenu(p, "ed");
+                    MakeDoubleLetterMenu(p, "ed");
                     MakeRenameMenu(p, "ied", "y");
                 }
                 else if (Word.WordRaw.EndsWith("s"))
@@ -259,6 +299,8 @@ namespace MyVocabulary.Controls
                     MakeRenameMenu(p, "s");
                     MakeRenameMenu(p, "es");
                     MakeRenameMenu(p, "ies", "y");
+                    MakeRenameMenu(p, "ness");
+                    MakeRenameMenu(p, "less");
                 }
                 else if (Word.WordRaw.EndsWith("ly"))
                 {
@@ -282,7 +324,7 @@ namespace MyVocabulary.Controls
                 else if (Word.WordRaw.EndsWith("ion"))
                 {
                     MakeRenameMenu(p, "ion", "e");
-                }
+                }                
             });
         }
 
