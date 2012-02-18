@@ -20,6 +20,8 @@ namespace MyVocabulary.StorageProvider
 
         void Update(IEnumerable<Word> words);
 
+        void SetLabel(IEnumerable<Word> words, WordLabel label);
+
         WordLabel UpdateLabel(WordLabel label);
 
         void Delete(IEnumerable<Word> words);

@@ -10,5 +10,7 @@ namespace MyVocabulary
         bool Rename(string oldWord, string newWord);
 
         void Update(IEnumerable<Word> words);
+
+        void SetLabel(IEnumerable<Word> words, WordLabel label);
     }
 }

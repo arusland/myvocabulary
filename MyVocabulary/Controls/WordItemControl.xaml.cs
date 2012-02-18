@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -41,8 +42,26 @@ namespace MyVocabulary.Controls
             _BlockedBrush = Brushes.LightGray;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(141, 163, 193));
             Word = word;
+
+            if (word.Labels.Count > 0)
+            {
+                CheckBoxMain.FontWeight = FontWeights.Bold;
+                ToolTip = MakeTooltip();
+            }
             RefreshWord();
             InitContextMenu();
+        }
+
+        private string MakeTooltip()
+        {
+            var result = new StringBuilder("Labels:");
+
+            foreach (var label in Word.Labels)
+            {
+                result.AppendFormat("{0}  {1}", Environment.NewLine, label.Label);
+            }
+
+            return result.ToString();
         }
 
         #endregion
@@ -315,6 +334,7 @@ namespace MyVocabulary.Controls
                 else if (Word.WordRaw.EndsWith("er"))
                 {
                     MakeRenameMenu(p, "er");
+                    MakeRenameMenu(p, "r");
                 }
                 else if (Word.WordRaw.EndsWith("st"))
                 {
@@ -323,6 +343,7 @@ namespace MyVocabulary.Controls
                 }
                 else if (Word.WordRaw.EndsWith("ion"))
                 {
+                    MakeRenameMenu(p, "ion");
                     MakeRenameMenu(p, "ion", "e");
                 }                
             });

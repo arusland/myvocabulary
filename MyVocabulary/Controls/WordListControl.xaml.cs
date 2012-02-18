@@ -225,9 +225,10 @@ namespace MyVocabulary.Controls
                         p.OnRenameCommand += Control_OnRenameCommand;
                         p.OnRemoveEnding += Control_OnRemoveEnding;
                         p.OnWordSplit += Control_OnWordSplit;
-                        p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw) ? Visibility.Visible : Visibility.Collapsed;
+                        var isVisible = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw); 
+                        p.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
 
-                        if (p.IsVisible && selectedWords.Any(g => g == item.WordRaw))
+                        if (isVisible && selectedWords.Any(g => g == item.WordRaw))
                         {
                             p.IsChecked = true;
                         }
@@ -445,17 +446,17 @@ namespace MyVocabulary.Controls
             }
         }
 
-        private void DoOnOperationEvent(Operation operation)
+        private void DoOnOperationEvent(Operation operation, object arg = null)
         {
             if (!IsBlocked)
             {
                 if (OnOperation.IsNotNull())
                 {
-                    var words = AllControls.Where(p => p.IsChecked).Select(p => p.Word).ToList();
+                    var words = SelectedWords.ToList();
 
                     if (words.Count > 0)
                     {
-                        OnOperation(this, new WordsOperationEventsArgs(words, operation));
+                        OnOperation(this, new WordsOperationEventsArgs(words, operation, arg));
                     }
                 }
 
@@ -613,7 +614,12 @@ namespace MyVocabulary.Controls
 
             foreach (var label in labels)
             {
-                menu.Items.Add(new MenuItem() { Header = label.Label });
+                menu.Items.Add(new MenuItem().Duck(p => 
+                {
+                    p.Header = label.Label;
+                    p.Tag = label;
+                    p.Click += MenuSetLabel_Click;
+                }));
             }
 
             if (labels.Count > 0)
@@ -626,6 +632,20 @@ namespace MyVocabulary.Controls
                 p.Click += MenuAddNewLabel_Click;
             }));
             menu.IsOpen = true;
+        }
+
+        private void MenuSetLabel_Click(object sender, RoutedEventArgs e)
+        {
+            var label = sender.To<MenuItem>().Tag.To<WordLabel>();
+
+            if (SelectedWords.Any())
+            {
+                DoOnOperationEvent(Operation.SetLabel, label);
+            }
+            else
+            {
+                _MessageBox.ShowError("You should select word(s).");
+            }
         }
 
         private void MenuAddNewLabel_Click(object sender, RoutedEventArgs e)

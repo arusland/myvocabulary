@@ -11,6 +11,8 @@ namespace MyVocabulary
 
         MakeUnknown,
 
-        Delete
+        Delete,
+
+        SetLabel
     }
 }

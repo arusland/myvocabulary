@@ -6,6 +6,7 @@ using System.Xml;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
+using MyVocabulary.StorageProvider.Helpers;
 
 namespace MyVocabulary.StorageProvider
 {
@@ -21,20 +22,20 @@ namespace MyVocabulary.StorageProvider
         #endregion
 
         #region Ctors
-        
+
         public XmlWordsStorageProvider()
         {
             _AllWords = new List<Word>();
             _AllLabels = new List<WordLabel>();
             _CurrentVersion = new Version(1, 1);
         }
-        
+
         #endregion
 
         #region Methods
-        
+
         #region Public
-        
+
         /// <summary>
         /// Loads items from xml-file.
         /// </summary>
@@ -91,11 +92,12 @@ namespace MyVocabulary.StorageProvider
             _Filename = filename;
             IsModified = true;
         }
-        
+
         #endregion
 
         #region Private
-        
+
+
         private Word LoadFromXmlV10(XmlNode node)
         {
             return new Word(node.GetAttribute("word").ToLower(), (WordType)Convert.ToInt32(node.GetAttribute("type")), new List<WordLabel>());
@@ -131,11 +133,11 @@ namespace MyVocabulary.StorageProvider
 
         private WordLabel LoadLabel(XmlNode node)
         {
-            return new WordLabel(Convert.ToInt32(node.GetAttribute("type")), node.GetAttribute("name"));
+            return new WordLabel(Convert.ToInt32(node.GetAttribute("id")), node.GetAttribute("name"));
         }
-        
+
         #endregion
-        
+
         #endregion
 
         #region IWordsStorageProvider
@@ -163,9 +165,25 @@ namespace MyVocabulary.StorageProvider
 
         public void Update(IEnumerable<Word> words)
         {
+            var editedWords = new List<Word>();
+
+            foreach (var word in words)
+            {
+                var existingWord = _AllWords.FirstOrDefault(p => p.WordRaw == word.WordRaw);
+
+                if (existingWord.IsNotNull())
+                {
+                    editedWords.Add(new Word(word.WordRaw, word.Type, LabelHelper.JoinLabels(existingWord.Labels, word.Labels, _AllLabels)));
+                }
+                else
+                {
+                    editedWords.Add(new Word(word.WordRaw, word.Type, LabelHelper.JoinLabels(new WordLabel[0], word.Labels, _AllLabels)));
+                }
+            }
+
             Delete(words);
 
-            _AllWords.AddRange(words);
+            _AllWords.AddRange(editedWords);
             IsModified = true;
         }
 
@@ -201,7 +219,7 @@ namespace MyVocabulary.StorageProvider
                     nodeLabels.AddNode("Item").AddAttribute("name", p.Label).AddAttribute("id", p.Id.ToString());
                 });
 
-            _AllWords.OrderBy(p => p.WordRaw).CallOnEach(p => 
+            _AllWords.OrderBy(p => p.WordRaw).CallOnEach(p =>
                 {
                     var node = nodeWords.AddNode("Item");
                     node.AddAttribute("word", p.WordRaw).AddAttribute("type", ((int)p.Type).ToString());
@@ -211,7 +229,7 @@ namespace MyVocabulary.StorageProvider
                     if (labels.IsNotEmpty())
                     {
                         node.AddAttribute("labels", labels);
-                    }                        
+                    }
                 });
 
             doc.Save(_Filename);
@@ -305,7 +323,23 @@ namespace MyVocabulary.StorageProvider
 
             IsModified = true;
         }
-        
+
+        public void SetLabel(IEnumerable<Word> words, WordLabel label)
+        {
+            var editedWords = new List<Word>();
+
+            foreach (var word in _AllWords.Where(p => words.Any(g => g.WordRaw == p.WordRaw)))
+            {
+                editedWords.Add(new Word(word.WordRaw, word.Type, LabelHelper.JoinLabels(word.Labels, new List<WordLabel> { label }, _AllLabels)));
+            }
+
+            Delete(words);
+
+            _AllWords.AddRange(editedWords);
+
+            IsModified = true;
+        }
+
         #endregion
     }
 }

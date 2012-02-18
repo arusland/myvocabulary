@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using Shared.Extensions;
 using System.Linq;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Helpers;
+using MyVocabulary.StorageProvider.Helpers;
 
 namespace MyVocabulary
 {
@@ -78,10 +80,40 @@ namespace MyVocabulary
 
         public void Update(IEnumerable<Word> words)
         {
+            var editedWords = new List<Word>();
+
+            foreach (var word in words)
+            {
+                var existingWord = _Words.FirstOrDefault(p => p.WordRaw == word.WordRaw);
+
+                if (existingWord.IsNotNull())
+                {
+                    editedWords.Add(new Word(word.WordRaw, word.Type, LabelHelper.JoinLabels(existingWord.Labels, word.Labels, _Provider.GetLabels())));
+                }
+                else
+                {
+                    editedWords.Add(new Word(word.WordRaw, word.Type, LabelHelper.JoinLabels(new WordLabel[0], word.Labels, _Provider.GetLabels())));
+                }
+            }
+
             Delete(words);
 
-            _Words.AddRange(words);
-        }        
+            _Words.AddRange(editedWords);
+        }
+
+        public void SetLabel(IEnumerable<Word> words, WordLabel label)
+        {
+            var editedWords = new List<Word>();
+
+            foreach (var word in _Words.Where(p => words.Any(g => g.WordRaw == p.WordRaw)))
+            {
+                editedWords.Add(new Word(word.WordRaw, word.Type, LabelHelper.JoinLabels(word.Labels, new List<WordLabel> { label }, _Provider.GetLabels())));
+            }
+
+            Delete(words);
+
+            _Words.AddRange(editedWords);
+        }
 
         #endregion
     }

@@ -693,6 +693,14 @@ namespace MyVocabulary
                     _Provider.Update(e.Words.Select(p => new Word(p.WordRaw, WordType.Unknown, p.Labels)));
                     GetControlByType(WordType.Unknown).IsModified = true;
                     break;
+                case Operation.SetLabel:
+                    if (!fromImport)
+                    {
+                        var label = e.Arg.To<WordLabel>();
+
+                        _Provider.SetLabel(e.Words, label);
+                    }
+                    break;
                 default:
                     throw new InvalidOperationException("Unsupported Operation: " + e.Operation.ToString());
             }
@@ -700,7 +708,16 @@ namespace MyVocabulary
             if (fromImport)
             {
                 var provider = control.Tag.To<IWordsStorageImportProvider>();
-                provider.Delete(e.Words);
+
+                if (e.Operation == Operation.SetLabel)
+                {
+                    var label = e.Arg.To<WordLabel>();
+                    provider.SetLabel(e.Words, label);
+                }
+                else
+                {
+                    provider.Delete(e.Words);
+                }
             }
 
             control.IsModified = true;
