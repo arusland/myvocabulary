@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Documents;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -51,6 +52,7 @@ namespace MyVocabulary.Controls
 
             InitializeComponent();
 
+            LabelsVisible = false;
             _MainWindow = mainWindow;
             _WordChecker = wordChecker;
             TextBlockStatus.Text = string.Empty;
@@ -65,6 +67,7 @@ namespace MyVocabulary.Controls
             InitControls();
             RefreshFilter();
         }
+
 
         #endregion
 
@@ -138,6 +141,18 @@ namespace MyVocabulary.Controls
 
         #region Private
 
+        private bool LabelsVisible
+        {
+            get
+            {
+                return GridLabels.Visibility == Visibility.Visible;
+            }
+            set
+            {
+                GridLabels.Visibility = value ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
         private IEnumerable<WordItemControl> AllControls
         {
             get
@@ -197,6 +212,7 @@ namespace MyVocabulary.Controls
             if (!IsBlocked)
             {
                 IsBlocked = true;
+                LabelsVisible = false;
 
                 _LastCheckedControl = null;
 
@@ -212,10 +228,13 @@ namespace MyVocabulary.Controls
                 });
 
                 WrapPanelMain.Children.Clear();
+                WrapPanelLabels.Children.Clear();
                 RefreshSelectedCount();
-
                 var items = _Provider.Get().ToList();
                 InitProgressBar(items.Count, RS.PROGRESS_STATUS_LoadingWords);
+                var labels = new List<WordLabel>();
+
+                Dispatcher.DoEvents();
 
                 var fhelper = new FilterHelper(TextBoxFilter.Text);
                 int i = 0;
@@ -228,7 +247,7 @@ namespace MyVocabulary.Controls
                         p.OnRenameCommand += Control_OnRenameCommand;
                         p.OnRemoveEnding += Control_OnRemoveEnding;
                         p.OnWordSplit += Control_OnWordSplit;
-                        var isVisible = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw);
+                        var isVisible = fhelper.ShowAll || fhelper.Check(p.Word);
                         p.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
 
                         if (isVisible && selectedWords.Any(g => g == item.WordRaw))
@@ -238,6 +257,13 @@ namespace MyVocabulary.Controls
                     }));
 
                     //ScrollViewerMain.ScrollToEnd();
+                    foreach (var label in item.Labels)
+                    {
+                        if (!labels.Any(p => p.Label == label.Label))
+                        {
+                            labels.Add(label);
+                        }
+                    }
 
                     if (++i % INVALIDATE_Count == 0)
                     {
@@ -246,58 +272,35 @@ namespace MyVocabulary.Controls
                     }
                 }
 
+                foreach (var label in labels)
+                {
+                    AddLabelToList(label);
+                }
+
                 ScrollViewerMain.ScrollToVerticalOffset(oldOffset);
 
                 CloseProgressBar();
+                LabelsVisible = labels.Count > 0;
                 IsBlocked = false;
             }
         }
 
-        void Control_OnWordSplit(object sender, OnWordAddEventArgs e)
+        private void AddLabelToList(WordLabel label)
         {
-            OnWordSplit.DoIfNotNull(p =>
+            var textBlock = new TextBlock()
                 {
-                    var wasSelected = sender.To<WordItemControl>().IsChecked;
+                    Margin = new Thickness(3)
+                };
 
-                    p(this, e);
+            textBlock.Inlines.Add(new Hyperlink().Duck(p =>
+                {
+                    p.Inlines.Add(label.Label);
+                    p.Click += HyperLinkSelectLabel_Click;
+                    p.Tag = label;
+                }));
 
-                    if (e.Cancel)
-                    {
-                        _MessageBox.ShowError(RS.MESSAGEBOX_SuchWordAlreadyExists);
-                    }
-                    else
-                    {
-                        AllControls.FirstOrDefault(g => g.Word.WordRaw == e.NewWord).DoIfNotNull(g => g.IsChecked = wasSelected);
-                    }
-                });
-        }
-
-        private void Control_OnRemoveEnding(object sender, OnWordRenameEventArgs e)
-        {
-            if (!IsBlocked)
-            {
-                OnRename.DoIfNotNull(p =>
-                    {
-                        var wasSelected = sender.To<WordItemControl>().IsChecked;
-
-                        p(this, e);
-
-                        if (e.Cancel)
-                        {
-                            _MessageBox.ShowError(RS.MESSAGEBOX_SuchWordAlreadyExists);
-                        }
-                        else
-                        {
-                            AllControls.FirstOrDefault(g => g.Word.WordRaw == e.NewWord).DoIfNotNull(g => g.IsChecked = wasSelected);
-                        }
-                    });
-            }
-        }
-
-        private void Control_OnRenameCommand(object sender, EventArgs e)
-        {
-            RenameCommand(sender.To<WordItemControl>());
-        }
+            WrapPanelLabels.Children.Add(textBlock);
+        }        
 
         private void SetProgressValue(int value)
         {
@@ -375,7 +378,7 @@ namespace MyVocabulary.Controls
             if (!IsBlocked)
             {
                 TextBoxFilter.Text = FilterHelper.WaterMarkText;
-                TextBoxFilter.Foreground = Brushes.Gray;
+                RefreshFilterColor();
             }
         }
 
@@ -393,8 +396,24 @@ namespace MyVocabulary.Controls
                 else
                 {
                     TextBoxFilter.Text = string.Empty;
-                    TextBoxFilter.Foreground = Brushes.Black;
+                    RefreshFilterColor();
                 }
+            }
+        }
+
+        private void RefreshFilterColor()
+        {
+            if (TextBoxFilter.Text == FilterHelper.WaterMarkText)
+            {
+                TextBoxFilter.Foreground = Brushes.Gray;
+            }
+            else if (TextBoxFilter.Text.StartsWith("label:"))
+            {
+                TextBoxFilter.Foreground = Brushes.Blue;
+            }
+            else
+            {
+                TextBoxFilter.Foreground = Brushes.Black;
             }
         }
 
@@ -516,6 +535,58 @@ namespace MyVocabulary.Controls
 
         #region Event Handlers
 
+        private void HyperLinkSelectLabel_Click(object sender, RoutedEventArgs e)
+        {
+            var label = sender.To<Hyperlink>().Tag.To<WordLabel>();
+            TextBoxFilter.Text = string.Format("label:{0}", label.Label);
+        }
+
+        private void Control_OnWordSplit(object sender, OnWordAddEventArgs e)
+        {
+            OnWordSplit.DoIfNotNull(p =>
+            {
+                var wasSelected = sender.To<WordItemControl>().IsChecked;
+
+                p(this, e);
+
+                if (e.Cancel)
+                {
+                    _MessageBox.ShowError(RS.MESSAGEBOX_SuchWordAlreadyExists);
+                }
+                else
+                {
+                    AllControls.FirstOrDefault(g => g.Word.WordRaw == e.NewWord).DoIfNotNull(g => g.IsChecked = wasSelected);
+                }
+            });
+        }
+
+        private void Control_OnRemoveEnding(object sender, OnWordRenameEventArgs e)
+        {
+            if (!IsBlocked)
+            {
+                OnRename.DoIfNotNull(p =>
+                {
+                    var wasSelected = sender.To<WordItemControl>().IsChecked;
+
+                    p(this, e);
+
+                    if (e.Cancel)
+                    {
+                        _MessageBox.ShowError(RS.MESSAGEBOX_SuchWordAlreadyExists);
+                    }
+                    else
+                    {
+                        AllControls.FirstOrDefault(g => g.Word.WordRaw == e.NewWord).DoIfNotNull(g => g.IsChecked = wasSelected);
+                    }
+                });
+            }
+        }
+
+        private void Control_OnRenameCommand(object sender, EventArgs e)
+        {
+            RenameCommand(sender.To<WordItemControl>());
+        }
+
         private void UserControl_GotFocus(object sender, RoutedEventArgs e)
         {
             if (IsModified && _IsActive)
@@ -603,13 +674,15 @@ namespace MyVocabulary.Controls
 
         private void TextBoxFilter_TextChanged(object sender, TextChangedEventArgs e)
         {
+            RefreshFilterColor();
+
             if (!IsBlocked)
             {
                 var fhelper = new FilterHelper(TextBoxFilter.Text);
 
                 AllControls.CallOnEach(p =>
                     {
-                        p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw) ? Visibility.Visible : Visibility.Collapsed;
+                        p.Visibility = fhelper.ShowAll || fhelper.Check(p.Word) ? Visibility.Visible : Visibility.Collapsed;
 
                         if (!p.IsVisible && p.IsChecked)
                         {

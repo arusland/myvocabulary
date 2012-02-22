@@ -1,11 +1,19 @@
 ﻿using System.Text.RegularExpressions;
+using System.Linq;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
+using MyVocabulary.StorageProvider;
 
 namespace MyVocabulary.Helpers
 {
     internal class FilterHelper
     {
+        #region Constants
+
+        private const string PREFIX_Label = "label:";
+        
+        #endregion        
+
         #region Ctors
         
         public FilterHelper(string text)
@@ -18,7 +26,7 @@ namespace MyVocabulary.Helpers
         #region Properties
         
         #region Public
-        
+
         public bool ShowAll
         {
             get;
@@ -43,6 +51,12 @@ namespace MyVocabulary.Helpers
 
         #region Private
 
+        private bool UseLabel
+        {
+            get;
+            set;
+        }
+
         private bool UseWildCard
         {
             get;
@@ -62,6 +76,28 @@ namespace MyVocabulary.Helpers
         #region Methods
         
         #region Public
+
+        public bool Check(Word word)
+        {
+            if (UseLabel)
+            {
+                if (word.Labels.Count > 0)
+                {
+                    if (UseWildCard)
+                    {
+                        return word.Labels.Any(p => WildCardPattern.IsMatch(p.Label.ToLower()));
+                    }
+                    else
+                        return word.Labels.Any(p => p.Label.ToLower().IndexOf(FilterText) >= 0);
+                }
+                else
+                    return false;
+            }
+            else
+            {
+                return Check(word.WordRaw);
+            }            
+        }
         
         public bool Check(string word)
         {
@@ -80,6 +116,13 @@ namespace MyVocabulary.Helpers
         private void ProcessFilterText(string text)
         {
             FilterText = text.ToLower().Trim();
+
+            UseLabel = FilterText.StartsWith(PREFIX_Label);
+
+            if (UseLabel)
+            {
+                FilterText = FilterText.Substring(PREFIX_Label.Length);
+            }
 
             if (Regex.IsMatch(FilterText, @"[\*\?]"))
             {

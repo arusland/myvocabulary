@@ -15,6 +15,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid>
@@ -119,6 +120,24 @@
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
                        Visibility="Collapsed" />
+        </Grid>
+
+        <Grid x:Name="GridLabels" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="TextBlockLabels"
+                       Margin="5"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontWeight="Bold"
+                       Text="Labels:" />
+
+            <WrapPanel x:Name="WrapPanelLabels"
+                       Grid.Column="1"
+                       Orientation="Horizontal" />
         </Grid>
     </Grid>
 </UserControl>
