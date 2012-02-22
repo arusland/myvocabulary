@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyVocabulary.StorageProvide
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{37644A9B-2A8A-43F5-A796-CBF4C66F6B5E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{459B3161-9DD9-4CFA-9BF4-935DF87B49FC}"
+	ProjectSection(SolutionItems) = preProject
+		Libs\Microsoft.WindowsAPICodePack.dll = Libs\Microsoft.WindowsAPICodePack.dll
+		Libs\Microsoft.WindowsAPICodePack.Shell.dll = Libs\Microsoft.WindowsAPICodePack.Shell.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

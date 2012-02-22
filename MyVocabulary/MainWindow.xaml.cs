@@ -413,7 +413,7 @@ namespace MyVocabulary
 
         private WordListControl CreateListControl(WordType type)
         {
-            return new WordListControl(CreateProvider(type), type, this, this).Duck(p =>
+            return new WordListControl(this, CreateProvider(type), type, this, this).Duck(p =>
                 {
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
@@ -429,7 +429,7 @@ namespace MyVocabulary
         {
             var provider = new WordListImportProvider(words, new List<WordLabel>(), CreateProvider(WordType.Unknown));
 
-            var result = new WordListControl(provider, WordType.None, this, new ImportWordChecker(this, provider)).Duck(p =>
+            var result = new WordListControl(this, provider, WordType.None, this, new ImportWordChecker(this, provider)).Duck(p =>
             {
                 p.OnOperation += ListControl_OnOperation;
                 p.OnModified += Import_OnModified;

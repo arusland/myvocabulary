@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Microsoft.WindowsAPICodePack.Taskbar;
 using MyVocabulary.Dialogs;
 using MyVocabulary.Helpers;
 using MyVocabulary.Interfaces;
@@ -36,19 +37,21 @@ namespace MyVocabulary.Controls
         private WordItemControl _LastCheckedControl;
         private readonly IMessageBox _MessageBox;
         private readonly IWordChecker _WordChecker;
+        private readonly Window _MainWindow;
 
         #endregion
 
         #region Ctors
 
-        public WordListControl(IWordListProvider provider, WordType type, IMessageBox messageBox, IWordChecker wordChecker)
+        public WordListControl(Window mainWindow, IWordListProvider provider, WordType type, IMessageBox messageBox, IWordChecker wordChecker)
         {
             Checker.NotNull(provider, "provider");
             Checker.NotNull(messageBox, "messageBox");
-            //Checker.AreNotEqual(WordType.None, type);
+            Checker.NotNull(mainWindow, "mainWindow");
 
             InitializeComponent();
 
+            _MainWindow = mainWindow;
             _WordChecker = wordChecker;
             TextBlockStatus.Text = string.Empty;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(154, 191, 229));
@@ -225,7 +228,7 @@ namespace MyVocabulary.Controls
                         p.OnRenameCommand += Control_OnRenameCommand;
                         p.OnRemoveEnding += Control_OnRemoveEnding;
                         p.OnWordSplit += Control_OnWordSplit;
-                        var isVisible = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw); 
+                        var isVisible = fhelper.ShowAll || fhelper.Check(p.Word.WordRaw);
                         p.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
 
                         if (isVisible && selectedWords.Any(g => g == item.WordRaw))
@@ -238,7 +241,7 @@ namespace MyVocabulary.Controls
 
                     if (++i % INVALIDATE_Count == 0)
                     {
-                        ProgressBarMain.Value = i;
+                        SetProgressValue(i);
                         Dispatcher.DoEvents();
                     }
                 }
@@ -296,6 +299,16 @@ namespace MyVocabulary.Controls
             RenameCommand(sender.To<WordItemControl>());
         }
 
+        private void SetProgressValue(int value)
+        {
+            ProgressBarMain.Value = value;
+
+            if (TaskbarManager.IsPlatformSupported)
+            {
+                TaskbarManager.Instance.SetProgressValue(value, (int)ProgressBarMain.Maximum, _MainWindow);
+            }
+        }
+
         private void InitProgressBar(int count, string text)
         {
             ProgressBarMain.Maximum = count;
@@ -304,12 +317,22 @@ namespace MyVocabulary.Controls
             TextBlockLoadingStatus.Text = text;
             ProgressBarMain.Visibility = Visibility.Visible;
             TextBlockLoadingStatus.Visibility = Visibility.Visible;
+
+            if (TaskbarManager.IsPlatformSupported)
+            {
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.Normal);
+            }
         }
 
         private void CloseProgressBar()
         {
             ProgressBarMain.Visibility = Visibility.Collapsed;
             TextBlockLoadingStatus.Visibility = Visibility.Collapsed;
+
+            if (TaskbarManager.IsPlatformSupported)
+            {
+                TaskbarManager.Instance.SetProgressState(TaskbarProgressBarState.NoProgress);
+            }
         }
 
         #endregion
@@ -614,7 +637,7 @@ namespace MyVocabulary.Controls
 
             foreach (var label in labels)
             {
-                menu.Items.Add(new MenuItem().Duck(p => 
+                menu.Items.Add(new MenuItem().Duck(p =>
                 {
                     p.Header = label.Label;
                     p.Tag = label;
@@ -626,7 +649,7 @@ namespace MyVocabulary.Controls
             {
                 menu.Items.Add(new Separator());
             }
-            menu.Items.Add(new MenuItem().Duck(p => 
+            menu.Items.Add(new MenuItem().Duck(p =>
             {
                 p.Header = RS.MENU_AddNewLabel;
                 p.Click += MenuAddNewLabel_Click;

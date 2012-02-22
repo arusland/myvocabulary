@@ -330,6 +330,7 @@ namespace MyVocabulary.Controls
                 {
                     MakeRenameMenu(p, "ing");
                     MakeRenameMenu(p, "ing", "e");
+                    MakeDoubleLetterMenu(p, "ing");
                 }
                 else if (Word.WordRaw.EndsWith("er"))
                 {
