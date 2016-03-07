@@ -226,6 +226,74 @@ namespace MyVocabulary.Controls
             }
         }
 
+        private void MakeRenameTooltip(string ending)
+        {
+            if (Word.WordRaw.EndsWith(ending))
+            {
+                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length);
+
+                if (_WordChecker.Exists(newWord))
+                {
+                    AddWordAlreadyExistsTooltip(newWord);                    
+                }
+            }
+        }
+
+        private void MakeRenameTooltip(string ending, string ending2)
+        {
+            if (Word.WordRaw.EndsWith(ending))
+            {
+                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length) + ending2;
+
+                if (_WordChecker.Exists(newWord))
+                {
+                    AddWordAlreadyExistsTooltip(newWord);
+                }
+            }
+        }        
+
+        private void MakeDoubleLetterTooltip(string ending)
+        {
+            if (Word.WordRaw.EndsWith(ending))
+            {
+                if ((ending.Length + 2) <= Word.WordRaw.Length)
+                {
+                    var index = Word.WordRaw.Length - ending.Length - 1;
+
+                    if (Word.WordRaw[index] == Word.WordRaw[index - 1])
+                    {
+                        var newEnding = Word.WordRaw[index] + ending;
+                        var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - newEnding.Length);
+
+                        if (_WordChecker.Exists(newWord))
+                        {
+                            AddWordAlreadyExistsTooltip(newWord);                            
+                        }
+                    }
+                }
+            }
+        }
+
+        private void AddWordAlreadyExistsTooltip(String newWord)
+        {
+            String curTooltip = ((String)this.ToolTip) ?? String.Empty;
+            String quotedWord = "'" + newWord + "'";
+
+            if (!curTooltip.Contains(quotedWord))
+            {
+                StringBuilder tooltip = new StringBuilder(curTooltip);
+
+                if (tooltip.Length > 0)
+                {
+                    tooltip.Append(Environment.NewLine);
+                }
+
+                tooltip.AppendFormat("Corresponding word {0} already exists", quotedWord);
+
+                this.ToolTip = tooltip.ToString();
+            }
+        }
+
         private void MakeDoubleLetterMenu(ContextMenu menu, string ending)
         {
             if (Word.WordRaw.EndsWith(ending))
@@ -350,11 +418,60 @@ namespace MyVocabulary.Controls
             });
         }
 
+        private void MakeRenamingTooltip()
+        {
+            if (Word.WordRaw.EndsWith("d"))
+            {
+                MakeRenameTooltip("d");
+                MakeRenameTooltip("ed");
+                MakeDoubleLetterTooltip("ed");
+                MakeRenameTooltip("ied", "y");
+            }
+            else if (Word.WordRaw.EndsWith("s"))
+            {
+                MakeRenameTooltip("s");
+                MakeRenameTooltip("es");
+                MakeRenameTooltip("ies", "y");
+                MakeRenameTooltip("ness");
+                MakeRenameTooltip("less");
+            }
+            else if (Word.WordRaw.EndsWith("ly"))
+            {
+                MakeRenameTooltip("ly");
+                MakeRenameTooltip("ly", "e");
+            }
+            else if (Word.WordRaw.EndsWith("ing"))
+            {
+                MakeRenameTooltip("ing");
+                MakeRenameTooltip("ing", "e");
+                MakeDoubleLetterTooltip("ing");
+            }
+            else if (Word.WordRaw.EndsWith("er"))
+            {
+                MakeRenameTooltip("er");
+                MakeRenameTooltip("r");
+            }
+            else if (Word.WordRaw.EndsWith("st"))
+            {
+                MakeRenameTooltip("st");
+                MakeRenameTooltip("est");
+            }
+            else if (Word.WordRaw.EndsWith("ion"))
+            {
+                MakeRenameTooltip("ion");
+                MakeRenameTooltip("ion", "e");
+            }
+        }
         private void SplitMenu_Click(object sender, RoutedEventArgs e)
         {
             var newWord = sender.To<MenuItem>().Tag.ToString();
             var ea = new OnWordAddEventArgs(newWord, Word.Type, Word.Labels);
             OnWordSplit.DoIfNotNull(p => p(this, ea));
+        }
+
+        private void UserControl_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            MakeRenamingTooltip();
         }
 
         #endregion
