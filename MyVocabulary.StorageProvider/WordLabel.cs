@@ -5,6 +5,9 @@ namespace MyVocabulary.StorageProvider
 {
     public class WordLabel
     {
+        // Word is labeled with this label if all related words already exist
+        public static readonly WordLabel LabelToRemove = new WordLabel("Ready for delete");
+
         #region Ctors
         
         public WordLabel(int id, string label)
@@ -69,6 +72,23 @@ namespace MyVocabulary.StorageProvider
         public bool EqualsName(WordLabel label)
         {
             return String.Compare(Label, label.Label, true) == 0;
+        }
+
+        public override bool Equals(object obj)
+        {
+            WordLabel rhs = obj as WordLabel;
+
+            if (rhs == null)
+            {
+                return false;
+            }
+
+            return this.Id == rhs.Id && Label.Equals(rhs.Label);
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode() ^ Label.GetHashCode();
         }
         
         #endregion

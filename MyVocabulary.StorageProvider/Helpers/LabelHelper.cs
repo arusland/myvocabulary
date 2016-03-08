@@ -18,12 +18,12 @@ namespace MyVocabulary.StorageProvider.Helpers
             {
                 if (!allLabels.Contains(labelNew))
                 {
-                    break;
+                    continue;
                 }
 
                 if (labels.Any(p => p.Id == labelNew.Id))
                 {
-                    break;
+                    continue;
                 }
 
                 result.Add(labelNew);

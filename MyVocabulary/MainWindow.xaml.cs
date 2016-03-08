@@ -47,6 +47,8 @@ namespace MyVocabulary
             InitializeComponent();
 
             _Provider = new XmlWordsStorageProvider();
+            // TODO: Language must be selectable!
+            _Provider.Lang = MyVocabulary.StorageProvider.Enums.Language.English;
             _FileWatcher = new FileSystemWatcher();
             _FileWatcher.Changed += FileWatcher_Changed;
 
@@ -54,7 +56,6 @@ namespace MyVocabulary
             TabItemKnown.Content = CreateListControl(WordType.Known);
             TabItemUnknown.Content = CreateListControl(WordType.Unknown);
             TabItemBlocked.Content = CreateListControl(WordType.Blocked);
-            //TabItemBlocked.Visibility = Visibility.Visible;
 
             TabControlMain.SelectionChanged += TabControlMain_SelectionChanged;
 
@@ -345,6 +346,11 @@ namespace MyVocabulary
             }
         }
 
+        private void ApplyWordsToRemoveByLabel(IEnumerable<Word> words)
+        {
+
+        }
+
         private bool SaveDocument()
         {
             if (_Filename.IsNullOrEmpty())
@@ -448,12 +454,7 @@ namespace MyVocabulary
 
         #endregion
 
-        #region Event Handlers
-
-        //void _FileWatcher_Error(object sender, ErrorEventArgs e)
-        //{
-        //    ShowErrorBox(e.GetException().ToString());
-        //}
+        #region Event Handlers       
 
         private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
         {

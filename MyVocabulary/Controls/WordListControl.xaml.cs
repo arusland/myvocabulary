@@ -14,10 +14,11 @@ using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
 using RS = MyVocabulary.Properties.Resources;
+using MyVocabulary.Langs;
 
 namespace MyVocabulary.Controls
 {
-    internal partial class WordListControl : UserControl
+    internal partial class WordListControl : UserControl, IWordNormalizer
     {
         #region Constants
 
@@ -39,6 +40,8 @@ namespace MyVocabulary.Controls
         private readonly IMessageBox _MessageBox;
         private readonly IWordChecker _WordChecker;
         private readonly Window _MainWindow;
+        private IWordNormalizer _WordNormalizer;
+        private readonly WordNormalizerFactory _WordNormalizerFactory;
 
         #endregion
 
@@ -49,12 +52,14 @@ namespace MyVocabulary.Controls
             Checker.NotNull(provider, "provider");
             Checker.NotNull(messageBox, "messageBox");
             Checker.NotNull(mainWindow, "mainWindow");
+            Checker.NotNull(wordChecker, "wordChecker");
 
             InitializeComponent();
 
             LabelsVisible = false;
             _MainWindow = mainWindow;
             _WordChecker = wordChecker;
+            _WordNormalizerFactory = new WordNormalizerFactory(_WordChecker);
             TextBlockStatus.Text = string.Empty;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(154, 191, 229));
 
@@ -91,12 +96,6 @@ namespace MyVocabulary.Controls
                 _IsBlocked = value;
 
                 TextBoxFilter.IsEnabled = !_IsBlocked;
-                //ButtonFilterClear.IsEnabled =
-                //ButtonClose.IsEnabled =
-                //ButtonDelete.IsEnabled =
-                //ButtonToBadKnown.IsEnabled =
-                //ButtonToKnown.IsEnabled =
-                //ButtonToUnknown.IsEnabled = !_IsBlocked;
 
                 OnIsBlockedChanged.DoIfNotNull(p => p(this, EventArgs.Empty));
             }
@@ -140,6 +139,19 @@ namespace MyVocabulary.Controls
         #endregion
 
         #region Private
+
+        public MyVocabulary.Langs.IWordNormalizer WordNormalizer
+        {
+            get
+            {
+                if (_WordNormalizer == null || _WordNormalizer.Lang != _Provider.Lang)
+                {
+                    _WordNormalizer = _WordNormalizerFactory.CreateNormalizer(_Provider.Lang);
+                }
+
+                return _WordNormalizer;
+            }
+        }
 
         private bool LabelsVisible
         {
@@ -203,7 +215,6 @@ namespace MyVocabulary.Controls
 
         public void Deactivate()
         {
-            //MessageBox.Show("Deactivate: " + _Type.ToString());
             _IsActive = false;
         }
 
@@ -241,7 +252,7 @@ namespace MyVocabulary.Controls
 
                 foreach (var item in items)
                 {
-                    WrapPanelMain.Children.Add(new WordItemControl(item, _WordChecker).Duck(p =>
+                    WrapPanelMain.Children.Add(new WordItemControl(item, _WordChecker, (IWordNormalizer)this).Duck(p =>
                     {
                         p.OnChecked += Control_OnChecked;
                         p.OnRenameCommand += Control_OnRenameCommand;
@@ -300,7 +311,7 @@ namespace MyVocabulary.Controls
                 }));
 
             WrapPanelLabels.Children.Add(textBlock);
-        }        
+        }
 
         private void SetProgressValue(int value)
         {
@@ -758,6 +769,21 @@ namespace MyVocabulary.Controls
         private void dialog_OnLabelEdit(object sender, OnLabelEditEventArgs e)
         {
             OnLabelEdit.DoIfNotNull(p => p(this, e));
+        }
+
+        #endregion
+
+        #region IWordNormalizer methods
+
+
+        public IEnumerable<WordChange> GetChanges(Word word)
+        {
+            return WordNormalizer.GetChanges(word);
+        }
+
+        public Language Lang
+        {
+            get { return WordNormalizer.Lang; }
         }
 
         #endregion

@@ -8,6 +8,7 @@ using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
+using MyVocabulary.Langs;
 
 namespace MyVocabulary.Controls
 {
@@ -22,19 +23,22 @@ namespace MyVocabulary.Controls
         private readonly Brush _BlockedBrush;
         private Word _Word;
         private readonly IWordChecker _WordChecker;
+        private readonly IWordNormalizer _WordNormalizer;
 
         #endregion
 
         #region Ctors
 
-        public WordItemControl(Word word, IWordChecker wordChecker)
+        public WordItemControl(Word word, IWordChecker wordChecker, IWordNormalizer wordNormalizer)
         {
             Checker.NotNull(word, "word");
             Checker.NotNull(wordChecker, "wordChecker");
+            Checker.NotNull(wordNormalizer, "wordNormalizer");
 
             InitializeComponent();
 
             _WordChecker = wordChecker;
+            _WordNormalizer = wordNormalizer;
             _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
             _KnownBrush = Brushes.LightGreen;
             _BadKnownBrush = new SolidColorBrush(Color.FromRgb(255, 200, 100));
@@ -374,49 +378,49 @@ namespace MyVocabulary.Controls
 
             this.ContextMenu.Duck(p =>
             {
-                if (Word.WordRaw.EndsWith("d"))
-                {
-                    MakeRenameMenu(p, "d");
-                    MakeRenameMenu(p, "ed");
-                    MakeDoubleLetterMenu(p, "ed");
-                    MakeRenameMenu(p, "ied", "y");
-                }
-                else if (Word.WordRaw.EndsWith("s"))
-                {
-                    MakeRenameMenu(p, "s");
-                    MakeRenameMenu(p, "es");
-                    MakeRenameMenu(p, "ies", "y");
-                    MakeRenameMenu(p, "ness");
-                    MakeRenameMenu(p, "less");
-                }
-                else if (Word.WordRaw.EndsWith("ly"))
-                {
-                    MakeRenameMenu(p, "ly");
-                    MakeRenameMenu(p, "ly", "e");
-                }
-                else if (Word.WordRaw.EndsWith("ing"))
-                {
-                    MakeRenameMenu(p, "ing");
-                    MakeRenameMenu(p, "ing", "e");
-                    MakeDoubleLetterMenu(p, "ing");
-                }
-                else if (Word.WordRaw.EndsWith("er"))
-                {
-                    MakeRenameMenu(p, "er");
-                    MakeRenameMenu(p, "r");
-                }
-                else if (Word.WordRaw.EndsWith("st"))
-                {
-                    MakeRenameMenu(p, "st");
-                    MakeRenameMenu(p, "est");
-                }
-                else if (Word.WordRaw.EndsWith("ion"))
-                {
-                    MakeRenameMenu(p, "ion");
-                    MakeRenameMenu(p, "ion", "e");
-                }                
+                var changes = _WordNormalizer.GetChanges(Word);
+                changes.CallOnEach(c => WordChangeHandler(p, c));
             });
         }
+
+        private void WordChangeHandler(ContextMenu menu, WordChange change)
+        {
+            switch (change.Type)
+            {
+                case ChangeType.AddNew:
+                    menu.Items.Add(new MenuItem().Duck(m =>
+                    {
+                        m.Header = string.Format("Add \"{0}\"", change.NewWord);
+                        m.Tag = change.NewWord;
+                        m.Click += SplitMenu_Click;
+                    }));
+                    break;
+                case ChangeType.RemoveEnd:
+
+                    if (String.IsNullOrEmpty(change.Param2))
+                    {
+                        menu.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = string.Format("Remove -{0}", change.Param);
+                            m.Tag = change.NewWord;
+                            m.Click += RemoveEnding_Click;
+                        }));
+                    }
+                    else
+                    {
+                        menu.Items.Add(new MenuItem().Duck(m =>
+                        {
+                            m.Header = string.Format("Remove -{0} -> {1}", change.Param, change.Param2);
+                            m.Tag = change.NewWord;
+                            m.Click += RemoveEnding_Click;
+                        }));
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported change type: " + change.Type);
+            }
+        }
+        
 
         private void MakeRenamingTooltip()
         {
@@ -462,6 +466,7 @@ namespace MyVocabulary.Controls
                 MakeRenameTooltip("ion", "e");
             }
         }
+
         private void SplitMenu_Click(object sender, RoutedEventArgs e)
         {
             var newWord = sender.To<MenuItem>().Tag.ToString();

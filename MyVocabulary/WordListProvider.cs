@@ -42,6 +42,14 @@ namespace MyVocabulary
             return _Provider.GetLabels();
         }
 
+        public Language Lang
+        {
+            get
+            {
+                return _Provider.Lang;
+            }
+        }
+
         #endregion
     }
 }

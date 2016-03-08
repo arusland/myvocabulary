@@ -31,5 +31,7 @@ namespace MyVocabulary.StorageProvider
         bool Rename(string oldWord, string newWord);
 
         void Save();
+
+        Language Lang { get; set; }
     }
 }

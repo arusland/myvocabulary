@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using MyVocabulary.StorageProvider;
+﻿using MyVocabulary.StorageProvider;
+using MyVocabulary.StorageProvider.Enums;
+using System.Collections.Generic;
 
 namespace MyVocabulary
 {
@@ -8,5 +9,10 @@ namespace MyVocabulary
         IEnumerable<Word> Get();
 
         IEnumerable<WordLabel> GetLabels();
+
+        Language Lang
+        {
+            get;
+        }
     }
 }

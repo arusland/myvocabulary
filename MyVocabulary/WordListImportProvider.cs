@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using Shared.Extensions;
-using System.Linq;
-using MyVocabulary.StorageProvider;
+﻿using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
-using Shared.Helpers;
 using MyVocabulary.StorageProvider.Helpers;
+using Shared.Extensions;
+using Shared.Helpers;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MyVocabulary
 {
@@ -31,6 +31,14 @@ namespace MyVocabulary
         #endregion
 
         #region IWordListProvider
+
+        public Language Lang
+        {
+            get
+            {
+                return _Provider.Lang;
+            }
+        }
 
         public IEnumerable<Word> Get()
         {

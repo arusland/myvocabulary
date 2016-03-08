@@ -1,17 +1,19 @@
-﻿using System;
+﻿using MyVocabulary.StorageProvider.Enums;
+using MyVocabulary.StorageProvider.Helpers;
+using Shared.Extensions;
+using Shared.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using MyVocabulary.StorageProvider.Enums;
-using Shared.Extensions;
-using Shared.Helpers;
-using MyVocabulary.StorageProvider.Helpers;
 
 namespace MyVocabulary.StorageProvider
 {
     public class XmlWordsStorageProvider : IWordsStorageProvider
     {
+        private const String ATTR_LANG = "lang";
+
         #region Fields
 
         private readonly List<Word> _AllWords;
@@ -83,6 +85,8 @@ namespace MyVocabulary.StorageProvider
         {
             _AllLabels.AddRange(doc.DocumentElement.SelectNodes("Labels/Item").OfType<XmlNode>().Select(p => LoadLabel(p)));
             _AllWords.AddRange(doc.DocumentElement.SelectNodes("Words/Item").OfType<XmlNode>().Select(p => LoadFromXmlV11(p)));
+            Lang = doc.DocumentElement.HasAttribute(ATTR_LANG) ?
+                (Language)Enum.Parse(typeof(Language), doc.DocumentElement.Attributes[ATTR_LANG].Value) : Language.English;
             IsModified = false;
         }
 
@@ -96,7 +100,6 @@ namespace MyVocabulary.StorageProvider
         #endregion
 
         #region Private
-
 
         private Word LoadFromXmlV10(XmlNode node)
         {
@@ -146,6 +149,12 @@ namespace MyVocabulary.StorageProvider
         {
             get;
             private set;
+        }
+
+        public Language Lang
+        {
+            get;
+            set;
         }
 
         public IEnumerable<Word> Get()
@@ -211,6 +220,7 @@ namespace MyVocabulary.StorageProvider
             var doc = new XmlDocument();
 
             doc.LoadXml("<?xml version=\"1.0\" encoding=\"utf-8\" ?><MyVocabulary version=\"1.1\"></MyVocabulary>");
+            doc.DocumentElement.SetAttribute(ATTR_LANG, Lang.ToString());
             var nodeLabels = doc.DocumentElement.AddNode("Labels");
             var nodeWords = doc.DocumentElement.AddNode("Words");
 

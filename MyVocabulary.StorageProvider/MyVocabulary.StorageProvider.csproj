@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums\Language.cs" />
     <Compile Include="Enums\WordType.cs" />
     <Compile Include="Helpers\LabelHelper.cs" />
     <Compile Include="IWordsStorageProvider.cs" />
