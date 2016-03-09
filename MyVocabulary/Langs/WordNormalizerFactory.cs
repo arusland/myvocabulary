@@ -2,6 +2,7 @@
 using MyVocabulary.Langs.English;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
+using Shared.Extensions;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
@@ -60,14 +61,39 @@ namespace MyVocabulary.Langs
 
         IEnumerable<WordChange> IWordNormalizer.GetChanges(Word word)
         {
-            var changes = CreateNormalizer(Language.English).GetChanges(word).ToList();
-
-            if (!changes.Any())
+            foreach (IWordNormalizer normalizer in GetNormalizers())
             {
-                changes = CreateNormalizer(Language.Russian).GetChanges(word).ToList();
+                var changes = normalizer.GetChanges(word).ToList();
+
+                if (changes.Any())
+                {
+                    return changes;
+                }
             }
 
-            return changes;
+            return new List<WordChange>();
+        }
+
+
+        string IWordNormalizer.GetRenameTooltip(Word word)
+        {
+            foreach (IWordNormalizer normalizer in GetNormalizers())
+            {
+                String tooltip = normalizer.GetRenameTooltip(word);
+
+                if (tooltip.IsNotNullOrEmpty())
+                {
+                    return tooltip;
+                }
+            }
+
+            return String.Empty;
+        }
+
+        private IEnumerable<IWordNormalizer> GetNormalizers()
+        {
+            yield return CreateNormalizer(Language.English);
+            yield return CreateNormalizer(Language.Russian);
         }
     }
 }

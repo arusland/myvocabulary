@@ -1,14 +1,14 @@
-﻿using System;
+﻿using MyVocabulary.Langs;
+using MyVocabulary.StorageProvider;
+using MyVocabulary.StorageProvider.Enums;
+using Shared.Extensions;
+using Shared.Helpers;
+using System;
 using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using MyVocabulary.StorageProvider;
-using MyVocabulary.StorageProvider.Enums;
-using Shared.Extensions;
-using Shared.Helpers;
-using MyVocabulary.Langs;
 
 namespace MyVocabulary.Controls
 {
@@ -24,6 +24,7 @@ namespace MyVocabulary.Controls
         private Word _Word;
         private readonly IWordChecker _WordChecker;
         private readonly IWordNormalizer _WordNormalizer;
+        private volatile bool _InvalidCache = true;
 
         #endregion
 
@@ -50,22 +51,9 @@ namespace MyVocabulary.Controls
             if (word.Labels.Count > 0)
             {
                 CheckBoxMain.FontWeight = FontWeights.Bold;
-                ToolTip = MakeTooltip();
             }
             RefreshWord();
             InitContextMenu();
-        }
-
-        private string MakeTooltip()
-        {
-            var result = new StringBuilder("Labels:");
-
-            foreach (var label in Word.Labels)
-            {
-                result.AppendFormat("{0}  {1}", Environment.NewLine, label.Label);
-            }
-
-            return result.ToString();
         }
 
         #endregion
@@ -200,173 +188,6 @@ namespace MyVocabulary.Controls
             OnRemoveEnding.DoIfNotNull(p => p(this, ea));
         }
 
-        private void MakeRenameMenu(ContextMenu menu, string ending)
-        {
-            if (Word.WordRaw.EndsWith(ending))
-            {
-                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length);
-
-                if (!_WordChecker.Exists(newWord))
-                {
-                    if (menu.Items.Count == 1)
-                    {
-                        menu.Items.Add(new Separator());
-                    }
-
-                    menu.Items.Add(new MenuItem().Duck(m =>
-                    {
-                        m.Header = string.Format("Remove -{0}", ending);
-                        m.Tag = newWord;
-                        m.Click += RemoveEnding_Click;
-                    }));
-
-                    menu.Items.Add(new MenuItem().Duck(m =>
-                    {
-                        m.Header = string.Format("Add \"{0}\"", newWord);
-                        m.Tag = newWord;
-                        m.Click += SplitMenu_Click;
-                    }));
-                }
-            }
-        }
-
-        private void MakeRenameTooltip(string ending)
-        {
-            if (Word.WordRaw.EndsWith(ending))
-            {
-                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length);
-
-                if (_WordChecker.Exists(newWord))
-                {
-                    AddWordAlreadyExistsTooltip(newWord);                    
-                }
-            }
-        }
-
-        private void MakeRenameTooltip(string ending, string ending2)
-        {
-            if (Word.WordRaw.EndsWith(ending))
-            {
-                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length) + ending2;
-
-                if (_WordChecker.Exists(newWord))
-                {
-                    AddWordAlreadyExistsTooltip(newWord);
-                }
-            }
-        }        
-
-        private void MakeDoubleLetterTooltip(string ending)
-        {
-            if (Word.WordRaw.EndsWith(ending))
-            {
-                if ((ending.Length + 2) <= Word.WordRaw.Length)
-                {
-                    var index = Word.WordRaw.Length - ending.Length - 1;
-
-                    if (Word.WordRaw[index] == Word.WordRaw[index - 1])
-                    {
-                        var newEnding = Word.WordRaw[index] + ending;
-                        var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - newEnding.Length);
-
-                        if (_WordChecker.Exists(newWord))
-                        {
-                            AddWordAlreadyExistsTooltip(newWord);                            
-                        }
-                    }
-                }
-            }
-        }
-
-        private void AddWordAlreadyExistsTooltip(String newWord)
-        {
-            String curTooltip = ((String)this.ToolTip) ?? String.Empty;
-            String quotedWord = "'" + newWord + "'";
-
-            if (!curTooltip.Contains(quotedWord))
-            {
-                StringBuilder tooltip = new StringBuilder(curTooltip);
-
-                if (tooltip.Length > 0)
-                {
-                    tooltip.Append(Environment.NewLine);
-                }
-
-                tooltip.AppendFormat("Corresponding word {0} already exists", quotedWord);
-
-                this.ToolTip = tooltip.ToString();
-            }
-        }
-
-        private void MakeDoubleLetterMenu(ContextMenu menu, string ending)
-        {
-            if (Word.WordRaw.EndsWith(ending))
-            {
-                if ((ending.Length + 2) <= Word.WordRaw.Length)
-                {
-                    var index = Word.WordRaw.Length - ending.Length - 1;
-
-                    if (Word.WordRaw[index] == Word.WordRaw[index - 1])
-                    {
-                        var newEnding = Word.WordRaw[index] + ending;
-                        var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - newEnding.Length);
-
-                        if (!_WordChecker.Exists(newWord))
-                        {
-                            if (menu.Items.Count == 1)
-                            {
-                                menu.Items.Add(new Separator());
-                            }
-
-                            menu.Items.Add(new MenuItem().Duck(m =>
-                            {
-                                m.Header = string.Format("Remove -{0}", newEnding);
-                                m.Tag = newWord;
-                                m.Click += RemoveEnding_Click;
-                            }));
-
-                            menu.Items.Add(new MenuItem().Duck(m =>
-                            {
-                                m.Header = string.Format("Add \"{0}\"", newWord);
-                                m.Tag = newWord;
-                                m.Click += SplitMenu_Click;
-                            }));
-                        }
-                    }
-                }
-            }
-        }
-
-        private void MakeRenameMenu(ContextMenu menu, string ending, string ending2)
-        {
-            if (Word.WordRaw.EndsWith(ending))
-            {
-                var newWord = Word.WordRaw.Remove(Word.WordRaw.Length - ending.Length) + ending2;
-
-                if (!_WordChecker.Exists(newWord))
-                {
-                    if (menu.Items.Count == 1)
-                    {
-                        menu.Items.Add(new Separator());
-                    }
-
-                    menu.Items.Add(new MenuItem().Duck(m =>
-                    {
-                        m.Header = string.Format("Remove -{0} -> {1}", ending, ending2);
-                        m.Tag = newWord;
-                        m.Click += RemoveEnding_Click;
-                    }));
-
-                    menu.Items.Add(new MenuItem().Duck(m =>
-                    {
-                        m.Header = string.Format("Add \"{0}\"", newWord);
-                        m.Tag = newWord;
-                        m.Click += SplitMenu_Click;
-                    }));
-                }
-            }
-        }
-
         private void ContextMenu_Opened(object sender, RoutedEventArgs e)
         {
             var removing = ContextMenu.Items.OfType<MenuItem>().Where(p => p.Tag.IsNotNull()).ToList();
@@ -420,52 +241,6 @@ namespace MyVocabulary.Controls
                     throw new InvalidOperationException("Unsupported change type: " + change.Type);
             }
         }
-        
-
-        private void MakeRenamingTooltip()
-        {
-            if (Word.WordRaw.EndsWith("d"))
-            {
-                MakeRenameTooltip("d");
-                MakeRenameTooltip("ed");
-                MakeDoubleLetterTooltip("ed");
-                MakeRenameTooltip("ied", "y");
-            }
-            else if (Word.WordRaw.EndsWith("s"))
-            {
-                MakeRenameTooltip("s");
-                MakeRenameTooltip("es");
-                MakeRenameTooltip("ies", "y");
-                MakeRenameTooltip("ness");
-                MakeRenameTooltip("less");
-            }
-            else if (Word.WordRaw.EndsWith("ly"))
-            {
-                MakeRenameTooltip("ly");
-                MakeRenameTooltip("ly", "e");
-            }
-            else if (Word.WordRaw.EndsWith("ing"))
-            {
-                MakeRenameTooltip("ing");
-                MakeRenameTooltip("ing", "e");
-                MakeDoubleLetterTooltip("ing");
-            }
-            else if (Word.WordRaw.EndsWith("er"))
-            {
-                MakeRenameTooltip("er");
-                MakeRenameTooltip("r");
-            }
-            else if (Word.WordRaw.EndsWith("st"))
-            {
-                MakeRenameTooltip("st");
-                MakeRenameTooltip("est");
-            }
-            else if (Word.WordRaw.EndsWith("ion"))
-            {
-                MakeRenameTooltip("ion");
-                MakeRenameTooltip("ion", "e");
-            }
-        }
 
         private void SplitMenu_Click(object sender, RoutedEventArgs e)
         {
@@ -476,7 +251,40 @@ namespace MyVocabulary.Controls
 
         private void UserControl_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            MakeRenamingTooltip();
+            if (_InvalidCache)
+            {
+                _InvalidCache = false;
+
+                var result = new StringBuilder();
+
+                if (Word.Labels.Any())
+                {
+                    result.Append("Labels:");
+
+                    foreach (var label in Word.Labels)
+                    {
+                        result.AppendFormat("{0}  {1}", Environment.NewLine, label.Label);
+                    }
+                }
+
+                String tooltip = _WordNormalizer.GetRenameTooltip(Word);
+
+                if (!tooltip.IsNullOrEmpty())
+                {
+                    if (result.Length > 0)
+                    {
+                        result.Append(Environment.NewLine);
+                    }
+                    result.Append(tooltip);
+                }
+
+                this.ToolTip = result.Length > 0 ? result.ToString() : null;
+            }
+        }
+
+        private void UserControl_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            _InvalidCache = true;
         }
 
         #endregion

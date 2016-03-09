@@ -8,6 +8,7 @@
     Margin="5"
     MouseLeftButtonUp="UserControl_MouseLeftButtonUp"
     MouseMove="UserControl_MouseMove"
+    MouseLeave="UserControl_MouseLeave"
     d:DesignHeight="30"
     d:DesignWidth="180"
     mc:Ignorable="d">

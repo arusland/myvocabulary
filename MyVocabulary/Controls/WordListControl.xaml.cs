@@ -1,20 +1,20 @@
-﻿using System;
-using System.Windows.Documents;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using Microsoft.WindowsAPICodePack.Taskbar;
+﻿using Microsoft.WindowsAPICodePack.Taskbar;
 using MyVocabulary.Dialogs;
 using MyVocabulary.Helpers;
 using MyVocabulary.Interfaces;
+using MyVocabulary.Langs;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using Shared.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 using RS = MyVocabulary.Properties.Resources;
-using MyVocabulary.Langs;
 
 namespace MyVocabulary.Controls
 {
@@ -784,6 +784,11 @@ namespace MyVocabulary.Controls
         public Language Lang
         {
             get { return WordNormalizer.Lang; }
+        }
+
+        public string GetRenameTooltip(Word word)
+        {
+            return WordNormalizer.GetRenameTooltip(word);
         }
 
         #endregion

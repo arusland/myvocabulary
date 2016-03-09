@@ -4,6 +4,7 @@ using MyVocabulary.StorageProvider.Enums;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace MyVocabulary.Langs.English
 {
@@ -70,6 +71,114 @@ namespace MyVocabulary.Langs.English
             }
 
             return result;
+        }
+
+        public string GetRenameTooltip(Word word)
+        {
+            StringBuilder result = new StringBuilder();
+
+            if (word.WordRaw.EndsWith("d"))
+            {
+                MakeRenameTooltip(result, word, "d");
+                MakeRenameTooltip(result, word, "ed");
+                MakeDoubleLetterTooltip(result, word, "ed");
+                MakeRenameTooltip(result, word, "ied", "y");
+            }
+            else if (word.WordRaw.EndsWith("s"))
+            {
+                MakeRenameTooltip(result, word, "s");
+                MakeRenameTooltip(result, word, "es");
+                MakeRenameTooltip(result, word, "ies", "y");
+                MakeRenameTooltip(result, word, "ness");
+                MakeRenameTooltip(result, word, "less");
+            }
+            else if (word.WordRaw.EndsWith("ly"))
+            {
+                MakeRenameTooltip(result, word, "ly");
+                MakeRenameTooltip(result, word, "ly", "e");
+            }
+            else if (word.WordRaw.EndsWith("ing"))
+            {
+                MakeRenameTooltip(result, word, "ing");
+                MakeRenameTooltip(result, word, "ing", "e");
+                MakeDoubleLetterTooltip(result, word, "ing");
+            }
+            else if (word.WordRaw.EndsWith("er"))
+            {
+                MakeRenameTooltip(result, word, "er");
+                MakeRenameTooltip(result, word, "r");
+            }
+            else if (word.WordRaw.EndsWith("st"))
+            {
+                MakeRenameTooltip(result, word, "st");
+                MakeRenameTooltip(result, word, "est");
+            }
+            else if (word.WordRaw.EndsWith("ion"))
+            {
+                MakeRenameTooltip(result, word, "ion");
+                MakeRenameTooltip(result, word, "ion", "e");
+            }
+
+            return result.ToString();
+        }
+
+        private void MakeDoubleLetterTooltip(StringBuilder result, Word word, string ending)
+        {
+            if (word.WordRaw.EndsWith(ending))
+            {
+                if ((ending.Length + 2) <= word.WordRaw.Length)
+                {
+                    var index = word.WordRaw.Length - ending.Length - 1;
+
+                    if (word.WordRaw[index] == word.WordRaw[index - 1])
+                    {
+                        var newEnding = word.WordRaw[index] + ending;
+                        var newWord = word.WordRaw.Remove(word.WordRaw.Length - newEnding.Length);
+
+                        if (_WordChecker.Exists(newWord))
+                        {
+                            AddCorespondingMessage(result, newWord);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void MakeRenameTooltip(StringBuilder result, Word word, string ending)
+        {
+            if (word.WordRaw.EndsWith(ending))
+            {
+                var newWord = word.WordRaw.Remove(word.WordRaw.Length - ending.Length);
+
+                if (_WordChecker.Exists(newWord))
+                {
+                    AddCorespondingMessage(result, newWord);
+
+                }
+            }
+        }
+
+        private void MakeRenameTooltip(StringBuilder result, Word word, string ending, string ending2)
+        {
+            if (word.WordRaw.EndsWith(ending))
+            {
+                var newWord = word.WordRaw.Remove(word.WordRaw.Length - ending.Length) + ending2;
+
+                if (_WordChecker.Exists(newWord))
+                {
+                    AddCorespondingMessage(result, newWord);
+                }
+            }
+        }
+
+        private static void AddCorespondingMessage(StringBuilder result, String newWord)
+        {
+            if (result.Length > 0)
+            {
+                result.Append(Environment.NewLine);
+            }
+
+            result.AppendFormat("Corresponding word '{0}' already exists", newWord);
         }
 
         /// <summary>
