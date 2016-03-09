@@ -95,5 +95,19 @@ namespace MyVocabulary.Langs
             yield return CreateNormalizer(Language.English);
             yield return CreateNormalizer(Language.Russian);
         }
+
+
+        bool IWordNormalizer.IsPotentialForRemove(Word word)
+        {
+            foreach (IWordNormalizer normalizer in GetNormalizers())
+            {
+                if (normalizer.IsPotentialForRemove(word))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

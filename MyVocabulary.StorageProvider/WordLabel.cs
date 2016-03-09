@@ -6,7 +6,7 @@ namespace MyVocabulary.StorageProvider
     public class WordLabel
     {
         // Word is labeled with this label if all related words already exist
-        public static readonly WordLabel LabelToRemove = new WordLabel("Ready for delete");
+        public static readonly WordLabel LabelToRemove = new WordLabel(-2, "Ready for delete");
 
         #region Ctors
         

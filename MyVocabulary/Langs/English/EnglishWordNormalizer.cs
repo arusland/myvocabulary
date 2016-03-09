@@ -246,5 +246,99 @@ namespace MyVocabulary.Langs.English
                 }
             }
         }
+
+        public bool IsPotentialForRemove(Word word)
+        {
+            bool canBeRemoved = false;
+
+            if (word.WordRaw.EndsWith("d"))
+            {
+                canBeRemoved = CanBeRemoved(word, "d") ||
+                    CanBeRemoved(word, "ed") ||
+                    CanBeRemovedDoubleLetter(word, "ed") ||
+                    CanBeRemoved(word, "ied", "y");
+            }
+            else if (word.WordRaw.EndsWith("s"))
+            {
+                canBeRemoved = CanBeRemoved(word, "s") ||
+                    CanBeRemoved(word, "es") ||
+                    CanBeRemoved(word, "ies", "y") ||
+                    CanBeRemoved(word, "ness") ||
+                    CanBeRemoved(word, "less");
+            }
+            else if (word.WordRaw.EndsWith("ly"))
+            {
+                canBeRemoved = CanBeRemoved(word, "ly") ||
+                    CanBeRemoved(word, "ly", "e");
+            }
+            else if (word.WordRaw.EndsWith("ing"))
+            {
+                canBeRemoved = CanBeRemoved(word, "ing") ||
+                    CanBeRemoved(word, "ing", "e") ||
+                    CanBeRemovedDoubleLetter(word, "ing");
+            }
+            else if (word.WordRaw.EndsWith("er"))
+            {
+                canBeRemoved = CanBeRemoved(word, "er") ||
+                    CanBeRemoved(word, "r");
+            }
+            else if (word.WordRaw.EndsWith("st"))
+            {
+                canBeRemoved = CanBeRemoved(word, "st") ||
+                    CanBeRemoved(word, "est");
+            }
+            else if (word.WordRaw.EndsWith("ion"))
+            {
+                canBeRemoved = CanBeRemoved(word, "ion") ||
+                    CanBeRemoved(word, "ion", "e");
+            }
+
+            return canBeRemoved;
+        }
+
+        private bool CanBeRemoved(Word word, String ending)
+        {
+            if (word.WordRaw.EndsWith(ending))
+            {
+                var newWord = word.WordRaw.Remove(word.WordRaw.Length - ending.Length);
+
+                return _WordChecker.Exists(newWord);
+            }
+
+            return false;
+        }
+
+        private bool CanBeRemoved(Word word, String ending, String ending2)
+        {
+            if (word.WordRaw.EndsWith(ending))
+            {
+                var newWord = word.WordRaw.Remove(word.WordRaw.Length - ending.Length) + ending2;
+
+                return _WordChecker.Exists(newWord);
+            }
+
+            return false;
+        }
+
+        private bool CanBeRemovedDoubleLetter(Word word, string ending)
+        {
+            if (word.WordRaw.EndsWith(ending))
+            {
+                if ((ending.Length + 2) <= word.WordRaw.Length)
+                {
+                    var index = word.WordRaw.Length - ending.Length - 1;
+
+                    if (word.WordRaw[index] == word.WordRaw[index - 1])
+                    {
+                        var newEnding = word.WordRaw[index] + ending;
+                        var newWord = word.WordRaw.Remove(word.WordRaw.Length - newEnding.Length);
+
+                        return _WordChecker.Exists(newWord);
+                    }
+                }
+            }
+
+            return false;
+        }
     }
 }

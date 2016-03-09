@@ -16,7 +16,7 @@ namespace MyVocabulary.StorageProvider.Helpers
 
             foreach (var labelNew in labelsNew)
             {
-                if (!allLabels.Contains(labelNew))
+                if (WordLabel.LabelToRemove != labelNew && !allLabels.Contains(labelNew))
                 {
                     continue;
                 }

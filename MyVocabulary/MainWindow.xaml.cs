@@ -17,6 +17,7 @@ using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
+using MyVocabulary.Langs;
 
 namespace MyVocabulary
 {
@@ -37,6 +38,7 @@ namespace MyVocabulary
         private string _Filename;
         private readonly FileSystemWatcher _FileWatcher;
         private DateTime _LastFileTime;
+        private readonly WordNormalizerFactory _WordNormalizerFactory;
 
         #endregion
 
@@ -47,6 +49,7 @@ namespace MyVocabulary
             InitializeComponent();
 
             _Provider = new XmlWordsStorageProvider();
+            _WordNormalizerFactory = new WordNormalizerFactory((IWordChecker)this);
             // TODO: Language must be selectable!
             _Provider.Lang = MyVocabulary.StorageProvider.Enums.Language.English;
             _FileWatcher = new FileSystemWatcher();
@@ -346,11 +349,6 @@ namespace MyVocabulary
             }
         }
 
-        private void ApplyWordsToRemoveByLabel(IEnumerable<Word> words)
-        {
-
-        }
-
         private bool SaveDocument()
         {
             if (_Filename.IsNullOrEmpty())
@@ -419,7 +417,7 @@ namespace MyVocabulary
 
         private WordListControl CreateListControl(WordType type)
         {
-            return new WordListControl(this, CreateProvider(type), type, this, this).Duck(p =>
+            return new WordListControl(this, CreateProvider(type), type, (IMessageBox)this, (IWordChecker)this, _WordNormalizerFactory).Duck(p =>
                 {
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
@@ -434,8 +432,14 @@ namespace MyVocabulary
         private WordListControl CreateImportListControl(string[] words)
         {
             var provider = new WordListImportProvider(words, new List<WordLabel>(), CreateProvider(WordType.Unknown));
+            var normalizer = _WordNormalizerFactory.CreateNormalizer(_Provider.Lang);
 
-            var result = new WordListControl(this, provider, WordType.None, this, new ImportWordChecker(this, provider)).Duck(p =>
+            var wordsToRemove = provider.Get().Where(p => normalizer.IsPotentialForRemove(p)).ToList();
+
+            provider.SetLabel(wordsToRemove, WordLabel.LabelToRemove);
+
+            var result = new WordListControl((Window)this, provider, WordType.None, (IMessageBox)this, 
+                new ImportWordChecker(this, provider), _WordNormalizerFactory).Duck(p =>
             {
                 p.OnOperation += ListControl_OnOperation;
                 p.OnModified += Import_OnModified;

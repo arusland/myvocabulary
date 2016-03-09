@@ -15,5 +15,7 @@ namespace MyVocabulary.Langs
         IEnumerable<WordChange> GetChanges(Word word);
 
         String GetRenameTooltip(Word word);
+
+        bool IsPotentialForRemove(Word word);
     }
 }
