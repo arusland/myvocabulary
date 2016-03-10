@@ -18,6 +18,7 @@ using MyVocabulary.StorageProvider.Enums;
 using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
 using MyVocabulary.Langs;
+using System.Diagnostics;
 
 namespace MyVocabulary
 {
@@ -225,6 +226,14 @@ namespace MyVocabulary
                 _Provider.To<XmlWordsStorageProvider>().Load(filename);
                 _Filename = filename;
 
+
+                var normalizer = _WordNormalizerFactory.CreateNormalizer(_Provider.Lang);
+                var sw = Stopwatch.StartNew();
+                var wordsToRemove = _Provider.Get().Where(p => normalizer.IsPotentialForRemove(p)).ToList();
+                sw.Stop();
+                Debug.WriteLine("Getting list from provider: " + sw.ElapsedMilliseconds);                
+                _Provider.SetLabel(wordsToRemove, WordLabel.LabelToRemove);                
+
                 GetControlByType(WordType.Unknown).IsModified = true;
                 GetControlByType(WordType.BadKnown).IsModified = true;
                 GetControlByType(WordType.Known).IsModified = true;
@@ -411,7 +420,7 @@ namespace MyVocabulary
         }
 
         private WordListProvider CreateProvider(WordType type)
-        {
+        {   
             return new WordListProvider(_Provider, type);
         }
 
@@ -829,7 +838,7 @@ namespace MyVocabulary
 
         public bool Exists(string word)
         {
-            return _Provider.Get().Any(p => p.WordRaw == word);
+            return _Provider.Exists(word);
         }
 
         #endregion

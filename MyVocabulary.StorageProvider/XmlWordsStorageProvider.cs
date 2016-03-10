@@ -10,7 +10,7 @@ using System.Xml;
 
 namespace MyVocabulary.StorageProvider
 {
-    public class XmlWordsStorageProvider : IWordsStorageProvider
+    public class XmlWordsStorageProvider : IWordsStorageProvider, IComparer<Word>
     {
         private const String ATTR_LANG = "lang";
 
@@ -73,7 +73,19 @@ namespace MyVocabulary.StorageProvider
             {
                 throw new InvalidOperationException(string.Format("Invalid file version - {0}.", version.ToString()));
             }
+        }        
+
+        public void SetPath(string filename)
+        {
+            Checker.NotNullOrEmpty(filename, "filename");
+
+            _Filename = filename;
+            IsModified = true;
         }
+
+        #endregion
+
+        #region Private
 
         private void LoadV10(XmlDocument doc)
         {
@@ -90,16 +102,10 @@ namespace MyVocabulary.StorageProvider
             IsModified = false;
         }
 
-        public void SetPath(string filename)
+        private void SortWords()
         {
-            Checker.NotNullOrEmpty(filename, "filename");
-            _Filename = filename;
-            IsModified = true;
+            _AllWords.Sort((IComparer<Word>)this);
         }
-
-        #endregion
-
-        #region Private
 
         private Word LoadFromXmlV10(XmlNode node)
         {
@@ -162,6 +168,11 @@ namespace MyVocabulary.StorageProvider
             return _AllWords.OrderBy(p => p.WordRaw);
         }
 
+        public IEnumerable<WordLabel> GetLabels()
+        {
+            return _AllLabels.OrderBy(p => p.Label);
+        }
+
         public IEnumerable<Word> Get(WordType type)
         {
             return Get().Where(p => p.Type == type);
@@ -193,8 +204,9 @@ namespace MyVocabulary.StorageProvider
             Delete(words);
 
             _AllWords.AddRange(editedWords);
+            SortWords();
             IsModified = true;
-        }
+        }        
 
         public void Delete(IEnumerable<Word> words)
         {
@@ -207,6 +219,8 @@ namespace MyVocabulary.StorageProvider
                     _AllWords.RemoveAt(index);
                 }
             }
+
+            SortWords();
             IsModified = true;
         }
 
@@ -262,15 +276,14 @@ namespace MyVocabulary.StorageProvider
             }
 
             _AllWords[indexOld] = new Word(newWord, _AllWords[indexOld].Type, _AllWords[indexOld].Labels);
+
+            SortWords();
             IsModified = true;
 
             return true;
         }
 
-        public IEnumerable<WordLabel> GetLabels()
-        {
-            return _AllLabels.OrderBy(p => p.Label);
-        }
+        
 
         public WordLabel UpdateLabel(WordLabel label)
         {
@@ -348,6 +361,29 @@ namespace MyVocabulary.StorageProvider
             _AllWords.AddRange(editedWords);
 
             IsModified = true;
+        }
+
+        public bool Exists(string name)
+        {
+            int index =_AllWords.BinarySearchIndex(p => p.WordRaw.CompareTo(name));
+
+            return index >= 0;
+        }        
+
+        public Word GetByName(string name)
+        {
+            Word word = _AllWords.BinarySearch(p => p.WordRaw.CompareTo(name));
+
+            return word;
+        }
+
+        #endregion
+
+        #region IComparer<Word>
+
+        int IComparer<Word>.Compare(Word x, Word y)
+        {
+            return x.WordRaw.CompareTo(y.WordRaw);
         }
 
         #endregion

@@ -18,6 +18,10 @@ namespace MyVocabulary.StorageProvider
 
         IEnumerable<Word> Find(string text);
 
+        bool Exists(string name);
+
+        Word GetByName(string name);
+
         void Update(IEnumerable<Word> words);
 
         void SetLabel(IEnumerable<Word> words, WordLabel label);

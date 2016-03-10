@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyVocabulary", "MyVocabulary\MyVocabulary.csproj", "{A519A52B-AEFA-474D-A233-15C60A090D0C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyVocabulary.StorageProvider", "MyVocabulary.StorageProvider\MyVocabulary.StorageProvider.csproj", "{278B9512-5034-492E-B456-992443B1DA0D}"
@@ -12,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{459B3161-9
 		Libs\Microsoft.WindowsAPICodePack.dll = Libs\Microsoft.WindowsAPICodePack.dll
 		Libs\Microsoft.WindowsAPICodePack.Shell.dll = Libs\Microsoft.WindowsAPICodePack.Shell.dll
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyVocabulary.Tests", "MyVocabulary.Tests\MyVocabulary.Tests.csproj", "{204DEF1B-B972-452E-A260-02F05AB7D4C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +57,16 @@ Global
 		{37644A9B-2A8A-43F5-A796-CBF4C66F6B5E}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{37644A9B-2A8A-43F5-A796-CBF4C66F6B5E}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{37644A9B-2A8A-43F5-A796-CBF4C66F6B5E}.Release|x86.ActiveCfg = Release|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{204DEF1B-B972-452E-A260-02F05AB7D4C8}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
