@@ -284,9 +284,7 @@ namespace MyVocabulary.StorageProvider
             IsModified = true;
 
             return true;
-        }
-
-        
+        }        
 
         public WordLabel UpdateLabel(WordLabel label)
         {
@@ -359,11 +357,14 @@ namespace MyVocabulary.StorageProvider
                 editedWords.Add(new Word(word.WordRaw, word.Type, LabelHelper.JoinLabels(word.Labels, new List<WordLabel> { label }, _AllLabels)));
             }
 
+            bool oldModified = IsModified;
+
             Delete(words);
             _AllWords.AddRange(editedWords);
             SortWords();
-
-            IsModified = true;
+            
+            // when label is LabelToRemove we must ignore modifying
+            IsModified = WordLabel.LabelToRemove != label || oldModified;
         }
 
         public bool Exists(string name)
