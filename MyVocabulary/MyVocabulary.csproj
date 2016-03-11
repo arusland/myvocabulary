@@ -80,7 +80,6 @@
     <Compile Include="Helpers\FilterHelper.cs" />
     <Compile Include="Helpers\ParseOptions.cs" />
     <Compile Include="Helpers\WordsFinder.cs" />
-    <Compile Include="ImportWordChecker.cs" />
     <Compile Include="Interfaces\IMessageBox.cs" />
     <Compile Include="IWordsStorageImportProvider.cs" />
     <Compile Include="Langs\ChangeType.cs" />

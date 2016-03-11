@@ -22,7 +22,6 @@ namespace MyVocabulary.Controls
         private readonly Brush _UnknownBrush;
         private readonly Brush _BlockedBrush;
         private Word _Word;
-        private readonly IWordChecker _WordChecker;
         private readonly IWordNormalizer _WordNormalizer;
         private volatile bool _InvalidCache = true;
 
@@ -30,15 +29,13 @@ namespace MyVocabulary.Controls
 
         #region Ctors
 
-        public WordItemControl(Word word, IWordChecker wordChecker, IWordNormalizer wordNormalizer)
+        public WordItemControl(Word word, IWordNormalizer wordNormalizer)
         {
             Checker.NotNull(word, "word");
-            Checker.NotNull(wordChecker, "wordChecker");
             Checker.NotNull(wordNormalizer, "wordNormalizer");
 
             InitializeComponent();
 
-            _WordChecker = wordChecker;
             _WordNormalizer = wordNormalizer;
             _SelectedBrush = new SolidColorBrush(Color.FromRgb(195, 212, 252));
             _KnownBrush = Brushes.LightGreen;

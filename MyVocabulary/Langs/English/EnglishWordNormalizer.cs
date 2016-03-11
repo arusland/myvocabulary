@@ -134,11 +134,7 @@ namespace MyVocabulary.Langs.English
                     {
                         var newEnding = word.WordRaw[index] + ending;
                         var newWord = word.WordRaw.Remove(word.WordRaw.Length - newEnding.Length);
-
-                        if (_WordChecker.Exists(newWord))
-                        {
-                            AddCorespondingMessage(result, newWord);
-                        }
+                        CheckAndMakeTooltip(newWord, result);
                     }
                 }
             }
@@ -149,12 +145,7 @@ namespace MyVocabulary.Langs.English
             if (word.WordRaw.EndsWith(ending))
             {
                 var newWord = word.WordRaw.Remove(word.WordRaw.Length - ending.Length);
-
-                if (_WordChecker.Exists(newWord))
-                {
-                    AddCorespondingMessage(result, newWord);
-
-                }
+                CheckAndMakeTooltip(newWord, result);                
             }
         }
 
@@ -163,22 +154,28 @@ namespace MyVocabulary.Langs.English
             if (word.WordRaw.EndsWith(ending))
             {
                 var newWord = word.WordRaw.Remove(word.WordRaw.Length - ending.Length) + ending2;
-
-                if (_WordChecker.Exists(newWord))
-                {
-                    AddCorespondingMessage(result, newWord);
-                }
+                CheckAndMakeTooltip(newWord, result);
             }
         }
 
-        private static void AddCorespondingMessage(StringBuilder result, String newWord)
+        private void CheckAndMakeTooltip(String newWord, StringBuilder result)
+        {
+            Word foundWord = _WordChecker.GetByName(newWord);
+
+            if (foundWord != null)
+            {
+                AddCorespondingMessage(result, foundWord);
+            }
+        }
+
+        private static void AddCorespondingMessage(StringBuilder result, Word foundWord)
         {
             if (result.Length > 0)
             {
                 result.Append(Environment.NewLine);
             }
 
-            result.AppendFormat("Corresponding word '{0}' already exists", newWord);
+            result.AppendFormat("Corresponding word '{0}' already exists ({1})", foundWord.WordRaw, foundWord.Type);
         }
 
         /// <summary>

@@ -38,7 +38,6 @@ namespace MyVocabulary.Controls
         private bool _LockRefreshActive;
         private WordItemControl _LastCheckedControl;
         private readonly IMessageBox _MessageBox;
-        private readonly IWordChecker _WordChecker;
         private readonly Window _MainWindow;
         private IWordNormalizer _WordNormalizer;
         private readonly WordNormalizerFactory _WordNormalizerFactory;
@@ -48,19 +47,17 @@ namespace MyVocabulary.Controls
         #region Ctors
 
         public WordListControl(Window mainWindow, IWordListProvider provider, WordType type, IMessageBox messageBox, 
-            IWordChecker wordChecker, WordNormalizerFactory wordNormalizerFactory)
+            WordNormalizerFactory wordNormalizerFactory)
         {
             Checker.NotNull(provider, "provider");
             Checker.NotNull(messageBox, "messageBox");
             Checker.NotNull(mainWindow, "mainWindow");
-            Checker.NotNull(wordChecker, "wordChecker");
             Checker.NotNull(wordNormalizerFactory, "wordNormalizerFactory");
 
             InitializeComponent();
 
             LabelsVisible = false;
             _MainWindow = mainWindow;
-            _WordChecker = wordChecker;
             _WordNormalizerFactory = wordNormalizerFactory;
             TextBlockStatus.Text = string.Empty;
             BorderMain.BorderBrush = new SolidColorBrush(Color.FromRgb(154, 191, 229));
@@ -254,7 +251,7 @@ namespace MyVocabulary.Controls
 
                 foreach (var item in items)
                 {
-                    WrapPanelMain.Children.Add(new WordItemControl(item, _WordChecker, (IWordNormalizer)this).Duck(p =>
+                    WrapPanelMain.Children.Add(new WordItemControl(item, (IWordNormalizer)this).Duck(p =>
                     {
                         p.OnChecked += Control_OnChecked;
                         p.OnRenameCommand += Control_OnRenameCommand;

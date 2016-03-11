@@ -50,6 +50,16 @@ namespace MyVocabulary
             }
         }
 
+        public bool Exists(string word)
+        {
+            return _Provider.Exists(word);
+        }
+
+        public Word GetByName(string word)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

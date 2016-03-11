@@ -426,7 +426,7 @@ namespace MyVocabulary
 
         private WordListControl CreateListControl(WordType type)
         {
-            return new WordListControl(this, CreateProvider(type), type, (IMessageBox)this, (IWordChecker)this, _WordNormalizerFactory).Duck(p =>
+            return new WordListControl(this, CreateProvider(type), type, (IMessageBox)this, _WordNormalizerFactory).Duck(p =>
                 {
                     p.OnOperation += ListControl_OnOperation;
                     p.OnModified += ListControl_OnModified;
@@ -448,7 +448,7 @@ namespace MyVocabulary
             provider.SetLabel(wordsToRemove, WordLabel.LabelToRemove);
 
             var result = new WordListControl((Window)this, provider, WordType.None, (IMessageBox)this, 
-                new ImportWordChecker(this, provider), _WordNormalizerFactory).Duck(p =>
+                _WordNormalizerFactory).Duck(p =>
             {
                 p.OnOperation += ListControl_OnOperation;
                 p.OnModified += Import_OnModified;
@@ -839,6 +839,11 @@ namespace MyVocabulary
         public bool Exists(string word)
         {
             return _Provider.Exists(word);
+        }
+
+        public Word GetByName(string word)
+        {
+            return _Provider.GetByName(word);
         }
 
         #endregion
