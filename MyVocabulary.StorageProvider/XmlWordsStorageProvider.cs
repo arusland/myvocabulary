@@ -4,6 +4,7 @@ using Shared.Extensions;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -73,6 +74,8 @@ namespace MyVocabulary.StorageProvider
             {
                 throw new InvalidOperationException(string.Format("Invalid file version - {0}.", version.ToString()));
             }
+
+            SortWords();
         }        
 
         public void SetPath(string filename)
@@ -357,8 +360,8 @@ namespace MyVocabulary.StorageProvider
             }
 
             Delete(words);
-
             _AllWords.AddRange(editedWords);
+            SortWords();
 
             IsModified = true;
         }
