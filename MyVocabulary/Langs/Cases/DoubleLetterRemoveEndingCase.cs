@@ -5,9 +5,9 @@ namespace MyVocabulary.Langs.Cases
     /*
      * Changes 'digging' => 'dig'
      */
-    public class DoubleLetterRemoveCase : RemoveCase
+    public class DoubleLetterRemoveEndingCase : RemoveEndingCase
     {
-        public DoubleLetterRemoveCase(String ending)
+        public DoubleLetterRemoveEndingCase(String ending)
             : base(ending)
         {
         }

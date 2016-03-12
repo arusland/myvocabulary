@@ -84,10 +84,10 @@
     <Compile Include="Interfaces\IMessageBox.cs" />
     <Compile Include="IWordsStorageImportProvider.cs" />
     <Compile Include="Langs\Cases\ChangeCase.cs" />
-    <Compile Include="Langs\Cases\ReplaceCase.cs" />
-    <Compile Include="Langs\Cases\RemoveCase.cs" />
+    <Compile Include="Langs\Cases\ReplaceEndingCase.cs" />
+    <Compile Include="Langs\Cases\RemoveEndingCase.cs" />
     <Compile Include="Langs\ChangeType.cs" />
-    <Compile Include="Langs\Cases\DoubleLetterRemoveCase.cs" />
+    <Compile Include="Langs\Cases\DoubleLetterRemoveEndingCase.cs" />
     <Compile Include="Langs\English\EnglishWordNormalizer.cs" />
     <Compile Include="Langs\IWordNormalizer.cs" />
     <Compile Include="Langs\WordChange.cs" />

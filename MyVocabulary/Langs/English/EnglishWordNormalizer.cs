@@ -15,14 +15,14 @@ namespace MyVocabulary.Langs.English
         private readonly IWordChecker _WordChecker;
         private readonly List<ChangeCase> _ChangeCases = new List<ChangeCase>()
             .RemoveEndings("d", "ed", "s", "es", "less", "ness", "ing", "er", "r", "st", "est", "ion", "ly")
-            .Replace("ied", "y")
-            .Replace("ies", "y")
-            .Replace("ly", "e")
-            .Replace("y", "e")
-            .Replace("ing", "e")
-            .Replace("ion", "e")
-            .RemoveWithDoubleLetter("ed")
-            .RemoveWithDoubleLetter("ing");
+            .ReplaceEnding("ied", "y")
+            .ReplaceEnding("ies", "y")
+            .ReplaceEnding("ly", "e")
+            .ReplaceEnding("y", "e")
+            .ReplaceEnding("ing", "e")
+            .ReplaceEnding("ion", "e")
+            .RemoveEndingWithDoubleLetter("ed")
+            .RemoveEndingWithDoubleLetter("ing");
 
         public EnglishWordNormalizer(IWordChecker wordChecker)
         {
@@ -42,7 +42,7 @@ namespace MyVocabulary.Langs.English
 
             foreach (ChangeCase cs in _ChangeCases)
             {
-                var dcs = cs as DoubleLetterRemoveCase;
+                var dcs = cs as DoubleLetterRemoveEndingCase;
 
                 if (dcs != null)
                 {
@@ -50,7 +50,7 @@ namespace MyVocabulary.Langs.English
                     continue;
                 }
 
-                var rcs = cs as ReplaceCase;
+                var rcs = cs as ReplaceEndingCase;
 
                 if (rcs != null)
                 {
@@ -58,7 +58,7 @@ namespace MyVocabulary.Langs.English
                     continue;
                 }
 
-                var rmcs = cs as RemoveCase;
+                var rmcs = cs as RemoveEndingCase;
 
                 if (rmcs != null)
                 {
@@ -76,7 +76,7 @@ namespace MyVocabulary.Langs.English
 
             foreach (ChangeCase cs in _ChangeCases)
             {
-                var dcs = cs as DoubleLetterRemoveCase;
+                var dcs = cs as DoubleLetterRemoveEndingCase;
 
                 if (dcs != null)
                 {
@@ -84,7 +84,7 @@ namespace MyVocabulary.Langs.English
                     continue;
                 }
 
-                var rcs = cs as ReplaceCase;
+                var rcs = cs as ReplaceEndingCase;
 
                 if (rcs != null)
                 {
@@ -92,7 +92,7 @@ namespace MyVocabulary.Langs.English
                     continue;
                 }
 
-                var rmcs = cs as RemoveCase;
+                var rmcs = cs as RemoveEndingCase;
 
                 if (rmcs != null)
                 {
@@ -108,7 +108,7 @@ namespace MyVocabulary.Langs.English
         {
             foreach (ChangeCase cs in _ChangeCases)
             {
-                var dcs = cs as DoubleLetterRemoveCase;
+                var dcs = cs as DoubleLetterRemoveEndingCase;
 
                 if (dcs != null)
                 {
@@ -119,7 +119,7 @@ namespace MyVocabulary.Langs.English
                     continue;
                 }
 
-                var rcs = cs as ReplaceCase;
+                var rcs = cs as ReplaceEndingCase;
 
                 if (rcs != null)
                 {
@@ -130,7 +130,7 @@ namespace MyVocabulary.Langs.English
                     continue;
                 }
 
-                var rmcs = cs as RemoveCase;
+                var rmcs = cs as RemoveEndingCase;
 
                 if (rmcs != null)
                 {

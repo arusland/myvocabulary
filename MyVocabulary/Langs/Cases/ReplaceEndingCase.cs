@@ -5,9 +5,9 @@ namespace MyVocabulary.Langs.Cases
     /*
      * Replace ending. 'placing' => 'place'
      */
-    public class ReplaceCase : RemoveCase
+    public class ReplaceEndingCase : RemoveEndingCase
     {
-        public ReplaceCase(String ending, String replacementEnding)
+        public ReplaceEndingCase(String ending, String replacementEnding)
             : base(ending)
         {
             ReplacementEnding = replacementEnding;

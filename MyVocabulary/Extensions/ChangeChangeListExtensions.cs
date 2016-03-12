@@ -8,7 +8,7 @@ namespace MyVocabulary.Extensions
     {
         public static List<ChangeCase> Remove(this List<ChangeCase> list, String ending)
         {
-            list.Add(new RemoveCase(ending));
+            list.Add(new RemoveEndingCase(ending));
 
             return list;
         }
@@ -17,22 +17,22 @@ namespace MyVocabulary.Extensions
         {
             foreach(String ending in endings)
             {
-                list.Add(new RemoveCase(ending));
+                list.Add(new RemoveEndingCase(ending));
             }
 
             return list;
         }
 
-        public static List<ChangeCase> Replace(this List<ChangeCase> list, String ending, String replacementEnding)
+        public static List<ChangeCase> ReplaceEnding(this List<ChangeCase> list, String ending, String replacementEnding)
         {
-            list.Add(new ReplaceCase(ending, replacementEnding));
+            list.Add(new ReplaceEndingCase(ending, replacementEnding));
 
             return list;
         }
 
-        public static List<ChangeCase> RemoveWithDoubleLetter(this List<ChangeCase> list, String ending)
+        public static List<ChangeCase> RemoveEndingWithDoubleLetter(this List<ChangeCase> list, String ending)
         {
-            list.Add(new DoubleLetterRemoveCase(ending));
+            list.Add(new DoubleLetterRemoveEndingCase(ending));
 
             return list;
         }
