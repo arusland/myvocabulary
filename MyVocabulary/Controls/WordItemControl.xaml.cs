@@ -271,6 +271,7 @@ namespace MyVocabulary.Controls
                     if (result.Length > 0)
                     {
                         result.Append(Environment.NewLine);
+                        result.Append(Environment.NewLine);
                     }
                     result.Append(tooltip);
                 }

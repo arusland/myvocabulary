@@ -1,4 +1,6 @@
 ﻿using MyVocabulary.Controls;
+using MyVocabulary.Extensions;
+using MyVocabulary.Langs.Cases;
 using MyVocabulary.StorageProvider;
 using MyVocabulary.StorageProvider.Enums;
 using Shared.Helpers;
@@ -11,6 +13,16 @@ namespace MyVocabulary.Langs.English
     internal class EnglishWordNormalizer : IWordNormalizer
     {
         private readonly IWordChecker _WordChecker;
+        private readonly List<ChangeCase> _ChangeCases = new List<ChangeCase>()
+            .RemoveEndings("d", "ed", "s", "es", "less", "ness", "ing", "er", "r", "st", "est", "ion", "ly")
+            .Replace("ied", "y")
+            .Replace("ies", "y")
+            .Replace("ly", "e")
+            .Replace("y", "e")
+            .Replace("ing", "e")
+            .Replace("ion", "e")
+            .RemoveWithDoubleLetter("ed")
+            .RemoveWithDoubleLetter("ing");
 
         public EnglishWordNormalizer(IWordChecker wordChecker)
         {
@@ -28,46 +40,31 @@ namespace MyVocabulary.Langs.English
         {
             List<WordChange> result = new List<WordChange>();
 
-            if (word.WordRaw.EndsWith("d"))
+            foreach (ChangeCase cs in _ChangeCases)
             {
-                result.AddRange(GenerateChanges(word, "d"));
-                result.AddRange(GenerateChanges(word, "ed"));
-                result.AddRange(GenerateChangesDoubleLetter(word, "ed"));
-                result.AddRange(GenerateChanges(word, "ied", "y"));
-            }
-            else if (word.WordRaw.EndsWith("s"))
-            {
-                result.AddRange(GenerateChanges(word, "s"));
-                result.AddRange(GenerateChanges(word, "es"));
-                result.AddRange(GenerateChanges(word, "ies", "y"));
-                result.AddRange(GenerateChanges(word, "ness"));
-                result.AddRange(GenerateChanges(word, "less"));
-            }
-            else if (word.WordRaw.EndsWith("ly"))
-            {
-                result.AddRange(GenerateChanges(word, "ly"));
-                result.AddRange(GenerateChanges(word, "ly", "e"));
-            }
-            else if (word.WordRaw.EndsWith("ing"))
-            {
-                result.AddRange(GenerateChanges(word, "ing"));
-                result.AddRange(GenerateChanges(word, "ing", "e"));
-                result.AddRange(GenerateChangesDoubleLetter(word, "ing"));
-            }
-            else if (word.WordRaw.EndsWith("er"))
-            {
-                result.AddRange(GenerateChanges(word, "er"));
-                result.AddRange(GenerateChanges(word, "r"));
-            }
-            else if (word.WordRaw.EndsWith("st"))
-            {
-                result.AddRange(GenerateChanges(word, "st"));
-                result.AddRange(GenerateChanges(word, "est"));
-            }
-            else if (word.WordRaw.EndsWith("ion"))
-            {
-                result.AddRange(GenerateChanges(word, "ion"));
-                result.AddRange(GenerateChanges(word, "ion", "e"));
+                var dcs = cs as DoubleLetterRemoveCase;
+
+                if (dcs != null)
+                {
+                    result.AddRange(GenerateChangesDoubleLetter(word, dcs.Ending));
+                    continue;
+                }
+
+                var rcs = cs as ReplaceCase;
+
+                if (rcs != null)
+                {
+                    result.AddRange(GenerateChanges(word, rcs.Ending, rcs.ReplacementEnding));
+                    continue;
+                }
+
+                var rmcs = cs as RemoveCase;
+
+                if (rmcs != null)
+                {
+                    result.AddRange(GenerateChanges(word, rmcs.Ending));
+                    continue;
+                }
             }
 
             return result;
@@ -77,49 +74,75 @@ namespace MyVocabulary.Langs.English
         {
             StringBuilder result = new StringBuilder();
 
-            if (word.WordRaw.EndsWith("d"))
+            foreach (ChangeCase cs in _ChangeCases)
             {
-                MakeRenameTooltip(result, word, "d");
-                MakeRenameTooltip(result, word, "ed");
-                MakeDoubleLetterTooltip(result, word, "ed");
-                MakeRenameTooltip(result, word, "ied", "y");
-            }
-            else if (word.WordRaw.EndsWith("s"))
-            {
-                MakeRenameTooltip(result, word, "s");
-                MakeRenameTooltip(result, word, "es");
-                MakeRenameTooltip(result, word, "ies", "y");
-                MakeRenameTooltip(result, word, "ness");
-                MakeRenameTooltip(result, word, "less");
-            }
-            else if (word.WordRaw.EndsWith("ly"))
-            {
-                MakeRenameTooltip(result, word, "ly");
-                MakeRenameTooltip(result, word, "ly", "e");
-            }
-            else if (word.WordRaw.EndsWith("ing"))
-            {
-                MakeRenameTooltip(result, word, "ing");
-                MakeRenameTooltip(result, word, "ing", "e");
-                MakeDoubleLetterTooltip(result, word, "ing");
-            }
-            else if (word.WordRaw.EndsWith("er"))
-            {
-                MakeRenameTooltip(result, word, "er");
-                MakeRenameTooltip(result, word, "r");
-            }
-            else if (word.WordRaw.EndsWith("st"))
-            {
-                MakeRenameTooltip(result, word, "st");
-                MakeRenameTooltip(result, word, "est");
-            }
-            else if (word.WordRaw.EndsWith("ion"))
-            {
-                MakeRenameTooltip(result, word, "ion");
-                MakeRenameTooltip(result, word, "ion", "e");
+                var dcs = cs as DoubleLetterRemoveCase;
+
+                if (dcs != null)
+                {
+                    MakeDoubleLetterTooltip(result, word, dcs.Ending);
+                    continue;
+                }
+
+                var rcs = cs as ReplaceCase;
+
+                if (rcs != null)
+                {
+                    MakeRenameTooltip(result, word, rcs.Ending, rcs.ReplacementEnding);
+                    continue;
+                }
+
+                var rmcs = cs as RemoveCase;
+
+                if (rmcs != null)
+                {
+                    MakeRenameTooltip(result, word, rmcs.Ending);
+                    continue;
+                }
             }
 
             return result.ToString();
+        }
+
+        public bool IsPotentialForRemove(Word word)
+        {
+            foreach (ChangeCase cs in _ChangeCases)
+            {
+                var dcs = cs as DoubleLetterRemoveCase;
+
+                if (dcs != null)
+                {
+                    if (CanBeRemovedDoubleLetter(word, dcs.Ending))
+                    {
+                        return true;
+                    }
+                    continue;
+                }
+
+                var rcs = cs as ReplaceCase;
+
+                if (rcs != null)
+                {
+                    if (CanBeRemoved(word, rcs.Ending, rcs.ReplacementEnding))
+                    {
+                        return true;
+                    }
+                    continue;
+                }
+
+                var rmcs = cs as RemoveCase;
+
+                if (rmcs != null)
+                {
+                    if (CanBeRemoved(word, rmcs.Ending))
+                    {
+                        return true;
+                    }
+                    continue;
+                }
+            }
+
+            return false;
         }
 
         private void MakeDoubleLetterTooltip(StringBuilder result, Word word, string ending)
@@ -145,7 +168,7 @@ namespace MyVocabulary.Langs.English
             if (word.WordRaw.EndsWith(ending))
             {
                 var newWord = word.WordRaw.Remove(word.WordRaw.Length - ending.Length);
-                CheckAndMakeTooltip(newWord, result);                
+                CheckAndMakeTooltip(newWord, result);
             }
         }
 
@@ -242,55 +265,6 @@ namespace MyVocabulary.Langs.English
                     yield return new WordChange(word, ChangeType.AddNew, newWord);
                 }
             }
-        }
-
-        public bool IsPotentialForRemove(Word word)
-        {
-            bool canBeRemoved = false;
-
-            if (word.WordRaw.EndsWith("d"))
-            {
-                canBeRemoved = CanBeRemoved(word, "d") ||
-                    CanBeRemoved(word, "ed") ||
-                    CanBeRemovedDoubleLetter(word, "ed") ||
-                    CanBeRemoved(word, "ied", "y");
-            }
-            else if (word.WordRaw.EndsWith("s"))
-            {
-                canBeRemoved = CanBeRemoved(word, "s") ||
-                    CanBeRemoved(word, "es") ||
-                    CanBeRemoved(word, "ies", "y") ||
-                    CanBeRemoved(word, "ness") ||
-                    CanBeRemoved(word, "less");
-            }
-            else if (word.WordRaw.EndsWith("ly"))
-            {
-                canBeRemoved = CanBeRemoved(word, "ly") ||
-                    CanBeRemoved(word, "ly", "e");
-            }
-            else if (word.WordRaw.EndsWith("ing"))
-            {
-                canBeRemoved = CanBeRemoved(word, "ing") ||
-                    CanBeRemoved(word, "ing", "e") ||
-                    CanBeRemovedDoubleLetter(word, "ing");
-            }
-            else if (word.WordRaw.EndsWith("er"))
-            {
-                canBeRemoved = CanBeRemoved(word, "er") ||
-                    CanBeRemoved(word, "r");
-            }
-            else if (word.WordRaw.EndsWith("st"))
-            {
-                canBeRemoved = CanBeRemoved(word, "st") ||
-                    CanBeRemoved(word, "est");
-            }
-            else if (word.WordRaw.EndsWith("ion"))
-            {
-                canBeRemoved = CanBeRemoved(word, "ion") ||
-                    CanBeRemoved(word, "ion", "e");
-            }
-
-            return canBeRemoved;
         }
 
         private bool CanBeRemoved(Word word, String ending)

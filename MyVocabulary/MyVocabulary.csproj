@@ -76,13 +76,18 @@
     <Compile Include="Dialogs\WordEditDialog.xaml.cs">
       <DependentUpon>WordEditDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions\ChangeChangeListExtensions.cs" />
     <Compile Include="Helpers\FileAssociateHelper.cs" />
     <Compile Include="Helpers\FilterHelper.cs" />
     <Compile Include="Helpers\ParseOptions.cs" />
     <Compile Include="Helpers\WordsFinder.cs" />
     <Compile Include="Interfaces\IMessageBox.cs" />
     <Compile Include="IWordsStorageImportProvider.cs" />
+    <Compile Include="Langs\Cases\ChangeCase.cs" />
+    <Compile Include="Langs\Cases\ReplaceCase.cs" />
+    <Compile Include="Langs\Cases\RemoveCase.cs" />
     <Compile Include="Langs\ChangeType.cs" />
+    <Compile Include="Langs\Cases\DoubleLetterRemoveCase.cs" />
     <Compile Include="Langs\English\EnglishWordNormalizer.cs" />
     <Compile Include="Langs\IWordNormalizer.cs" />
     <Compile Include="Langs\WordChange.cs" />
