@@ -230,8 +230,8 @@ namespace MyVocabulary
                 var sw = Stopwatch.StartNew();
                 var wordsToRemove = _Provider.Get().Where(p => normalizer.IsPotentialForRemove(p)).ToList();
                 sw.Stop();
-                Debug.WriteLine("Getting list from provider: " + sw.ElapsedMilliseconds);                
-                _Provider.SetLabel(wordsToRemove, WordLabel.LabelToRemove);                
+                Debug.WriteLine("Getting list from provider: " + sw.ElapsedMilliseconds);
+                _Provider.SetLabel(wordsToRemove, WordLabel.LabelToRemove);
 
                 GetControlByType(WordType.Unknown).IsModified = true;
                 GetControlByType(WordType.BadKnown).IsModified = true;
@@ -344,7 +344,7 @@ namespace MyVocabulary
                 {
                     var list = _Provider.Get().Where(p => p.Type == WordType.Known || p.Type == WordType.Blocked ||
                         ((p.Type == WordType.BadKnown || p.Type == WordType.Unknown) && !dialog.UseOnlyKnownTab)).ToList();
-                    var filtered = dialog.Words.Where(p => !list.Any(g => g.WordRaw == p)).ToArray();
+                    var filtered = dialog.Words.Where(p => !list.BinarySearchFound(w => w.WordRaw.CompareTo(p))).ToArray();
 
                     var control = CreateImportListControl(filtered);
                     TabItemImport.Visibility = Visibility.Visible;
@@ -418,7 +418,7 @@ namespace MyVocabulary
         }
 
         private WordListProvider CreateProvider(WordType type)
-        {   
+        {
             return new WordListProvider(_Provider, type);
         }
 
@@ -434,7 +434,7 @@ namespace MyVocabulary
                     p.OnWordSplit += ListControl_OnWordSplit;
                     p.OnLabelEdit += ListControl_OnLabelEdit;
                 });
-        }        
+        }
 
         private WordListControl CreateImportListControl(string[] words)
         {
@@ -445,7 +445,7 @@ namespace MyVocabulary
 
             provider.SetLabel(wordsToRemove, WordLabel.LabelToRemove);
 
-            var result = new WordListControl((Window)this, provider, WordType.None, (IMessageBox)this, 
+            var result = new WordListControl((Window)this, provider, WordType.None, (IMessageBox)this,
                 _WordNormalizerFactory).Duck(p =>
             {
                 p.OnOperation += ListControl_OnOperation;
@@ -459,13 +459,13 @@ namespace MyVocabulary
             result.Tag = provider;
 
             return result;
-        }        
+        }
 
         #endregion
 
         #endregion
 
-        #region Event Handlers       
+        #region Event Handlers
 
         private void FileWatcher_Changed(object sender, FileSystemEventArgs e)
         {
@@ -574,7 +574,7 @@ namespace MyVocabulary
             var control = sender.To<WordListControl>();
             var provider = control.Tag.To<IWordsStorageImportProvider>();
 
-            provider.Update(new List<Word> { new Word(e.NewWord, e.Type, e.Labels)});
+            provider.Update(new List<Word> { new Word(e.NewWord, e.Type, e.Labels) });
 
             control.IsModified = true;
         }

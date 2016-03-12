@@ -36,6 +36,16 @@ namespace Shared.Extensions
         }
 
         /// <summary>
+        /// Returns true when found.
+        /// </summary>
+        public static bool BinarySearchFound<T>(this IList<T> list, Func<T, int> predicate)
+        {
+            int index = BinarySearchIndex(list, 0, list.Count - 1, predicate);
+
+            return index >= 0;
+        }
+
+        /// <summary>
         /// Returns index of found item or -1 when not found.
         /// </summary>
         public static int BinarySearchIndex<T>(this IList<T> list, Func<T, int> predicate)
