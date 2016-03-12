@@ -1,5 +1,13 @@
-﻿using System;
+﻿using MyVocabulary.Controls;
+using MyVocabulary.Dialogs;
+using MyVocabulary.Interfaces;
+using MyVocabulary.Langs;
+using MyVocabulary.StorageProvider;
+using MyVocabulary.StorageProvider.Enums;
+using Shared.Extensions;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Media;
@@ -10,15 +18,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using MyVocabulary.Controls;
-using MyVocabulary.Dialogs;
-using MyVocabulary.Interfaces;
-using MyVocabulary.StorageProvider;
-using MyVocabulary.StorageProvider.Enums;
-using Shared.Extensions;
 using RS = MyVocabulary.Properties.Resources;
-using MyVocabulary.Langs;
-using System.Diagnostics;
 
 namespace MyVocabulary
 {
@@ -226,7 +226,6 @@ namespace MyVocabulary
                 _Provider.To<XmlWordsStorageProvider>().Load(filename);
                 _Filename = filename;
 
-
                 var normalizer = _WordNormalizerFactory.CreateNormalizer(_Provider.Lang);
                 var sw = Stopwatch.StartNew();
                 var wordsToRemove = _Provider.Get().Where(p => normalizer.IsPotentialForRemove(p)).ToList();
@@ -273,7 +272,6 @@ namespace MyVocabulary
                     }
                 });
 
-            // TabControlMain.IsEnabled = 
             ButtonSave.IsEnabled =
             ButtonOpen.IsEnabled =
             ButtonImport.IsEnabled = !isBlocked;

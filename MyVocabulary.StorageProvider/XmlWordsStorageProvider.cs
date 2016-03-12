@@ -4,7 +4,6 @@ using Shared.Extensions;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -76,7 +75,7 @@ namespace MyVocabulary.StorageProvider
             }
 
             SortWords();
-        }        
+        }
 
         public void SetPath(string filename)
         {
@@ -168,7 +167,7 @@ namespace MyVocabulary.StorageProvider
 
         public IEnumerable<Word> Get()
         {
-            return _AllWords.OrderBy(p => p.WordRaw);
+            return _AllWords;
         }
 
         public IEnumerable<WordLabel> GetLabels()
@@ -177,14 +176,9 @@ namespace MyVocabulary.StorageProvider
         }
 
         public IEnumerable<Word> Get(WordType type)
-        {
+        {            
             return Get().Where(p => p.Type == type);
-        }
-
-        public IEnumerable<Word> Find(string text)
-        {
-            throw new NotImplementedException();
-        }
+        }       
 
         public void Update(IEnumerable<Word> words)
         {
@@ -192,7 +186,7 @@ namespace MyVocabulary.StorageProvider
 
             foreach (var word in words)
             {
-                var existingWord = _AllWords.FirstOrDefault(p => p.WordRaw == word.WordRaw);
+                var existingWord = GetByName(word.WordRaw);
 
                 if (existingWord.IsNotNull())
                 {
@@ -209,13 +203,13 @@ namespace MyVocabulary.StorageProvider
             _AllWords.AddRange(editedWords);
             SortWords();
             IsModified = true;
-        }        
+        }
 
         public void Delete(IEnumerable<Word> words)
         {
             foreach (var word in words)
             {
-                int index = _AllWords.FindIndex(p => p.WordRaw == word.WordRaw);
+                int index = GetIndexByName(word.WordRaw);
 
                 if (index >= 0)
                 {
@@ -266,12 +260,12 @@ namespace MyVocabulary.StorageProvider
 
         public bool Rename(string oldWord, string newWord)
         {
-            if (_AllWords.FindIndex(p => p.WordRaw == newWord) >= 0)
+            if (Exists(newWord))
             {
                 return false;
             }
 
-            int indexOld = _AllWords.FindIndex(p => p.WordRaw == oldWord);
+            int indexOld = GetIndexByName(oldWord);
 
             if (indexOld < 0)
             {
@@ -284,7 +278,7 @@ namespace MyVocabulary.StorageProvider
             IsModified = true;
 
             return true;
-        }        
+        }
 
         public WordLabel UpdateLabel(WordLabel label)
         {
@@ -362,23 +356,30 @@ namespace MyVocabulary.StorageProvider
             Delete(words);
             _AllWords.AddRange(editedWords);
             SortWords();
-            
+
             // when label is LabelToRemove we must ignore modifying
             IsModified = WordLabel.LabelToRemove != label || oldModified;
         }
 
         public bool Exists(string name)
         {
-            int index =_AllWords.BinarySearchIndex(p => p.WordRaw.CompareTo(name));
+            int index = GetIndexByName(name);
 
             return index >= 0;
-        }        
+        }
 
         public Word GetByName(string name)
         {
             Word word = _AllWords.BinarySearch(p => p.WordRaw.CompareTo(name));
 
             return word;
+        }
+
+        public int GetIndexByName(string name)
+        {
+            int index = _AllWords.BinarySearchIndex(p => p.WordRaw.CompareTo(name));
+
+            return index;
         }
 
         #endregion

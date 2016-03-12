@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using MyVocabulary.StorageProvider.Enums;
+﻿using MyVocabulary.StorageProvider.Enums;
+using System.Collections.Generic;
 
 namespace MyVocabulary.StorageProvider
 {
@@ -15,9 +15,7 @@ namespace MyVocabulary.StorageProvider
         IEnumerable<WordLabel> GetLabels();
 
         IEnumerable<Word> Get(WordType type);
-
-        IEnumerable<Word> Find(string text);
-
+        
         bool Exists(string name);
 
         Word GetByName(string name);
